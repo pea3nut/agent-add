@@ -6,8 +6,18 @@
     "agent-get": "bin/agent-get.js"
   },
   "files": [
-    "bin"
+    "bin",
+    "dist",
+    "src/hosts.json"
   ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run tests/unit tests/integration",
+    "test:contract": "vitest run tests/contract",
+    "test:integration": "vitest run tests/integration",
+    "lint": "tsc --noEmit"
+  },
   "engines": {
     "node": ">=18"
   },
@@ -18,5 +28,17 @@
     "cursor",
     "claude"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@inquirer/select": "^5.1.2",
+    "commander": "^14.0.3",
+    "yaml": "^2.8.2",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.0"
+  }
 }

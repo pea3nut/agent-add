@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Static host capability matrix for agent-get. Defines supported hosts, their asset paths, and documentation references.",
+  "hosts": [
+    {
+      "id": "cursor",
+      "displayName": "Cursor",
+      "docs": "https://docs.cursor.com",
+      "detection": {
+        "paths": [".cursor/"]
+      },
+      "assets": {
+        "mcp": {
+          "supported": true,
+          "configFile": ".cursor/mcp.json",
+          "configKey": "mcpServers",
+          "docs": "https://cursor.com/help/customization/mcp",
+          "description": "Inject into mcpServers.<name> in .cursor/mcp.json. The MCP source JSON file is the value object for mcpServers[name]."
+        },
+        "skill": {
+          "supported": true,
+          "installDir": ".cursor/skills/",
+          "entryFile": "SKILL.md",
+          "pattern": ".cursor/skills/<name>/SKILL.md",
+          "docs": "https://docs.cursor.com/context/commands",
+          "description": "Copy the skill directory to .cursor/skills/<name>/. Entry point is SKILL.md."
+        },
+        "prompt": {
+          "supported": true,
+          "targetFile": "AGENTS.md",
+          "writeStrategy": "append-with-marker",
+          "markerFormat": "<!-- agent-get:<name> -->\n{content}\n<!-- /agent-get:<name> -->",
+          "docs": "https://docs.cursor.com/context/rules",
+          "description": "Append content to AGENTS.md in the project root, wrapped in HTML comment markers for idempotency."
+        },
+        "command": {
+          "supported": true,
+          "installDir": ".cursor/commands/",
+          "fileExtension": ".md",
+          "pattern": ".cursor/commands/<name>.md",
+          "docs": "https://docs.cursor.com/context/commands",
+          "description": "Copy the command markdown file to .cursor/commands/<name>.md. Filename becomes the slash command name."
+        },
+        "subAgent": {
+          "supported": true,
+          "installDir": ".cursor/agents/",
+          "fileExtension": ".md",
+          "pattern": ".cursor/agents/<name>.md",
+          "docs": "https://docs.cursor.com/context/rules",
+          "description": "Copy the sub-agent markdown file to .cursor/agents/<name>.md. Apply agent-get/cursor/* hints and strip agent-get/* fields."
+        }
+      }
+    },
+    {
+      "id": "claude-code",
+      "displayName": "Claude Code",
+      "docs": "https://docs.anthropic.com/en/docs/claude-code",
+      "detection": {
+        "paths": [".claude/"]
+      },
+      "assets": {
+        "mcp": {
+          "supported": true,
+          "configFile": ".mcp.json",
+          "configKey": "mcpServers",
+          "docs": "https://docs.anthropic.com/en/docs/claude-code/mcp",
+          "description": "Inject into mcpServers.<name> in .mcp.json at project root. The MCP source JSON file is the value object for mcpServers[name]."
+        },
+        "skill": {
+          "supported": true,
+          "installDir": ".claude/skills/",
+          "entryFile": "SKILL.md",
+          "pattern": ".claude/skills/<name>/SKILL.md",
+          "docs": "https://docs.claude.com/en/docs/claude-code/skills",
+          "description": "Copy the skill directory to .claude/skills/<name>/. Entry point is SKILL.md. Note: .claude/commands/<name>.md is equivalent but skills are preferred."
+        },
+        "prompt": {
+          "supported": true,
+          "targetFile": "CLAUDE.md",
+          "writeStrategy": "append-with-marker",
+          "markerFormat": "<!-- agent-get:<name> -->\n{content}\n<!-- /agent-get:<name> -->",
+          "docs": "https://docs.anthropic.com/en/docs/claude-code/memory",
+          "description": "Append content to CLAUDE.md in the project root, wrapped in HTML comment markers for idempotency."
+        },
+        "command": {
+          "supported": true,
+          "installDir": ".claude/commands/",
+          "fileExtension": ".md",
+          "pattern": ".claude/commands/<name>.md",
+          "docs": "https://docs.claude.com/en/docs/claude-code/slash-commands",
+          "description": "Copy the command markdown file to .claude/commands/<name>.md. Filename becomes the slash command name."
+        },
+        "subAgent": {
+          "supported": true,
+          "installDir": ".claude/agents/",
+          "fileExtension": ".md",
+          "pattern": ".claude/agents/<name>.md",
+          "docs": "https://docs.anthropic.com/en/docs/claude-code/sub-agents",
+          "description": "Copy the sub-agent markdown file to .claude/agents/<name>.md. Apply agent-get/claude-code/* hints and strip agent-get/* fields."
+        }
+      }
+    },
+    {
+      "id": "claude-desktop",
+      "displayName": "Claude Desktop",
+      "docs": "https://support.anthropic.com/en/articles/claude-desktop",
+      "detection": {
+        "paths": {
+          "darwin": "~/Library/Application Support/Claude/",
+          "win32": "%APPDATA%\\Claude\\",
+          "linux": "~/.config/Claude/"
+        }
+      },
+      "assets": {
+        "mcp": {
+          "supported": true,
+          "configFile": {
+            "darwin": "~/Library/Application Support/Claude/claude_desktop_config.json",
+            "win32": "%APPDATA%\\Claude\\claude_desktop_config.json",
+            "linux": "~/.config/Claude/claude_desktop_config.json"
+          },
+          "configKey": "mcpServers",
+          "docs": "https://modelcontextprotocol.io/quickstart/user",
+          "description": "Inject into mcpServers.<name> in claude_desktop_config.json. Requires Claude Desktop restart to take effect."
+        },
+        "skill": {
+          "supported": false,
+          "reason": "Claude Desktop is a UI-based chat application and does not support project-level skill files."
+        },
+        "prompt": {
+          "supported": false,
+          "reason": "Claude Desktop is a UI-based chat application and does not support project-level rules or memory files."
+        },
+        "command": {
+          "supported": false,
+          "reason": "Claude Desktop is a UI-based chat application and does not support custom slash commands."
+        },
+        "subAgent": {
+          "supported": false,
+          "reason": "Claude Desktop is a UI-based chat application and does not support sub-agent configuration files."
+        }
+      }
+    }
+  ]
+}
