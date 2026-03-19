@@ -139,6 +139,6 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 # AI Coding
-.cursor
-.specify
-specs/
+# .cursor
+# .specify
+# specs/

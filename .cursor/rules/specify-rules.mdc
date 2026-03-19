@@ -1,0 +1,43 @@
+---
+description: Project Development Guidelines
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# agent-get Development Guidelines
+
+Auto-generated from all feature plans. Last updated: 2026-03-17
+
+## Active Technologies
+- 文件系统操作（Node.js `fs` + 原子写入策略）；无数据库；无安装状态文件 (001-agent-pack-installer)
+- TypeScript 5.x, Node.js 18 (CommonJS) + No new dependencies. Existing: `commander`, `yaml`, `zod`, `@inquirer/select`. Dev: `vitest`, `tsup`, `typescript`. (003-scenario-tests)
+- File system only — `.feature` files, fixture files, `scenario-run-config.md` (003-scenario-tests)
+- TypeScript 5.x, Node.js ≥18 (CommonJS); new runtime dep: `smol-toml` (TOML read/write for Codex CLI + Mistral Vibe); Host Adapter class pattern replaces `src/hosts.json` (002-more-hosts)
+- File system only; new write strategy `create-file-in-dir` (writes `<name>.md` per asset into a host-specific rules directory) (002-more-hosts)
+
+- TypeScript 5.x，编译目标 Node.js 18（CommonJS） (001-agent-pack-installer)
+
+## Project Structure
+
+```text
+src/
+tests/
+```
+
+## Commands
+
+npm test && npm run lint
+
+## Code Style
+
+TypeScript 5.x，编译目标 Node.js 18（CommonJS）: Follow standard conventions
+
+## Recent Changes
+- 002-more-hosts: Added `smol-toml` dep; HostAdapter class pattern (replaces hosts.json); `create-file-in-dir` write strategy; 15 new host adapters; explicit CLI flag rejection (exit 2) for unsupported asset types
+- 003-scenario-tests: Added TypeScript 5.x, Node.js 18 (CommonJS) + No new dependencies. Existing: `commander`, `yaml`, `zod`, `@inquirer/select`. Dev: `vitest`, `tsup`, `typescript`.
+- 003-scenario-tests: Added [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
+- 001-agent-pack-installer: Added TypeScript 5.x，编译目标 Node.js 18（CommonJS）
+
+
+<!-- MANUAL ADDITIONS START -->
+<!-- MANUAL ADDITIONS END -->

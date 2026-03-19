@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/pea3nut/agent-get/manifest-schema.json",
+  "title": "Agent Pack Manifest",
+  "description": "Declarative metadata file describing an Agent Pack's assets and their sources.",
+  "type": "object",
+  "required": ["name", "assets"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Globally unique identifier for this pack. Format: namespace/pack-name.",
+      "pattern": "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$",
+      "examples": ["org/frontend-e2e", "pea3nut/dev-toolkit"]
+    },
+    "assets": {
+      "type": "array",
+      "description": "List of assets to install.",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/AssetDescriptor"
+      }
+    }
+  },
+  "$defs": {
+    "AssetDescriptor": {
+      "type": "object",
+      "required": ["type", "source"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Asset type. Unsupported types (references, knowledges, scripts, templates, resources) will cause a parse error.",
+          "enum": ["mcp", "skill", "prompt", "command", "subAgent"]
+        },
+        "source": {
+          "description": "Asset source URI(s). Supports local path, Git SSH, or Git HTTPS. Git URLs support #path syntax.",
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 },
+              "minItems": 1
+            }
+          ],
+          "examples": [
+            "./mcps/playwright.json",
+            "git@github.com:org/repo.git#path/to/asset",
+            "https://github.com/org/repo.git#skill-dir",
+            ["git@github.com:org/a.git", "https://github.com/org/b.git"]
+          ]
+        }
+      }
+    }
+  }
+}
