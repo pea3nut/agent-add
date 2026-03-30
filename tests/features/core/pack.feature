@@ -1,0 +1,31 @@
+Feature: Pack installation on Cursor
+
+  @P0
+  Scenario: Install pack on Cursor deploys all assets
+    Given a temp working directory is created
+    And all fixtures are copied: cp -r /e/_pea3nut/projects/agent-get/tests/fixtures "$SETUP_TMPDIR/fixtures"
+    And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
+    When the user runs: cd "$SETUP_TMPDIR" && node /e/_pea3nut/projects/agent-get/bin/agent-get.js install --host cursor --pack ./fixtures/pack/manifest.json
+    Then the exit code is 0
+
+  @P0
+  Scenario: Pack install creates all asset files
+    Given a temp working directory is created
+    And all fixtures are copied: cp -r /e/_pea3nut/projects/agent-get/tests/fixtures "$SETUP_TMPDIR/fixtures"
+    And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
+    When the user runs: cd "$SETUP_TMPDIR" && node /e/_pea3nut/projects/agent-get/bin/agent-get.js install --host cursor --pack ./fixtures/pack/manifest.json
+    Then the MCP config exists: test -f "$SETUP_TMPDIR/.cursor/mcp.json"
+    And the MCP key exists: jq -e '.mcpServers.playwright' "$SETUP_TMPDIR/.cursor/mcp.json"
+    And the skill directory exists: test -d "$SETUP_TMPDIR/.cursor/skills/my-skill"
+    And the AGENTS.md exists: test -f "$SETUP_TMPDIR/AGENTS.md"
+    And the command file exists: test -f "$SETUP_TMPDIR/.cursor/commands/my-command.md"
+    And the sub-agent file exists: test -f "$SETUP_TMPDIR/.cursor/agents/my-agent.md"
+
+  @P1
+  Scenario: Pack install on Claude Desktop skips unsupported assets
+    Given a temp working directory is created
+    And all fixtures are copied: cp -r /e/_pea3nut/projects/agent-get/tests/fixtures "$SETUP_TMPDIR/fixtures"
+    When the user runs: AGENT_GET_HOME="$SETUP_TMPDIR" cd "$SETUP_TMPDIR" && node /e/_pea3nut/projects/agent-get/bin/agent-get.js install --host claude-desktop --pack ./fixtures/pack/manifest.json
+    Then the output contains "skipped"
+    And no skill directory exists: test ! -d "$SETUP_TMPDIR/Library/Application Support/Claude/skills"
+    And no command file exists: test ! -f "$SETUP_TMPDIR/Library/Application Support/Claude/commands/my-command.md"

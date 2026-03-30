@@ -4,6 +4,10 @@ import os from 'os';
 import { readJSONOrNull, atomicWriteJSON, ensureDir } from '../utils/fs.js';
 import type { AssetHandler, InstallJob, InstallResult } from './types.js';
 
+function getHomedir(): string {
+  return process.env['AGENT_GET_HOME'] ?? os.homedir();
+}
+
 function resolveConfigFilePath(
   configFile: string | Record<string, string>,
 ): string | null {
@@ -14,14 +18,14 @@ function resolveConfigFilePath(
   const rawPath = (configFile as Record<string, string>)[platform] ?? (configFile as Record<string, string>)['linux'];
   if (!rawPath) return null;
   if (rawPath.startsWith('~/')) {
-    return path.join(os.homedir(), rawPath.slice(2));
+    return path.join(getHomedir(), rawPath.slice(2));
   }
   if (process.platform === 'win32' && rawPath.startsWith('%APPDATA%')) {
-    const appData = process.env['APPDATA'] ?? path.join(os.homedir(), 'AppData', 'Roaming');
+    const appData = process.env['APPDATA'] ?? path.join(getHomedir(), 'AppData', 'Roaming');
     return path.join(appData, rawPath.slice('%APPDATA%'.length));
   }
   if (process.platform === 'win32' && rawPath.startsWith('%USERPROFILE%')) {
-    return path.join(os.homedir(), rawPath.slice('%USERPROFILE%'.length));
+    return path.join(getHomedir(), rawPath.slice('%USERPROFILE%'.length));
   }
   return rawPath;
 }
