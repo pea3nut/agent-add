@@ -13,6 +13,9 @@ import { commandHandler } from './assets/command.js';
 import { subAgentHandler } from './assets/sub-agent.js';
 import type { InstallSummary } from './utils/summary.js';
 
+const README_URL = 'https://github.com/pea3nut/agent-get/blob/main/src/hosts/README.md';
+const PR_URL = 'https://github.com/pea3nut/agent-get/pulls';
+
 export interface CliInput {
   mcp: string[];
   skill: string[];
@@ -82,33 +85,54 @@ export async function runInstaller(
   host: HostConfig,
   cwd: string,
 ): Promise<InstallSummary> {
-  const descriptors: AssetDescriptor[] = [];
+  const explicitDescriptors: Array<{ type: AssetType; source: string }> = [];
+  const packDescriptors: AssetDescriptor[] = [];
 
   for (const source of cliInput.mcp) {
-    descriptors.push({ type: 'mcp', source });
+    explicitDescriptors.push({ type: 'mcp', source });
   }
   for (const source of cliInput.skill) {
-    descriptors.push({ type: 'skill', source });
+    explicitDescriptors.push({ type: 'skill', source });
   }
   for (const source of cliInput.prompt) {
-    descriptors.push({ type: 'prompt', source });
+    explicitDescriptors.push({ type: 'prompt', source });
   }
   for (const source of cliInput.command) {
-    descriptors.push({ type: 'command', source });
+    explicitDescriptors.push({ type: 'command', source });
   }
   for (const source of cliInput.subAgent) {
-    descriptors.push({ type: 'subAgent', source });
+    explicitDescriptors.push({ type: 'subAgent', source });
   }
 
   for (const packSource of cliInput.pack) {
     const manifest = await loadManifest(packSource, cwd);
     for (const asset of manifest.assets) {
-      descriptors.push(asset);
+      packDescriptors.push(asset);
+    }
+  }
+
+  // Check explicit flags against host capabilities before doing any work
+  for (const item of explicitDescriptors) {
+    const capability = host.assets[item.type];
+    if (!capability.supported) {
+      const reason = capability.reason ?? 'This asset type is not supported by this host.';
+      process.stderr.write(
+        `Error: Host "${host.id}" does not support asset type "${item.type}".\n\n` +
+        `Reason: ${reason}\n\n` +
+        `• View the full host capability matrix: ${README_URL}\n` +
+        `• If you believe ${host.displayName} now supports this, feel free to open a PR: ${PR_URL}\n`,
+      );
+      process.exit(2);
     }
   }
 
   const expandedItems: Array<{ assetType: AssetType; source: string }> = [];
-  for (const desc of descriptors) {
+
+  for (const item of explicitDescriptors) {
+    expandedItems.push({ assetType: item.type, source: item.source });
+  }
+
+  for (const desc of packDescriptors) {
     const sources = Array.isArray(desc.source) ? desc.source : [desc.source];
     for (const src of sources) {
       expandedItems.push({ assetType: desc.type, source: src });
@@ -119,12 +143,21 @@ export async function runInstaller(
     assetType: AssetType;
     assetName: string;
     resolved: ResolvedSource;
+    fromExplicitFlag: boolean;
   }> = [];
 
+  let explicitCount = explicitDescriptors.length;
+  let idx = 0;
   for (const item of expandedItems) {
     const resolved = await resolveSource(item.source, cwd);
     const assetName = inferName(item.source);
-    resolvedItems.push({ assetType: item.assetType, assetName, resolved });
+    resolvedItems.push({
+      assetType: item.assetType,
+      assetName,
+      resolved,
+      fromExplicitFlag: idx < explicitCount,
+    });
+    idx++;
   }
 
   for (const item of resolvedItems) {

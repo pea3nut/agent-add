@@ -7,8 +7,7 @@
   },
   "files": [
     "bin",
-    "dist",
-    "src/hosts.json"
+    "dist"
   ],
   "scripts": {
     "build": "tsup",
@@ -32,6 +31,7 @@
   "dependencies": {
     "@inquirer/select": "^5.1.2",
     "commander": "^14.0.3",
+    "smol-toml": "^1.6.1",
     "yaml": "^2.8.2",
     "zod": "^4.3.6"
   },

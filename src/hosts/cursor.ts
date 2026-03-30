@@ -1,37 +1,46 @@
-import path from 'path';
-import type { AssetType, AssetCapability, HostConfig } from './types.js';
+import type { HostAdapter, AssetCapability, AssetType } from './types.js';
 
-export function getCursorAssetPath(
-  host: HostConfig,
-  assetType: AssetType,
-  assetName: string,
-  cwd: string,
-): string | null {
-  const capability: AssetCapability = host.assets[assetType];
-  if (!capability.supported) return null;
+const NOT_SUPPORTED = (reason: string): AssetCapability => ({
+  supported: false,
+  reason,
+});
 
-  switch (assetType) {
-    case 'mcp': {
-      const configFile = capability.configFile as string;
-      return path.resolve(cwd, configFile);
-    }
-    case 'skill': {
-      const installDir = capability.installDir as string;
-      return path.resolve(cwd, installDir, assetName);
-    }
-    case 'prompt': {
-      const targetFile = capability.targetFile as string;
-      return path.resolve(cwd, targetFile);
-    }
-    case 'command': {
-      const installDir = capability.installDir as string;
-      const ext = capability.fileExtension ?? '.md';
-      return path.resolve(cwd, installDir, `${assetName}${ext}`);
-    }
-    case 'subAgent': {
-      const installDir = capability.installDir as string;
-      const ext = capability.fileExtension ?? '.md';
-      return path.resolve(cwd, installDir, `${assetName}${ext}`);
-    }
-  }
+export class CursorAdapter implements HostAdapter {
+  readonly id = 'cursor';
+  readonly displayName = 'Cursor';
+  readonly docs = 'https://cursor.com/docs';
+  readonly detection = {
+    paths: ['.cursor/'],
+  };
+  readonly assets: Record<AssetType, AssetCapability> = {
+    mcp: {
+      supported: true,
+      configFile: '.cursor/mcp.json',
+      configKey: 'mcpServers',
+      writeStrategy: 'inject-json-key',
+    },
+    skill: {
+      supported: true,
+      installDir: '.cursor/skills/',
+      entryFile: 'SKILL.md',
+      writeStrategy: 'copy-file',
+    },
+    prompt: {
+      supported: true,
+      targetFile: 'AGENTS.md',
+      writeStrategy: 'append-with-marker',
+    },
+    command: {
+      supported: true,
+      installDir: '.cursor/commands/',
+      fileExtension: '.md',
+      writeStrategy: 'copy-file',
+    },
+    subAgent: {
+      supported: true,
+      installDir: '.cursor/agents/',
+      fileExtension: '.md',
+      writeStrategy: 'copy-file',
+    },
+  };
 }

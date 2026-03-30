@@ -1,37 +1,46 @@
-import path from 'path';
-import type { AssetType, AssetCapability, HostConfig } from './types.js';
+import type { HostAdapter, AssetCapability, AssetType } from './types.js';
 
-export function getClaudeCodeAssetPath(
-  host: HostConfig,
-  assetType: AssetType,
-  assetName: string,
-  cwd: string,
-): string | null {
-  const capability: AssetCapability = host.assets[assetType];
-  if (!capability.supported) return null;
+const NOT_SUPPORTED = (reason: string): AssetCapability => ({
+  supported: false,
+  reason,
+});
 
-  switch (assetType) {
-    case 'mcp': {
-      const configFile = capability.configFile as string;
-      return path.resolve(cwd, configFile);
-    }
-    case 'skill': {
-      const installDir = capability.installDir as string;
-      return path.resolve(cwd, installDir, assetName);
-    }
-    case 'prompt': {
-      const targetFile = capability.targetFile as string;
-      return path.resolve(cwd, targetFile);
-    }
-    case 'command': {
-      const installDir = capability.installDir as string;
-      const ext = capability.fileExtension ?? '.md';
-      return path.resolve(cwd, installDir, `${assetName}${ext}`);
-    }
-    case 'subAgent': {
-      const installDir = capability.installDir as string;
-      const ext = capability.fileExtension ?? '.md';
-      return path.resolve(cwd, installDir, `${assetName}${ext}`);
-    }
-  }
+export class ClaudeCodeAdapter implements HostAdapter {
+  readonly id = 'claude-code';
+  readonly displayName = 'Claude Code';
+  readonly docs = 'https://code.claude.com/docs/en';
+  readonly detection = {
+    paths: ['.claude/'],
+  };
+  readonly assets: Record<AssetType, AssetCapability> = {
+    mcp: {
+      supported: true,
+      configFile: '.mcp.json',
+      configKey: 'mcpServers',
+      writeStrategy: 'inject-json-key',
+    },
+    skill: {
+      supported: true,
+      installDir: '.claude/skills/',
+      entryFile: 'SKILL.md',
+      writeStrategy: 'copy-file',
+    },
+    prompt: {
+      supported: true,
+      targetFile: 'CLAUDE.md',
+      writeStrategy: 'append-with-marker',
+    },
+    command: {
+      supported: true,
+      installDir: '.claude/commands/',
+      fileExtension: '.md',
+      writeStrategy: 'copy-file',
+    },
+    subAgent: {
+      supported: true,
+      installDir: '.claude/agents/',
+      fileExtension: '.md',
+      writeStrategy: 'copy-file',
+    },
+  };
 }

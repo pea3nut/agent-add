@@ -20,7 +20,78 @@ function resolveConfigFilePath(
     const appData = process.env['APPDATA'] ?? path.join(os.homedir(), 'AppData', 'Roaming');
     return path.join(appData, rawPath.slice('%APPDATA%'.length));
   }
+  if (process.platform === 'win32' && rawPath.startsWith('%USERPROFILE%')) {
+    return path.join(os.homedir(), rawPath.slice('%USERPROFILE%'.length));
+  }
   return rawPath;
+}
+
+async function handleTomlMcp(
+  job: InstallJob,
+  configFilePath: string,
+  newServerConfig: Record<string, unknown>,
+): Promise<InstallResult> {
+  const { parse, stringify } = await import('smol-toml');
+  const { host, assetName } = job;
+
+  await ensureDir(path.dirname(configFilePath));
+
+  let tomlContent = '';
+  try {
+    tomlContent = await fs.promises.readFile(configFilePath, 'utf-8');
+  } catch {
+    // file doesn't exist yet
+  }
+
+  let parsed: Record<string, unknown>;
+  try {
+    parsed = tomlContent ? (parse(tomlContent) as Record<string, unknown>) : {};
+  } catch {
+    return {
+      job,
+      status: 'error',
+      reason: `Failed to parse TOML config file: ${configFilePath}`,
+    };
+  }
+
+  if (host.id === 'vibe') {
+    // Vibe uses [[mcp_servers]] array format
+    const mcpServers = (parsed['mcp_servers'] as Array<Record<string, unknown>>) ?? [];
+    const existing = mcpServers.find((s) => s['name'] === assetName);
+    if (existing) {
+      return { job, status: 'exists', targetPath: configFilePath };
+    }
+    const entry: Record<string, unknown> = {
+      name: assetName,
+      transport: 'stdio',
+      command: (newServerConfig['command'] as string) ?? '',
+    };
+    if (newServerConfig['args']) entry['args'] = newServerConfig['args'];
+    mcpServers.push(entry);
+    parsed['mcp_servers'] = mcpServers;
+  } else {
+    // Default TOML format: [mcp_servers.<name>] table (e.g. Codex)
+    if (!parsed['mcp_servers']) {
+      parsed['mcp_servers'] = {};
+    }
+    const mcpServers = parsed['mcp_servers'] as Record<string, unknown>;
+    if (assetName in mcpServers) {
+      return { job, status: 'exists', targetPath: configFilePath };
+    }
+    const entry: Record<string, unknown> = {
+      command: (newServerConfig['command'] as string) ?? '',
+    };
+    if (newServerConfig['args']) entry['args'] = newServerConfig['args'];
+    if (newServerConfig['env']) entry['env'] = newServerConfig['env'];
+    mcpServers[assetName] = entry;
+  }
+
+  const newToml = stringify(parsed);
+  const tmpFile = configFilePath + '.tmp';
+  await fs.promises.writeFile(tmpFile, newToml, 'utf-8');
+  await fs.promises.rename(tmpFile, configFilePath);
+
+  return { job, status: 'written', targetPath: configFilePath };
 }
 
 export const mcpHandler: AssetHandler = {
@@ -38,8 +109,6 @@ export const mcpHandler: AssetHandler = {
     }
     const configFilePath = resolvedPath;
 
-    const configKey = mcpCapability.configKey ?? 'mcpServers';
-
     let newServerConfig: Record<string, unknown>;
     try {
       const rawContent = await fs.promises.readFile(resolvedSource.localPath, 'utf-8');
@@ -51,6 +120,13 @@ export const mcpHandler: AssetHandler = {
         reason: `Failed to read MCP source file: ${(err as Error).message}`,
       };
     }
+
+    // Dispatch to TOML handler when config file has .toml extension
+    if (configFilePath.endsWith('.toml')) {
+      return handleTomlMcp(job, configFilePath, newServerConfig);
+    }
+
+    const configKey = mcpCapability.configKey ?? 'mcpServers';
 
     const existingConfig = (await readJSONOrNull<Record<string, unknown>>(configFilePath)) ?? {};
     const mcpServers = (existingConfig[configKey] as Record<string, unknown>) ?? {};
