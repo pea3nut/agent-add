@@ -6,8 +6,8 @@ import { inferName } from './infer-name.js';
 
 export type SourceType = 'local' | 'git-ssh' | 'git-https' | 'http-file';
 
-// .git suffix: appears as .git at end, before #, or before /
-const GIT_REPO_SUFFIX_RE = /\.git(\/|#|$)/;
+// .git suffix: appears as .git at end, before #, @, or /
+const GIT_REPO_SUFFIX_RE = /\.git(\/|@|#|$)/;
 
 export function detectSourceType(source: string): SourceType {
   if (source.startsWith('git@')) {

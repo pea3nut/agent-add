@@ -20,11 +20,13 @@ export function inferName(source: string): string {
     }
   }
 
-  // Git SSH/HTTPS without #path: use repo name
+  // Git SSH/HTTPS without #path: use repo name (strip @ref before extension stripping)
   if (source.startsWith('git@') || (source.startsWith('https://') && source.includes('.git'))) {
     const urlPart = source.split('#')[0];
     const repoSegment = urlPart.split('/').pop() ?? urlPart.split(':').pop() ?? urlPart;
-    return stripExtension(repoSegment ?? urlPart);
+    const atIdx = (repoSegment ?? '').indexOf('@');
+    const cleanSegment = atIdx !== -1 ? repoSegment!.slice(0, atIdx) : repoSegment;
+    return stripExtension(cleanSegment ?? urlPart);
   }
 
   // Local path or HTTP file: use filename without extension
