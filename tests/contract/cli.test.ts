@@ -4,7 +4,7 @@ import { promisify } from 'util';
 import path from 'path';
 
 const execFileAsync = promisify(execFile);
-const binPath = path.resolve(__dirname, '../../bin/agent-get.js');
+const binPath = path.resolve(__dirname, '../../bin/agent-add.js');
 
 async function runCli(args: string[], env?: NodeJS.ProcessEnv): Promise<{
   stdout: string;

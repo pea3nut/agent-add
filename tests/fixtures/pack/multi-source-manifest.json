@@ -1,0 +1,13 @@
+{
+  "name": "test/multi-source-pack",
+  "assets": [
+    {
+      "type": "mcp",
+      "source": ["./fixtures/mcp/playwright.json", "./fixtures/mcp/filesystem.json"]
+    },
+    {
+      "type": "prompt",
+      "source": ["./fixtures/prompt/my-prompt.md", "./fixtures/prompt/second-prompt.md"]
+    }
+  ]
+}

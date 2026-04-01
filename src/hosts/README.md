@@ -1,6 +1,6 @@
 # Host Capability Matrix
 
-This file is the **single source of truth** for all host adapter configurations in `agent-get`.
+This file is the **single source of truth** for all host adapter configurations in `agent-add`.
 Every adapter in `src/hosts/<id>.ts` must match the paths and capabilities documented here.
 
 ---

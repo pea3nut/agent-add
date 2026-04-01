@@ -5,7 +5,7 @@ import { readJSONOrNull, atomicWriteJSON, ensureDir } from '../utils/fs.js';
 import type { AssetHandler, InstallJob, InstallResult } from './types.js';
 
 function getHomedir(): string {
-  return process.env['AGENT_GET_HOME'] ?? os.homedir();
+  return process.env['AGENT_ADD_HOME'] ?? os.homedir();
 }
 
 function resolveConfigFilePath(

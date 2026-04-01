@@ -42,7 +42,7 @@ describe('formatSummary', () => {
       host: mockHost,
       results: [makeResult('mcp', 'playwright', 'written')],
     };
-    expect(formatSummary(summary)).toContain('agent-get — Install Summary');
+    expect(formatSummary(summary)).toContain('agent-add — Install Summary');
   });
 
   it('should include the host display name', () => {

@@ -1,0 +1,39 @@
+{
+  "runId": "run-20260401-120000",
+  "startTime": "2026-04-01T12:00:00Z",
+  "endTime": "2026-04-01T12:15:00Z",
+  "durationMs": 900000,
+  "executor": "bash-shell",
+  "concurrency": 4,
+  "summary": {
+    "total": 21,
+    "passed": 21,
+    "failed": 0,
+    "skipped": 0,
+    "error": 0
+  },
+  "earlyStop": false,
+  "cases": [
+    { "caseId": "case-m1a001", "scenarioTitle": "Two MCP flags in one command on Cursor", "status": "passed", "durationMs": 15000, "failedStep": null, "errorType": null, "errorMessage": null },
+    { "caseId": "case-m1a002", "scenarioTitle": "All 5 asset types in one command on Cursor", "status": "passed", "durationMs": 15000, "failedStep": null, "errorType": null, "errorMessage": null },
+    { "caseId": "case-m1a003", "scenarioTitle": "Pack plus explicit MCP flag on Claude Code", "status": "passed", "durationMs": 20000, "failedStep": null, "errorType": null, "errorMessage": null },
+    { "caseId": "case-m1a004", "scenarioTitle": "Pack with source array installs multiple assets of same type", "status": "passed", "durationMs": 15000, "failedStep": null, "errorType": null, "errorMessage": null },
+    { "caseId": "case-mcp001", "scenarioTitle": "MCP with env variables preserves env in JSON output", "status": "passed", "durationMs": 10000, "failedStep": null, "errorType": null, "errorMessage": null },
+    { "caseId": "case-mcp002", "scenarioTitle": "MCP install into pre-existing config preserves existing entries", "status": "passed", "durationMs": 10000, "failedStep": null, "errorType": null, "errorMessage": null },
+    { "caseId": "case-mcp003", "scenarioTitle": "Two sequential MCP installs coexist in same config on Claude Code", "status": "passed", "durationMs": 10000, "failedStep": null, "errorType": null, "errorMessage": null },
+    { "caseId": "case-mcp004", "scenarioTitle": "Codex MCP install produces TOML table format", "status": "passed", "durationMs": 15000, "failedStep": null, "errorType": null, "errorMessage": null },
+    { "caseId": "case-mcp005", "scenarioTitle": "Codex TOML preserves env variables", "status": "passed", "durationMs": 15000, "failedStep": null, "errorType": null, "errorMessage": null },
+    { "caseId": "case-mcp006", "scenarioTitle": "Vibe MCP install produces TOML array format", "status": "passed", "durationMs": 10000, "failedStep": null, "errorType": null, "errorMessage": null },
+    { "caseId": "case-pmt001", "scenarioTitle": "Prompt update flow returns updated status on content change", "status": "passed", "durationMs": 15000, "failedStep": null, "errorType": null, "errorMessage": null },
+    { "caseId": "case-pmt002", "scenarioTitle": "Two different prompts coexist in AGENTS.md with separate markers", "status": "passed", "durationMs": 15000, "failedStep": null, "errorType": null, "errorMessage": null },
+    { "caseId": "case-pmt003", "scenarioTitle": "Prompt append preserves pre-existing non-agent-get content", "status": "passed", "durationMs": 15000, "failedStep": null, "errorType": null, "errorMessage": null },
+    { "caseId": "case-pmt004", "scenarioTitle": "Prompt create-file-in-dir strategy on Roo Code", "status": "passed", "durationMs": 8000, "failedStep": null, "errorType": null, "errorMessage": null },
+    { "caseId": "case-sub001", "scenarioTitle": "Sub-agent on Cursor expands cursor-specific frontmatter fields", "status": "passed", "durationMs": 15000, "failedStep": null, "errorType": null, "errorMessage": null },
+    { "caseId": "case-sub002", "scenarioTitle": "Sub-agent on Claude Code expands claude-code-specific frontmatter fields", "status": "passed", "durationMs": 15000, "failedStep": null, "errorType": null, "errorMessage": null },
+    { "caseId": "case-sub003", "scenarioTitle": "Sub-agent conflict detection when existing file has different content", "status": "passed", "durationMs": 15000, "failedStep": null, "errorType": null, "errorMessage": null },
+    { "caseId": "case-pak001", "scenarioTitle": "Pack on Codex installs MCP as TOML and prompt, skips unsupported types", "status": "passed", "durationMs": 15000, "failedStep": null, "errorType": null, "errorMessage": null },
+    { "caseId": "case-pak002", "scenarioTitle": "Explicit flag for unsupported asset type exits with code 2", "status": "passed", "durationMs": 10000, "failedStep": null, "errorType": null, "errorMessage": null },
+    { "caseId": "case-pak003", "scenarioTitle": "Pack on Roo Code installs MCP, prompt as file-in-dir, and skill, skips command and subAgent", "status": "passed", "durationMs": 15000, "failedStep": null, "errorType": null, "errorMessage": null },
+    { "caseId": "case-pak004", "scenarioTitle": "MCP conflict in single-asset install exits with code 1", "status": "passed", "durationMs": 10000, "failedStep": null, "errorType": null, "errorMessage": null }
+  ]
+}

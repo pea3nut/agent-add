@@ -13,7 +13,7 @@ export function createProgram(): Command {
   const program = new Command();
 
   program
-    .name('agent-get')
+    .name('agent-add')
     .description('Cross-host AI Agent Pack installer — install MCP, Skill, Prompt, Command, Sub-agent in one command')
     .version(pkg.version, '-V, --version')
     .addHelpText('after', `
@@ -24,26 +24,26 @@ Rules:
 
 Examples:
   # Install MCP from JSON config file
-  agent-get --mcp ./mcps/playwright.json --host cursor
-  agent-get --mcp git@github.com:org/mcps.git#playwright/playwright.json --host cursor
+  agent-add --mcp ./mcps/playwright.json --host cursor
+  agent-add --mcp git@github.com:org/mcps.git#playwright/playwright.json --host cursor
 
   # Install Skill from directory (must contain SKILL.md)
-  agent-get --skill ./skills/e2e-guide --host claude-code
-  agent-get --skill git@github.com:demo/skills.git#e2e-guide --host claude-code
+  agent-add --skill ./skills/e2e-guide --host claude-code
+  agent-add --skill git@github.com:demo/skills.git#e2e-guide --host claude-code
 
   # Install Prompt and Command from Markdown files
-  agent-get --prompt ./prompts/dev-practices.md --host cursor
-  agent-get --command ./commands/init.md --host cursor
+  agent-add --prompt ./prompts/dev-practices.md --host cursor
+  agent-add --command ./commands/init.md --host cursor
 
   # Install Sub-agent
-  agent-get --sub-agent ./agents/code-reviewer.md --host cursor
+  agent-add --sub-agent ./agents/code-reviewer.md --host cursor
 
   # Install full Agent Pack from Manifest JSON
-  agent-get --pack ./agent-pack.json --host cursor
-  agent-get --pack git@github.com:org/packs.git#frontend/agent-pack.json
+  agent-add --pack ./agent-pack.json --host cursor
+  agent-add --pack git@github.com:org/packs.git#frontend/agent-pack.json
 
   # Combine pack with extra assets
-  agent-get --pack ./agent-pack.json --mcp ./extra.json --host claude-code`)
+  agent-add --pack ./agent-pack.json --mcp ./extra.json --host claude-code`)
     .option('--pack <source>', 'Install all assets from an Agent Pack Manifest JSON', collect, [])
     .option('--mcp <source>', 'Install an MCP server', collect, [])
     .option('--skill <source>', 'Install a Skill', collect, [])
@@ -80,7 +80,7 @@ Examples:
 
       if (!hasAssetFlags) {
         process.stderr.write(
-          'agent-get error: No asset flags provided. Use --pack, --mcp, --skill, --prompt, --command, or --sub-agent.\n',
+          'agent-add error: No asset flags provided. Use --pack, --mcp, --skill, --prompt, --command, or --sub-agent.\n',
         );
         process.exit(2);
       }
@@ -92,7 +92,7 @@ Examples:
       } else if (!process.stdout.isTTY) {
         const validIds = getValidHostIds().join(', ');
         process.stderr.write(
-          `agent-get error: Non-interactive environment detected. Please specify a host with --host <host>.\n`,
+          `agent-add error: Non-interactive environment detected. Please specify a host with --host <host>.\n`,
         );
         process.stderr.write(`  Valid hosts: ${validIds}\n`);
         process.exit(2);
@@ -116,7 +116,7 @@ Examples:
       if (!host) {
         const validIds = getValidHostIds().join(', ');
         process.stderr.write(
-          `agent-get error: Unknown host '${hostId}'. Valid hosts: ${validIds}\n`,
+          `agent-add error: Unknown host '${hostId}'. Valid hosts: ${validIds}\n`,
         );
         process.exit(2);
       }

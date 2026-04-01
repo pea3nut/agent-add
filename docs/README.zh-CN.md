@@ -1,0 +1,218 @@
+<div align="center">
+
+# agent-add
+
+**一条命令，将 MCP、Skill、斜杆命令、子代理等安装到任意 AI 工具，如 Claude Code、Cursor 等**
+
+[![npm](https://img.shields.io/npm/v/@pea3nut/agent-add)](https://www.npmjs.com/package/@pea3nut/agent-add)
+[![License: MPL-2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](LICENSE)
+[![Node](https://img.shields.io/badge/node-%E2%89%A518-brightgreen)]()
+[![Scenario Tests](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/pea3nut/agent-add/master/tests/test-results/badge.json)](tests/test-results/)
+
+[English](../README.md) | **中文** | [日本語](./README.ja.md)
+
+</div>
+
+---
+
+```bash
+npx -y agent-add \ 
+  # 安装 MCP
+  --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}'
+  --mcp git@github.com:affaan-m/everything-claude-code.git#mcp-configs/mcp-servers.json \
+  
+  # 安装 SKill
+  --skill https://github.com/anthropics/skills.git#skills/pdf \
+  
+  # 增加 System Prompt / 基础 Rule
+  --prompt '你是一个有帮助的 AI 代理'
+  
+  # 添加斜杠命令
+  --command https://github.com/wshobson/commands.git#tools/code-review.md
+  
+  # 安装子代理命令
+  --sub-agent https://github.com/microsoft/playwright.git#packages/playwright/src/agents/playwright-test-planner.agent.md
+```
+
+---
+
+| AI 工具 | MCP | Prompt | Skill | 斜杠命令 | 子代理 |
+|------|-----|--------|-------|---------|-----------|
+| <img src="https://www.google.com/s2/favicons?domain=cursor.com&sz=32" width="16"> Cursor | ✅ | ✅ | ✅ | ✅ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=32" width="16"> Claude Code | ✅ | ✅ | ✅ | ✅ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=32" width="16"> Claude Desktop | ✅ | ❌ | ❌ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=windsurf.com&sz=32" width="16"> Windsurf | ✅ | ✅ | ✅ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=github.com&sz=32" width="16"> GitHub Copilot | ✅ | ✅ | ❌ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=gemini.google.com&sz=32" width="16"> Gemini CLI | ✅ | ✅ | ❌ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=roocode.com&sz=32" width="16"> Roo Code | ✅ | ✅ | ✅ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=kilo.ai&sz=32" width="16"> Kilo Code | ✅ | ✅ | ❌ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=qwen.ai&sz=32" width="16"> Qwen Code | ✅ | ✅ | ✅ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=opencode.ai&sz=32" width="16"> opencode | ✅ | ✅ | ❌ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=augmentcode.com&sz=32" width="16"> Augment | ✅ | ✅ | ❌ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=kiro.dev&sz=32" width="16"> Kiro CLI | ✅ | ✅ | ❌ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=tabnine.com&sz=32" width="16"> Tabnine CLI | ✅ | ✅ | ❌ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=kimi.ai&sz=32" width="16"> Kimi Code | ✅ | ✅ | ❌ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=trae.ai&sz=32" width="16"> Trae | ✅ | ✅ | ❌ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=openclawlab.com&sz=32" width="16"> OpenClaw | ✅ | ✅ | ✅ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=openai.com&sz=32" width="16"> Codex CLI | ✅ | ✅ | ❌ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=mistral.ai&sz=32" width="16"> Mistral Vibe | ✅ | ❌ | ❌ | ❌ | ❌ |
+
+---
+
+## 为什么需要 agent-add？
+
+各个 AI 工具配置不尽相同，agent-add 可以帮您抹平它们的不同之处，用一条命令就能安装到所有 AI 工具中的任意一个：
+
+```bash
+npx -y agent-add --host claude-code --mcp https://github.com/affaan-m/everything-claude-code.git#mcp-configs/playwright.json
+npx -y agent-add --host cursor     --mcp https://github.com/affaan-m/everything-claude-code.git#mcp-configs/playwright.json
+npx -y agent-add --host codex      --mcp https://github.com/affaan-m/everything-claude-code.git#mcp-configs/playwright.json
+
+# 不指定 AI 工具将会有个可交互的菜单供选择
+npx -y agent-add --mcp https://github.com/affaan-m/everything-claude-code.git#mcp-configs/playwright.json
+```
+
+## 用法
+
+### 安装 MCP
+
+```bash
+# 从 JSON 源码安装
+npx -y agent-add \
+  --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}'
+
+# 从 Git 仓库中的配置文件安装
+npx -y agent-add \
+  --mcp git@github.com:affaan-m/everything-claude-code.git#mcp-configs/playwright.json
+
+# 从 HTTP URL 直接安装
+npx -y agent-add \
+  --mcp https://raw.githubusercontent.com/affaan-m/everything-claude-code/main/mcp-configs/playwright.json
+```
+
+### 安装 Skill
+
+```bash
+# 从 Anthropic 官方 Skills 仓库安装
+npx -y agent-add \
+  --skill https://github.com/anthropics/skills.git#skills/pdf
+
+npx -y agent-add \
+  --skill https://github.com/anthropics/skills.git#skills/webapp-testing
+```
+
+### 安装 Prompt
+
+```bash
+# 直接传入 Markdown 内联文本（含换行自动识别，第一个 # 标题作为名称）
+npx -y agent-add --host claude-code \
+  --prompt $'# Code Review Rules\n\nAlways review for security issues first.'
+
+# 从知名 Cursor Rules 仓库安装
+npx -y agent-add --host cursor \
+  --prompt https://raw.githubusercontent.com/PatrickJS/awesome-cursorrules/main/rules/nextjs-react-tailwind/.cursorrules
+
+# 从 HTTP URL 安装团队共享的 Prompt
+npx -y agent-add --host claude-code \
+  --prompt https://your-team.com/shared/code-review-rules.md
+```
+
+### 安装斜杠命令（Command）
+
+```bash
+# 从 commands 仓库安装
+npx -y agent-add --host cursor \
+  --command https://github.com/wshobson/commands.git#tools/code-review.md
+
+npx -y agent-add --host claude-code \
+  --command https://github.com/wshobson/commands.git#tools/refactor.md
+```
+
+### 安装 Sub-agent
+
+```bash
+# 从 Microsoft Playwright 官方仓库安装测试规划代理（⭐68k）
+npx -y agent-add --host cursor \
+  --sub-agent https://github.com/microsoft/playwright.git#packages/playwright/src/agents/playwright-test-planner.agent.md
+
+# 安装完整的三件套：规划 + 生成 + 修复
+npx -y agent-add --host cursor \
+  --sub-agent https://github.com/microsoft/playwright.git#packages/playwright/src/agents/playwright-test-planner.agent.md \
+  --sub-agent https://github.com/microsoft/playwright.git#packages/playwright/src/agents/playwright-test-generator.agent.md \
+  --sub-agent https://github.com/microsoft/playwright.git#packages/playwright/src/agents/playwright-test-healer.agent.md
+```
+
+### Agent Pack：打包一键部署
+
+将多种资产打包成一个 manifest，同一份 Pack 可部署到任意宿主：
+
+```json
+{
+  "name": "my-team/standard-pack",
+  "assets": [
+    { "type": "mcp",      "source": "https://github.com/affaan-m/everything-claude-code.git#mcp-configs/playwright.json" },
+    { "type": "skill",    "source": "https://github.com/anthropics/skills.git#skills/pdf" },
+    { "type": "command",  "source": "https://github.com/wshobson/commands.git#tools/code-review.md" },
+    { "type": "subAgent", "source": "https://github.com/microsoft/playwright.git#packages/playwright/src/agents/playwright-test-planner.agent.md" }
+  ]
+}
+```
+
+```bash
+npx -y agent-add --host cursor     --pack https://your-team.com/agent-pack.json
+npx -y agent-add --host claude-code --pack https://your-team.com/agent-pack.json
+```
+
+> 当目标宿主不支持某种资产类型时，Pack 模式会自动跳过（不报错），方便同一份 Pack 部署到不同宿主。
+
+## 5 种资产类型
+
+| 资产类型 | 说明 | 文件格式 |
+|----------|------|----------|
+| **MCP** | MCP Server 配置 | JSON（或 TOML） |
+| **Skill** | 可复用的 Agent 技能 | 目录（含 `SKILL.md` 入口） |
+| **Prompt** | 项目级规则/系统提示词 | Markdown 文件 |
+| **Command** | 自定义斜杠命令 | Markdown 文件 |
+| **Sub-agent** | 子代理配置 | Markdown + YAML frontmatter |
+
+## 来源格式
+
+| 来源 | 示例 | MCP | Prompt | Skill | Command | Sub-agent |
+|------|------|-----|--------|-------|---------|-----------|
+| 内联 JSON | `'{"name":{...}}'`（以 `{` 开头） | ✅ | ❌ | ❌ | ❌ | ❌ |
+| 内联 Markdown | `$'# Title\n\nContent'`（含换行） | ❌ | ✅ | ❌ | ✅ | ✅ |
+| 本地路径 | `./mcps/config.json` | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Git SSH | `git@github.com:org/repo.git@main#path` | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Git HTTPS | `https://github.com/org/repo.git@v1.0#path` | ✅ | ✅ | ✅ | ✅ | ✅ |
+| HTTP URL | `https://example.com/config.json` | ✅ | ✅ | ❌ | ✅ | ✅ |
+
+> Git 来源支持 `@ref` 指定分支/标签/commit，`#path` 指定仓库内子路径（sparse checkout，不会克隆整个仓库）。
+> 内联 JSON 格式为 `{"<名称>": {...config...}}`，key 即资产名称。内联 Markdown 从第一个 `# 标题` 推断名称。
+> Skill 是目录资产，不支持内联内容或单文件 HTTP URL。
+
+## CLI 参考
+
+```
+agent-add [OPTIONS]
+
+Options:
+  --host <host>         指定目标宿主 ID
+  --mcp <source>        安装 MCP Server 配置
+  --skill <source>      安装 Skill 目录
+  --prompt <source>     安装 Prompt 文件
+  --command <source>    安装 Command 文件
+  --sub-agent <source>  安装 Sub-agent 文件
+  --pack <source>       安装 Agent Pack manifest
+  -V, --version         显示版本号
+  -h, --help            显示帮助信息
+```
+
+所有资产 flag 可重复使用（安装多个同类资产），也可与 `--pack` 自由组合。
+
+## 贡献
+
+欢迎贡献！添加新宿主支持请参考 [Host Capability Matrix](../src/hosts/README.md)。
+
+## License
+
+[Mozilla Public License 2.0](LICENSE)

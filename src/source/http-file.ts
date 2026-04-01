@@ -21,7 +21,7 @@ export async function resolveHttpFile(source: string, assetName: string): Promis
 
   const urlPath = new URL(source).pathname;
   const ext = path.extname(urlPath) || '.tmp';
-  const tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'agent-get-http-'));
+  const tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'agent-add-http-'));
   const tmpFile = path.join(tmpDir, `${assetName}${ext}`);
 
   const buffer = await response.arrayBuffer();

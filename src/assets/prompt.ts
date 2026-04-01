@@ -46,8 +46,8 @@ export const promptHandler: AssetHandler = {
     const targetFile = promptCapability.targetFile as string;
     const targetPath = path.resolve(process.cwd(), targetFile);
 
-    const markerOpen = `<!-- agent-get:${assetName} -->`;
-    const markerClose = `<!-- /agent-get:${assetName} -->`;
+    const markerOpen = `<!-- agent-add:${assetName} -->`;
+    const markerClose = `<!-- /agent-add:${assetName} -->`;
 
     let newContent: string;
     try {

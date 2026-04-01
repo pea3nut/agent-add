@@ -21,7 +21,7 @@ export async function resolveGit(source: string, type: SourceType): Promise<Reso
   const repoUrl = atIdx !== -1 ? withoutPath.slice(0, atIdx) : withoutPath;
   const ref = atIdx !== -1 ? withoutPath.slice(atIdx + 1) || undefined : undefined;
 
-  const tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'agent-get-git-'));
+  const tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'agent-add-git-'));
 
   try {
     await execFileAsync('git', ['init', tmpDir]);

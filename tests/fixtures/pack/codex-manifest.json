@@ -1,0 +1,10 @@
+{
+  "name": "test/codex-pack",
+  "assets": [
+    { "type": "mcp", "source": "./fixtures/mcp/playwright.json" },
+    { "type": "prompt", "source": "./fixtures/prompt/my-prompt.md" },
+    { "type": "skill", "source": "./fixtures/skill/my-skill" },
+    { "type": "command", "source": "./fixtures/command/my-command.md" },
+    { "type": "subAgent", "source": "./fixtures/sub-agent/my-agent.md" }
+  ]
+}

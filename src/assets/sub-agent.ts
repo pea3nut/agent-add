@@ -10,15 +10,15 @@ function applyHostHints(
 ): Record<string, unknown> {
   const result: Record<string, unknown> = {};
 
-  const hostPrefix = `agent-get/${hostId}/`;
+  const hostPrefix = `agent-add/${hostId}/`;
 
   for (const [key, value] of Object.entries(frontmatter)) {
-    if (key.startsWith('agent-get/')) {
+    if (key.startsWith('agent-add/')) {
       if (key.startsWith(hostPrefix)) {
         const fieldName = key.slice(hostPrefix.length);
         result[fieldName] = value;
       }
-      // drop all agent-get/* keys
+      // drop all agent-add/* keys
     } else {
       result[key] = value;
     }

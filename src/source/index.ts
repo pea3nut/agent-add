@@ -2,14 +2,21 @@ import type { ResolvedSource } from '../assets/types.js';
 import { resolveLocal } from './local.js';
 import { resolveGit } from './git.js';
 import { resolveHttpFile } from './http-file.js';
+import { resolveInlineJson, resolveInlineMd } from './inline.js';
 import { inferName } from './infer-name.js';
 
-export type SourceType = 'local' | 'git-ssh' | 'git-https' | 'http-file';
+export type SourceType = 'local' | 'git-ssh' | 'git-https' | 'http-file' | 'inline-json' | 'inline-md';
 
 // .git suffix: appears as .git at end, before #, @, or /
 const GIT_REPO_SUFFIX_RE = /\.git(\/|@|#|$)/;
 
 export function detectSourceType(source: string): SourceType {
+  if (source.startsWith('{')) {
+    return 'inline-json';
+  }
+  if (source.includes('\n')) {
+    return 'inline-md';
+  }
   if (source.startsWith('git@')) {
     return 'git-ssh';
   }
@@ -27,6 +34,10 @@ export async function resolveSource(source: string, cwd: string): Promise<Resolv
   const assetName = inferName(source);
 
   switch (type) {
+    case 'inline-json':
+      return resolveInlineJson(source, assetName);
+    case 'inline-md':
+      return resolveInlineMd(source, assetName);
     case 'local':
       return resolveLocal(source, cwd);
     case 'git-ssh':

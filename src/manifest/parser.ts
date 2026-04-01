@@ -17,7 +17,7 @@ export async function loadManifest(source: string, cwd: string): Promise<Manifes
       }
     }
   } catch (err) {
-    process.stderr.write(`agent-get error: Failed to load Manifest from: ${source}\n`);
+    process.stderr.write(`agent-add error: Failed to load Manifest from: ${source}\n`);
     process.stderr.write(`  Cause: ${(err as Error).message}\n`);
     process.exit(2);
   }
@@ -26,7 +26,7 @@ export async function loadManifest(source: string, cwd: string): Promise<Manifes
   try {
     rawData = JSON.parse(jsonContent);
   } catch (err) {
-    process.stderr.write(`agent-get error: Invalid JSON in Manifest: ${source}\n`);
+    process.stderr.write(`agent-add error: Invalid JSON in Manifest: ${source}\n`);
     process.stderr.write(`  Cause: ${(err as Error).message}\n`);
     process.exit(2);
   }
@@ -48,20 +48,20 @@ export async function loadManifest(source: string, cwd: string): Promise<Manifes
         const validTypes = new Set(['mcp', 'skill', 'prompt', 'command', 'subAgent']);
         const badType = assetArr.find((a) => typeof a?.['type'] === 'string' && !validTypes.has(a['type'] as string))?.['type'] ?? 'unknown';
         process.stderr.write(
-          `agent-get error: Unsupported asset type: '${String(badType)}'. Supported: mcp, skill, prompt, command, subAgent\n`,
+          `agent-add error: Unsupported asset type: '${String(badType)}'. Supported: mcp, skill, prompt, command, subAgent\n`,
         );
       } else if (isNameField && (message.includes('namespace/pack-name') || message.includes('Invalid'))) {
         process.stderr.write(
-          `agent-get error: Manifest name must match namespace/pack-name format\n`,
+          `agent-add error: Manifest name must match namespace/pack-name format\n`,
         );
       } else {
         process.stderr.write(
-          `agent-get error: Manifest missing required field: ${fieldPath || 'unknown'}\n`,
+          `agent-add error: Manifest missing required field: ${fieldPath || 'unknown'}\n`,
         );
         process.stderr.write(`  ${message}\n`);
       }
     } else {
-      process.stderr.write(`agent-get error: Invalid Manifest format\n`);
+      process.stderr.write(`agent-add error: Invalid Manifest format\n`);
     }
     process.exit(2);
   }

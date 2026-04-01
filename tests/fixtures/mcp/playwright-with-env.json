@@ -1,0 +1,8 @@
+{
+  "command": "npx",
+  "args": ["@playwright/mcp@latest"],
+  "env": {
+    "BROWSER": "chromium",
+    "HEADLESS": "true"
+  }
+}

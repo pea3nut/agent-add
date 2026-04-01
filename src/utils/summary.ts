@@ -24,7 +24,7 @@ export function formatSummary(summary: InstallSummary): string {
   const { host, results } = summary;
   const lines: string[] = [];
 
-  lines.push('agent-get — Install Summary');
+  lines.push('agent-add — Install Summary');
   lines.push(`Host: ${host.displayName}`);
   lines.push('');
 

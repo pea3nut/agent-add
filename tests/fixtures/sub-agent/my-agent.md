@@ -1,7 +1,7 @@
 ---
 description: A test sub-agent for scenario testing.
-agent-get/cursor/name: cursor-agent
-agent-get/claude-code/name: claude-agent
+agent-add/cursor/name: cursor-agent
+agent-add/claude-code/name: claude-agent
 ---
 
 # my-agent

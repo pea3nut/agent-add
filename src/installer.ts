@@ -13,8 +13,8 @@ import { commandHandler } from './assets/command.js';
 import { subAgentHandler } from './assets/sub-agent.js';
 import type { InstallSummary } from './utils/summary.js';
 
-const README_URL = 'https://github.com/pea3nut/agent-get/blob/main/src/hosts/README.md';
-const PR_URL = 'https://github.com/pea3nut/agent-get/pulls';
+const README_URL = 'https://github.com/pea3nut/agent-add/blob/main/src/hosts/README.md';
+const PR_URL = 'https://github.com/pea3nut/agent-add/pulls';
 
 export interface CliInput {
   mcp: string[];
@@ -41,8 +41,8 @@ async function validateAsset(
   resolved: ResolvedSource,
 ): Promise<string | null> {
   if (assetType === 'skill') {
-    if (resolved.type === 'http-file') {
-      return 'Skill 资产必须指向目录来源（本地路径或 Git URL），不支持直接 HTTP(S) URL';
+    if (resolved.type === 'http-file' || resolved.type === 'inline-json' || resolved.type === 'inline-md') {
+      return 'Skill 资产必须指向目录来源（本地路径或 Git URL），不支持内联内容或直接 HTTP(S) URL';
     }
     const skillMdPath = path.join(resolved.localPath, 'SKILL.md');
     try {
@@ -163,7 +163,7 @@ export async function runInstaller(
   for (const item of resolvedItems) {
     const validationError = await validateAsset(item.assetType, item.resolved);
     if (validationError) {
-      process.stderr.write(`agent-get error: ${validationError}\n`);
+      process.stderr.write(`agent-add error: ${validationError}\n`);
       process.stderr.write(`  Source: ${item.resolved.originalSource}\n`);
       process.exit(2);
     }

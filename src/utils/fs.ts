@@ -19,7 +19,7 @@ export async function atomicWriteJSON(filePath: string, data: unknown): Promise<
   const dir = path.dirname(filePath);
   await ensureDir(dir);
 
-  const tmpPath = path.join(os.tmpdir(), `agent-get-${Date.now()}-${Math.random().toString(36).slice(2)}.tmp`);
+  const tmpPath = path.join(os.tmpdir(), `agent-add-${Date.now()}-${Math.random().toString(36).slice(2)}.tmp`);
   const content = JSON.stringify(data, null, 2) + '\n';
 
   try {

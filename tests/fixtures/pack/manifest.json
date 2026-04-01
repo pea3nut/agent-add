@@ -1,32 +1,32 @@
 {
-  "name": "test-pack",
+  "name": "test/test-pack",
   "version": "0.1.0",
   "description": "A test pack covering all asset types for scenario testing",
   "assets": [
     {
       "type": "mcp",
       "name": "playwright",
-      "source": "../mcp/playwright.json"
+      "source": "./fixtures/mcp/playwright.json"
     },
     {
       "type": "skill",
       "name": "my-skill",
-      "source": "../skill/my-skill"
+      "source": "./fixtures/skill/my-skill"
     },
     {
       "type": "prompt",
       "name": "my-prompt",
-      "source": "../prompt/my-prompt.md"
+      "source": "./fixtures/prompt/my-prompt.md"
     },
     {
       "type": "command",
       "name": "my-command",
-      "source": "../command/my-command.md"
+      "source": "./fixtures/command/my-command.md"
     },
     {
       "type": "subAgent",
       "name": "my-agent",
-      "source": "../sub-agent/my-agent.md"
+      "source": "./fixtures/sub-agent/my-agent.md"
     }
   ]
 }
