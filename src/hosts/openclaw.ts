@@ -13,16 +13,7 @@ export class OpenclawAdapter implements HostAdapter {
     paths: ['~/.openclaw/', '.openclaw/'],
   };
   readonly assets: Record<AssetType, AssetCapability> = {
-    mcp: {
-      supported: true,
-      configFile: {
-        darwin: '~/.openclaw/openclaw.json',
-        linux: '~/.openclaw/openclaw.json',
-        win32: '%USERPROFILE%\\.openclaw\\openclaw.json',
-      },
-      configKey: 'mcpServers',
-      writeStrategy: 'inject-json-key',
-    },
+    mcp: NOT_SUPPORTED('OpenClaw does not natively support MCP server configuration (native MCP support was marked NOT_PLANNED by maintainers).'),
     prompt: {
       supported: true,
       targetFile: 'AGENTS.md',

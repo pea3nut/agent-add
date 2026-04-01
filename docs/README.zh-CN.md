@@ -39,22 +39,22 @@ npx -y agent-add \
 |------|-----|--------|-------|---------|-----------|
 | <img src="https://www.google.com/s2/favicons?domain=cursor.com&sz=32" width="16"> Cursor | ✅ | ✅ | ✅ | ✅ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=32" width="16"> Claude Code | ✅ | ✅ | ✅ | ✅ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=github.com&sz=32" width="16"> GitHub Copilot | ✅ | ✅ | ✅ | ✅ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=gemini.google.com&sz=32" width="16"> Gemini CLI | ✅ | ✅ | ✅ | ✅ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=windsurf.com&sz=32" width="16"> Windsurf | ✅ | ✅ | ✅ | ✅ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=roocode.com&sz=32" width="16"> Roo Code | ✅ | ✅ | ✅ | ✅ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=openai.com&sz=32" width="16"> Codex CLI | ✅ | ✅ | ✅ | ❌ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=kilo.ai&sz=32" width="16"> Kilo Code | ✅ | ✅ | ✅ | ✅ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=opencode.ai&sz=32" width="16"> opencode | ✅ | ✅ | ✅ | ✅ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=augmentcode.com&sz=32" width="16"> Augment | ✅ | ✅ | ✅ | ✅ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=qwen.ai&sz=32" width="16"> Qwen Code | ✅ | ✅ | ✅ | ✅ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=kiro.dev&sz=32" width="16"> Kiro CLI | ✅ | ✅ | ✅ | ❌ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=trae.ai&sz=32" width="16"> Trae | ✅ | ✅ | ✅ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=tabnine.com&sz=32" width="16"> Tabnine CLI | ✅ | ✅ | ❌ | ✅ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=kimi.ai&sz=32" width="16"> Kimi Code | ✅ | ✅ | ✅ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=openclawlab.com&sz=32" width="16"> OpenClaw | ❌ | ✅ | ✅ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=mistral.ai&sz=32" width="16"> Mistral Vibe | ✅ | ✅ | ✅ | ❌ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=32" width="16"> Claude Desktop | ✅ | ❌ | ❌ | ❌ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=windsurf.com&sz=32" width="16"> Windsurf | ✅ | ✅ | ✅ | ❌ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=github.com&sz=32" width="16"> GitHub Copilot | ✅ | ✅ | ❌ | ❌ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=gemini.google.com&sz=32" width="16"> Gemini CLI | ✅ | ✅ | ❌ | ❌ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=roocode.com&sz=32" width="16"> Roo Code | ✅ | ✅ | ✅ | ❌ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=kilo.ai&sz=32" width="16"> Kilo Code | ✅ | ✅ | ❌ | ❌ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=qwen.ai&sz=32" width="16"> Qwen Code | ✅ | ✅ | ✅ | ❌ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=opencode.ai&sz=32" width="16"> opencode | ✅ | ✅ | ❌ | ❌ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=augmentcode.com&sz=32" width="16"> Augment | ✅ | ✅ | ❌ | ❌ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=kiro.dev&sz=32" width="16"> Kiro CLI | ✅ | ✅ | ❌ | ❌ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=tabnine.com&sz=32" width="16"> Tabnine CLI | ✅ | ✅ | ❌ | ❌ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=kimi.ai&sz=32" width="16"> Kimi Code | ✅ | ✅ | ❌ | ❌ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=trae.ai&sz=32" width="16"> Trae | ✅ | ✅ | ❌ | ❌ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=openclawlab.com&sz=32" width="16"> OpenClaw | ✅ | ✅ | ✅ | ❌ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=openai.com&sz=32" width="16"> Codex CLI | ✅ | ✅ | ❌ | ❌ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=mistral.ai&sz=32" width="16"> Mistral Vibe | ✅ | ❌ | ❌ | ❌ | ❌ |
 
 ---
 
@@ -100,7 +100,7 @@ npx -y agent-add \
   --skill https://github.com/anthropics/skills.git#skills/webapp-testing
 ```
 
-### 安装 Prompt
+### 安装 Prompt（Rule 文件 / System Prompt）
 
 ```bash
 # 直接传入 Markdown 内联文本（含换行自动识别，第一个 # 标题作为名称）
@@ -140,29 +140,6 @@ npx -y agent-add --host cursor \
   --sub-agent https://github.com/microsoft/playwright.git#packages/playwright/src/agents/playwright-test-generator.agent.md \
   --sub-agent https://github.com/microsoft/playwright.git#packages/playwright/src/agents/playwright-test-healer.agent.md
 ```
-
-### Agent Pack：打包一键部署
-
-将多种资产打包成一个 manifest，同一份 Pack 可部署到任意宿主：
-
-```json
-{
-  "name": "my-team/standard-pack",
-  "assets": [
-    { "type": "mcp",      "source": "https://github.com/affaan-m/everything-claude-code.git#mcp-configs/playwright.json" },
-    { "type": "skill",    "source": "https://github.com/anthropics/skills.git#skills/pdf" },
-    { "type": "command",  "source": "https://github.com/wshobson/commands.git#tools/code-review.md" },
-    { "type": "subAgent", "source": "https://github.com/microsoft/playwright.git#packages/playwright/src/agents/playwright-test-planner.agent.md" }
-  ]
-}
-```
-
-```bash
-npx -y agent-add --host cursor     --pack https://your-team.com/agent-pack.json
-npx -y agent-add --host claude-code --pack https://your-team.com/agent-pack.json
-```
-
-> 当目标宿主不支持某种资产类型时，Pack 模式会自动跳过（不报错），方便同一份 Pack 部署到不同宿主。
 
 ## 来源格式
 
@@ -276,7 +253,7 @@ This skill does something useful.
 
 安装时整个目录会被递归复制到宿主的 skills 目录下（如 `.cursor/skills/my-skill/`）。
 
-### Prompt 文件
+### Prompt 文件（Rule 文件 / System Prompt）
 
 纯 Markdown 文件，无特殊格式要求：
 
@@ -316,13 +293,16 @@ Review the current file for bugs, security issues, and style violations.
 
 ### Sub-agent 文件
 
-Markdown + YAML frontmatter。支持 **`agent-add/<host>/<key>` 宿主特化语法** —— 同一份文件可为不同宿主提供不同的 frontmatter 字段值：
+Markdown + YAML frontmatter。支持 **`agent-add/<host>/<key>` 宿主特化语法** —— 同一份文件可为不同宿主提供不同的 frontmatter 字段值。这在指定 sub-agent 的模型时格外有用
+
+比如我们希望这个 sub-agent 在 Cursor 和 Claude Code 都使用各自最快速的模型：
 
 ```markdown
 ---
+name: playwright-tester
 description: A playwright testing agent.
-agent-add/cursor/name: cursor-playwright
-agent-add/claude-code/name: claude-playwright
+agent-get/cursor/model: fast
+agent-get/claude-code/model: haiku
 ---
 
 # Playwright Test Agent
@@ -338,8 +318,9 @@ Plan and generate Playwright tests.
 
 ```markdown
 ---
+name: playwright-tester
 description: A playwright testing agent.
-name: cursor-playwright
+model: fast
 ---
 
 # Playwright Test Agent
@@ -351,8 +332,9 @@ Plan and generate Playwright tests.
 
 ```markdown
 ---
+name: playwright-tester
 description: A playwright testing agent.
-name: claude-playwright
+model: haiku
 ---
 
 # Playwright Test Agent

@@ -8,27 +8,29 @@ Every adapter in `src/hosts/<id>.ts` must match the paths and capabilities docum
 ## Capability Matrix
 
 > ✅ = supported | ❌ = not supported
+>
+> Sorted by number of supported asset types (descending).
 
 | Host | ID | MCP | Prompt | Skill | Command | Sub-agent |
 |------|----|-----|--------|-------|---------|-----------|
 | Cursor | `cursor` | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Claude Code | `claude-code` | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Claude Desktop | `claude-desktop` | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Windsurf | `windsurf` | ✅ | ✅ | ✅ | ✅ | ❌ |
 | GitHub Copilot | `github-copilot` | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Gemini CLI | `gemini` | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Roo Code | `roo-code` | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Kilo Code | `kilo-code` | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Qwen Code | `qwen-code` | ✅ | ✅ | ✅ | ✅ | ✅ |
 | opencode | `opencode` | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Augment | `augment` | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Windsurf | `windsurf` | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Roo Code | `roo-code` | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Kiro CLI | `kiro` | ✅ | ✅ | ✅ | ❌ | ✅ |
+| Codex CLI | `codex` | ✅ (TOML) | ✅ | ✅ | ❌ | ✅ (TOML) |
 | Tabnine CLI | `tabnine` | ✅ | ✅ | ❌ | ✅ | ❌ |
 | Kimi Code | `kimi` | ✅ | ✅ | ✅ | ❌ | ❌ |
 | Trae | `trae` | ✅ | ✅ | ✅ | ❌ | ❌ |
-| OpenClaw | `openclaw` | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Codex CLI | `codex` | ✅ (TOML) | ✅ | ✅ | ❌ | ✅ (TOML) |
+| OpenClaw | `openclaw` | ❌ | ✅ | ✅ | ❌ | ❌ |
 | Mistral Vibe | `vibe` | ✅ (TOML) | ✅ | ✅ | ❌ | ❌ |
+| Claude Desktop | `claude-desktop` | ✅ | ❌ | ❌ | ❌ | ❌ |
 
 ---
 
@@ -52,29 +54,6 @@ Every adapter in `src/hosts/<id>.ts` must match the paths and capabilities docum
 - **Command**: `.claude/commands/<name>.md` (strategy: `copy-file`)
 - **Sub-agent**: `.claude/agents/<name>.md` (strategy: `copy-file`)
 
-### Claude Desktop
-
-- **Docs**: https://modelcontextprotocol.io/quickstart/user
-- **MCP**:
-  - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json` → key `mcpServers`
-  - Windows: `%APPDATA%\Claude\claude_desktop_config.json` → key `mcpServers`
-  - Linux: `~/.config/Claude/claude_desktop_config.json` → key `mcpServers`
-- **Prompt**: ❌ — UI-based chat application, no project-level rules files
-- **Skill**: ❌ — UI-based chat application, no skill directory
-- **Command**: ❌ — UI-based chat application, no custom slash commands
-- **Sub-agent**: ❌ — UI-based chat application, no sub-agent config files
-
-### Windsurf
-
-- **Docs**: https://docs.windsurf.com/windsurf/cascade/mcp
-- **MCP**:
-  - macOS/Linux: `~/.codeium/windsurf/mcp_config.json` → key `mcpServers`
-  - Windows: `%APPDATA%\Codeium\windsurf\mcp_config.json` → key `mcpServers`
-- **Prompt**: `.windsurf/rules/<name>.md` (strategy: `create-file-in-dir`, installDir: `.windsurf/rules`)
-- **Skill**: `.windsurf/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.windsurf/skills`)
-- **Command**: `.windsurf/workflows/<name>.md` (strategy: `copy-file`, installDir: `.windsurf/workflows`)
-- **Sub-agent**: ❌ — Windsurf does not have a sub-agent file format.
-
 ### GitHub Copilot
 
 - **Docs**: https://docs.github.com/en/copilot/tutorials/enhance-agent-mode-with-mcp
@@ -92,15 +71,6 @@ Every adapter in `src/hosts/<id>.ts` must match the paths and capabilities docum
 - **Skill**: `.gemini/skills/<name>/SKILL.md` (strategy: `copy-file`)
 - **Command**: `.gemini/commands/<name>.toml` (strategy: `copy-file`)
 - **Sub-agent**: `.gemini/agents/<name>.md` (strategy: `copy-file`)
-
-### Roo Code
-
-- **Docs**: https://docs.roocode.com/features/mcp/using-mcp-in-roo
-- **MCP**: `.roo/mcp.json` → key `mcpServers` (strategy: `inject-json-key`)
-- **Prompt**: `.roo/rules/<name>.md` (strategy: `create-file-in-dir`, installDir: `.roo/rules`)
-- **Skill**: `.roo/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.roo/skills`)
-- **Command**: `.roo/commands/<name>.md` (strategy: `copy-file`, installDir: `.roo/commands`)
-- **Sub-agent**: ❌ — Roo Code does not support sub-agent configuration files.
 
 ### Kilo Code
 
@@ -140,6 +110,26 @@ Every adapter in `src/hosts/<id>.ts` must match the paths and capabilities docum
 - **Command**: `.augment/commands/<name>.md` (strategy: `copy-file`, installDir: `.augment/commands`)
 - **Sub-agent**: `.augment/agents/<name>.md` (strategy: `copy-file`, installDir: `.augment/agents`)
 
+### Windsurf
+
+- **Docs**: https://docs.windsurf.com/windsurf/cascade/mcp
+- **MCP**:
+  - macOS/Linux: `~/.codeium/windsurf/mcp_config.json` → key `mcpServers`
+  - Windows: `%APPDATA%\Codeium\windsurf\mcp_config.json` → key `mcpServers`
+- **Prompt**: `.windsurf/rules/<name>.md` (strategy: `create-file-in-dir`, installDir: `.windsurf/rules`)
+- **Skill**: `.windsurf/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.windsurf/skills`)
+- **Command**: `.windsurf/workflows/<name>.md` (strategy: `copy-file`, installDir: `.windsurf/workflows`)
+- **Sub-agent**: ❌ — Windsurf does not have a sub-agent file format.
+
+### Roo Code
+
+- **Docs**: https://docs.roocode.com/features/mcp/using-mcp-in-roo
+- **MCP**: `.roo/mcp.json` → key `mcpServers` (strategy: `inject-json-key`)
+- **Prompt**: `.roo/rules/<name>.md` (strategy: `create-file-in-dir`, installDir: `.roo/rules`)
+- **Skill**: `.roo/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.roo/skills`)
+- **Command**: `.roo/commands/<name>.md` (strategy: `copy-file`, installDir: `.roo/commands`)
+- **Sub-agent**: ❌ — Roo Code does not support sub-agent configuration files.
+
 ### Kiro CLI
 
 - **Docs**: https://kiro.dev/docs/mcp/
@@ -148,6 +138,17 @@ Every adapter in `src/hosts/<id>.ts` must match the paths and capabilities docum
 - **Skill**: `.kiro/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.kiro/skills`)
 - **Command**: ❌ — Kiro does not support custom slash commands via files.
 - **Sub-agent**: `.kiro/agents/<name>.md` (strategy: `copy-file`, installDir: `.kiro/agents`)
+
+### Codex CLI
+
+- **Docs**: https://github.com/openai/codex
+- **MCP**:
+  - macOS/Linux: `~/.codex/config.toml` (TOML table format: `[mcp_servers.<name>]`)
+  - Windows: `%USERPROFILE%\.codex\config.toml`
+- **Prompt**: `AGENTS.md` in project root (strategy: `append-with-marker`)
+- **Skill**: `.codex/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.codex/skills`)
+- **Command**: ❌ — Codex CLI does not support custom slash commands via files.
+- **Sub-agent**: `.codex/agents/<name>.toml` (strategy: `copy-file`, installDir: `.codex/agents`)
 
 ### Tabnine CLI
 
@@ -181,24 +182,11 @@ Every adapter in `src/hosts/<id>.ts` must match the paths and capabilities docum
 ### OpenClaw
 
 - **Docs**: https://openclawlab.com/en/docs/tools/skills-config/
-- **MCP**:
-  - macOS/Linux: `~/.openclaw/openclaw.json` → key `mcpServers`
-  - Windows: `%USERPROFILE%\.openclaw\openclaw.json` → key `mcpServers`
+- **MCP**: ❌ — Native MCP support was marked NOT_PLANNED by maintainers (GitHub issue #4834).
 - **Prompt**: `AGENTS.md` in project root (strategy: `append-with-marker`)
 - **Skill**: `.openclaw/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.openclaw/skills`)
 - **Command**: ❌ — OpenClaw does not support custom slash commands via files.
 - **Sub-agent**: ❌ — OpenClaw does not support sub-agent configuration files.
-
-### Codex CLI
-
-- **Docs**: https://github.com/openai/codex
-- **MCP**:
-  - macOS/Linux: `~/.codex/config.toml` (TOML table format: `[mcp_servers.<name>]`)
-  - Windows: `%USERPROFILE%\.codex\config.toml`
-- **Prompt**: `AGENTS.md` in project root (strategy: `append-with-marker`)
-- **Skill**: `.codex/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.codex/skills`)
-- **Command**: ❌ — Codex CLI does not support custom slash commands via files.
-- **Sub-agent**: `.codex/agents/<name>.toml` (strategy: `copy-file`, installDir: `.codex/agents`)
 
 ### Mistral Vibe
 
@@ -208,6 +196,18 @@ Every adapter in `src/hosts/<id>.ts` must match the paths and capabilities docum
 - **Skill**: `.vibe/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.vibe/skills`)
 - **Command**: ❌ — Mistral Vibe does not support custom slash commands via files.
 - **Sub-agent**: ❌ — Mistral Vibe does not support sub-agent configuration files.
+
+### Claude Desktop
+
+- **Docs**: https://modelcontextprotocol.io/quickstart/user
+- **MCP**:
+  - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json` → key `mcpServers`
+  - Windows: `%APPDATA%\Claude\claude_desktop_config.json` → key `mcpServers`
+  - Linux: `~/.config/Claude/claude_desktop_config.json` → key `mcpServers`
+- **Prompt**: ❌ — UI-based chat application, no project-level rules files
+- **Skill**: ❌ — UI-based chat application, no skill directory
+- **Command**: ❌ — UI-based chat application, no custom slash commands
+- **Sub-agent**: ❌ — UI-based chat application, no sub-agent config files
 
 ---
 
