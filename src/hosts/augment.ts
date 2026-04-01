@@ -28,8 +28,23 @@ export class AugmentAdapter implements HostAdapter {
       installDir: '.augment/rules',
       writeStrategy: 'create-file-in-dir',
     },
-    skill: NOT_SUPPORTED('Augment does not support project-level skill directories.'),
-    command: NOT_SUPPORTED('Augment does not support custom slash commands via files.'),
-    subAgent: NOT_SUPPORTED('Augment does not support sub-agent configuration files.'),
+    skill: {
+      supported: true,
+      installDir: '.augment/skills/',
+      entryFile: 'SKILL.md',
+      writeStrategy: 'copy-file',
+    },
+    command: {
+      supported: true,
+      installDir: '.augment/commands/',
+      fileExtension: '.md',
+      writeStrategy: 'copy-file',
+    },
+    subAgent: {
+      supported: true,
+      installDir: '.augment/agents/',
+      fileExtension: '.md',
+      writeStrategy: 'copy-file',
+    },
   };
 }

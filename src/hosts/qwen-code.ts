@@ -30,7 +30,17 @@ export class QwenCodeAdapter implements HostAdapter {
       entryFile: 'SKILL.md',
       writeStrategy: 'copy-file',
     },
-    command: NOT_SUPPORTED('Qwen Code does not support custom slash commands via files.'),
-    subAgent: NOT_SUPPORTED('Qwen Code does not support sub-agent configuration files.'),
+    command: {
+      supported: true,
+      installDir: '.qwen-code/commands/',
+      fileExtension: '.md',
+      writeStrategy: 'copy-file',
+    },
+    subAgent: {
+      supported: true,
+      installDir: '.qwen/agents/',
+      fileExtension: '.md',
+      writeStrategy: 'copy-file',
+    },
   };
 }

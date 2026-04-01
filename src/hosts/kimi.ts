@@ -28,7 +28,12 @@ export class KimiAdapter implements HostAdapter {
       targetFile: 'AGENTS.md',
       writeStrategy: 'append-with-marker',
     },
-    skill: NOT_SUPPORTED('Kimi Code does not support project-level skill directories.'),
+    skill: {
+      supported: true,
+      installDir: '.kimi/skills/',
+      entryFile: 'SKILL.md',
+      writeStrategy: 'copy-file',
+    },
     command: NOT_SUPPORTED('Kimi Code does not support custom slash commands via files.'),
     subAgent: NOT_SUPPORTED('Kimi Code does not support sub-agent configuration files.'),
   };

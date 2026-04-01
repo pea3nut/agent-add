@@ -28,8 +28,18 @@ export class CodexAdapter implements HostAdapter {
       targetFile: 'AGENTS.md',
       writeStrategy: 'append-with-marker',
     },
-    skill: NOT_SUPPORTED('Codex CLI does not support project-level skill directories.'),
+    skill: {
+      supported: true,
+      installDir: '.codex/skills/',
+      entryFile: 'SKILL.md',
+      writeStrategy: 'copy-file',
+    },
     command: NOT_SUPPORTED('Codex CLI does not support custom slash commands via files.'),
-    subAgent: NOT_SUPPORTED('Codex CLI does not support sub-agent configuration files.'),
+    subAgent: {
+      supported: true,
+      installDir: '.codex/agents/',
+      fileExtension: '.toml',
+      writeStrategy: 'copy-file',
+    },
   };
 }

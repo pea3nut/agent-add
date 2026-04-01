@@ -24,8 +24,23 @@ export class OpencodeAdapter implements HostAdapter {
       targetFile: 'AGENTS.md',
       writeStrategy: 'append-with-marker',
     },
-    skill: NOT_SUPPORTED('opencode does not support project-level skill directories.'),
-    command: NOT_SUPPORTED('opencode does not support custom slash commands via files.'),
-    subAgent: NOT_SUPPORTED('opencode does not support sub-agent configuration files.'),
+    skill: {
+      supported: true,
+      installDir: '.opencode/skills/',
+      entryFile: 'SKILL.md',
+      writeStrategy: 'copy-file',
+    },
+    command: {
+      supported: true,
+      installDir: '.opencode/commands/',
+      fileExtension: '.md',
+      writeStrategy: 'copy-file',
+    },
+    subAgent: {
+      supported: true,
+      installDir: '.opencode/agents/',
+      fileExtension: '.md',
+      writeStrategy: 'copy-file',
+    },
   };
 }

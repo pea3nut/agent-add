@@ -24,8 +24,23 @@ export class KiloCodeAdapter implements HostAdapter {
       installDir: '.kilocode/rules',
       writeStrategy: 'create-file-in-dir',
     },
-    skill: NOT_SUPPORTED('Kilo Code does not support project-level skill directories.'),
-    command: NOT_SUPPORTED('Kilo Code does not support custom slash commands via files.'),
-    subAgent: NOT_SUPPORTED('Kilo Code does not support sub-agent configuration files.'),
+    skill: {
+      supported: true,
+      installDir: '.kilocode/skills/',
+      entryFile: 'SKILL.md',
+      writeStrategy: 'copy-file',
+    },
+    command: {
+      supported: true,
+      installDir: '.kilocode/commands/',
+      fileExtension: '.md',
+      writeStrategy: 'copy-file',
+    },
+    subAgent: {
+      supported: true,
+      installDir: '.kilocode/agents/',
+      fileExtension: '.md',
+      writeStrategy: 'copy-file',
+    },
   };
 }

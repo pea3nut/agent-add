@@ -34,7 +34,12 @@ export class WindsurfAdapter implements HostAdapter {
       entryFile: 'SKILL.md',
       writeStrategy: 'copy-file',
     },
-    command: NOT_SUPPORTED('Windsurf does not have a custom slash command mechanism equivalent to Command.'),
+    command: {
+      supported: true,
+      installDir: '.windsurf/workflows/',
+      fileExtension: '.md',
+      writeStrategy: 'copy-file',
+    },
     subAgent: NOT_SUPPORTED('Windsurf does not have a sub-agent file format.'),
   };
 }

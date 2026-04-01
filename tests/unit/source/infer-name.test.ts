@@ -18,6 +18,14 @@ describe('inferName', () => {
     it('should throw for malformed inline JSON', () => {
       expect(() => inferName('{malformed')).toThrow();
     });
+
+    it('should extract server name from wrapped mcpServers format', () => {
+      expect(inferName('{"mcpServers":{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}}')).toBe('playwright');
+    });
+
+    it('should throw for wrapped mcpServers with multiple servers', () => {
+      expect(() => inferName('{"mcpServers":{"a":{"command":"x"},"b":{"command":"y"}}}')).toThrow();
+    });
   });
 
   describe('inline Markdown', () => {

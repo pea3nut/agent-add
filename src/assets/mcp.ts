@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { readJSONOrNull, atomicWriteJSON, ensureDir } from '../utils/fs.js';
+import { unwrapMcpServers } from '../utils/unwrap-mcp-servers.js';
 import type { AssetHandler, InstallJob, InstallResult } from './types.js';
 
 function getHomedir(): string {
@@ -117,6 +118,12 @@ export const mcpHandler: AssetHandler = {
     try {
       const rawContent = await fs.promises.readFile(resolvedSource.localPath, 'utf-8');
       newServerConfig = JSON.parse(rawContent) as Record<string, unknown>;
+
+      // Unwrap nested mcpServers format if present
+      const unwrapped = unwrapMcpServers(newServerConfig);
+      if (unwrapped) {
+        newServerConfig = unwrapped.config;
+      }
     } catch (err) {
       return {
         job,

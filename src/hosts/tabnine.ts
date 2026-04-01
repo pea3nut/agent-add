@@ -25,7 +25,12 @@ export class TabnineAdapter implements HostAdapter {
       writeStrategy: 'create-file-in-dir',
     },
     skill: NOT_SUPPORTED('Tabnine CLI does not support project-level skill directories.'),
-    command: NOT_SUPPORTED('Tabnine CLI does not support custom slash commands via files.'),
+    command: {
+      supported: true,
+      installDir: '.tabnine/agent/commands/',
+      fileExtension: '.md',
+      writeStrategy: 'copy-file',
+    },
     subAgent: NOT_SUPPORTED('Tabnine CLI does not support sub-agent configuration files.'),
   };
 }

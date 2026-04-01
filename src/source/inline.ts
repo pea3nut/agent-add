@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import type { ResolvedSource } from '../assets/types.js';
+import { unwrapMcpServers } from '../utils/unwrap-mcp-servers.js';
 
 export async function resolveInlineJson(source: string, assetName: string): Promise<ResolvedSource> {
   let parsed: unknown;
@@ -17,14 +18,21 @@ export async function resolveInlineJson(source: string, assetName: string): Prom
     throw new Error(`内联 JSON 必须为对象类型，得到：${JSON.stringify(parsed)}`);
   }
 
-  const entries = Object.entries(parsed as Record<string, unknown>);
-  if (entries.length !== 1) {
-    throw new Error(
-      `内联 JSON 必须包含恰好一个 key（作为资产名称），当前有 ${entries.length} 个 key`,
-    );
-  }
+  const obj = parsed as Record<string, unknown>;
+  let value: unknown;
 
-  const [, value] = entries[0]!;
+  const unwrapped = unwrapMcpServers(obj);
+  if (unwrapped) {
+    value = unwrapped.config;
+  } else {
+    const entries = Object.entries(obj);
+    if (entries.length !== 1) {
+      throw new Error(
+        `内联 JSON 必须包含恰好一个 key（作为资产名称），当前有 ${entries.length} 个 key`,
+      );
+    }
+    [, value] = entries[0]!;
+  }
 
   const tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'agent-add-inline-'));
   const tmpFile = path.join(tmpDir, `${assetName}.json`);

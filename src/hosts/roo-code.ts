@@ -30,7 +30,12 @@ export class RooCodeAdapter implements HostAdapter {
       entryFile: 'SKILL.md',
       writeStrategy: 'copy-file',
     },
-    command: NOT_SUPPORTED('Roo Code does not support custom slash commands via files.'),
+    command: {
+      supported: true,
+      installDir: '.roo/commands/',
+      fileExtension: '.md',
+      writeStrategy: 'copy-file',
+    },
     subAgent: NOT_SUPPORTED('Roo Code does not support sub-agent configuration files.'),
   };
 }

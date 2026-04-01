@@ -3,57 +3,42 @@
 **Run ID**: run-20260401-120000
 **环境**: bash-shell
 **并发数**: 4
-**时间**: 2026-04-01T12:00:00Z ~ 2026-04-01T12:15:00Z（总耗时 ~900s）
+**时间**: 2026-04-01T12:00:00Z ~ 2026-04-01T12:08:30Z（总耗时 ~510s）
+**Early Stop**: ⚠️ 触发（maxFailures=2，第3批次后 failCount=3）
 
 ## 汇总
 
 | 总计 | 通过 | 失败 | 跳过 | 错误 |
 |------|------|------|------|------|
-| 21   | 21   | 0    | 0    | 0    |
+| 62   | 11   | 3    | 50   | 0    |
 
-## 用例结果
-
-### multi-asset.feature (4/4 passed)
-| caseId | Scenario | 状态 |
-|--------|----------|------|
-| case-m1a001 | Two MCP flags in one command on Cursor | ✓ passed |
-| case-m1a002 | All 5 asset types in one command on Cursor | ✓ passed |
-| case-m1a003 | Pack plus explicit MCP flag on Claude Code | ✓ passed |
-| case-m1a004 | Pack with source array installs multiple assets of same type | ✓ passed |
-
-### mcp-advanced.feature (6/6 passed)
-| caseId | Scenario | 状态 |
-|--------|----------|------|
-| case-mcp001 | MCP with env variables preserves env in JSON output | ✓ passed |
-| case-mcp002 | MCP install into pre-existing config preserves existing entries | ✓ passed |
-| case-mcp003 | Two sequential MCP installs coexist in same config on Claude Code | ✓ passed |
-| case-mcp004 | Codex MCP install produces TOML table format | ✓ passed |
-| case-mcp005 | Codex TOML preserves env variables | ✓ passed |
-| case-mcp006 | Vibe MCP install produces TOML array format | ✓ passed |
-
-### prompt-lifecycle.feature (4/4 passed)
-| caseId | Scenario | 状态 |
-|--------|----------|------|
-| case-pmt001 | Prompt update flow returns updated status on content change | ✓ passed |
-| case-pmt002 | Two different prompts coexist in AGENTS.md with separate markers | ✓ passed |
-| case-pmt003 | Prompt append preserves pre-existing non-agent-get content | ✓ passed |
-| case-pmt004 | Prompt create-file-in-dir strategy on Roo Code | ✓ passed |
-
-### sub-agent-advanced.feature (3/3 passed)
-| caseId | Scenario | 状态 |
-|--------|----------|------|
-| case-sub001 | Sub-agent on Cursor expands cursor-specific frontmatter fields | ✓ passed |
-| case-sub002 | Sub-agent on Claude Code expands claude-code-specific frontmatter fields | ✓ passed |
-| case-sub003 | Sub-agent conflict detection when existing file has different content | ✓ passed |
-
-### pack-mixed.feature (4/4 passed)
-| caseId | Scenario | 状态 |
-|--------|----------|------|
-| case-pak001 | Pack on Codex installs MCP as TOML and prompt, skips unsupported types | ✓ passed |
-| case-pak002 | Explicit flag for unsupported asset type exits with code 2 | ✓ passed |
-| case-pak003 | Pack on Roo Code installs MCP, prompt as file-in-dir, and skill, skips command and subAgent | ✓ passed |
-| case-pak004 | MCP conflict in single-asset install exits with code 1 | ✓ passed |
+已执行 12 个 Scenario（3批 × 4并发），50 个因 Early Stop 未执行（标记 skipped）。
 
 ## 失败用例
 
-无
+| caseId | Scenario | 错误类型 | 错误信息 |
+|--------|----------|----------|----------|
+| case-cb0001 | --version outputs the correct version number | assertion | 版本 "0.0.1-beta.1" 含预发布后缀，runner 断言过严（实际包含 \d+\.\d+\.\d+ 模式） |
+| case-mc0006 | Install MCP from inline JSON source | environment | Windows 下 inline JSON `{...}` 被当作文件路径处理，CLI 报 "Local source not found" |
+| case-mc0007 | Repeated inline MCP install returns exists | environment | 同 case-mc0006，inline JSON 源在 Windows 下路径解析异常 |
+
+## 执行用例明细（已执行 12 个）
+
+| caseId | Scenario | 状态 |
+|--------|----------|------|
+| case-cb0001 | --version outputs the correct version number | ✗ failed |
+| case-cb0002 | --help outputs help information | ✓ passed |
+| case-cb0003 | No --host flag in non-TTY exits with error code 2 | ✓ passed |
+| case-ce0001 | Explicit unsupported asset type exits with code 2 | ✓ passed |
+| case-mc0001 | Install MCP on Cursor succeeds | ✓ passed |
+| case-mc0002 | MCP install writes to the correct file with correct content | ✓ passed |
+| case-mc0003 | Repeated install of same content returns exists | ✓ passed |
+| case-mc0004 | Install with conflicting key returns conflict | ✓ passed |
+| case-mc0005 | Install from non-existent path returns error | ✓ passed |
+| case-mc0006 | Install MCP from inline JSON source | ✗ failed |
+| case-mc0007 | Repeated inline MCP install returns exists | ✗ failed |
+| case-pr0001 | Install prompt on Cursor appends to AGENTS.md | ✓ passed |
+
+## 跳过用例（50 个，Early Stop）
+
+所有 Batch 4–16 用例（prompt/skill/command/sub-agent/pack/host/complex 系列）因 maxFailures 触发 Early Stop 而未执行。

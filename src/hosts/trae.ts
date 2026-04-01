@@ -24,7 +24,12 @@ export class TraeAdapter implements HostAdapter {
       installDir: '.trae/rules',
       writeStrategy: 'create-file-in-dir',
     },
-    skill: NOT_SUPPORTED('Trae does not support project-level skill directories.'),
+    skill: {
+      supported: true,
+      installDir: '.trae/skills/',
+      entryFile: 'SKILL.md',
+      writeStrategy: 'copy-file',
+    },
     command: NOT_SUPPORTED('Trae does not support custom slash commands via files.'),
     subAgent: NOT_SUPPORTED('Trae does not support sub-agent configuration files.'),
   };

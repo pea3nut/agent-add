@@ -6,7 +6,6 @@
 
 [![npm](https://img.shields.io/npm/v/@pea3nut/agent-add)](https://www.npmjs.com/package/@pea3nut/agent-add)
 [![License: MPL-2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](LICENSE)
-[![Node](https://img.shields.io/badge/node-%E2%89%A518-brightgreen)]()
 [![Scenario Tests](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/pea3nut/agent-add/master/tests/test-results/badge.json)](tests/test-results/)
 
 [English](../README.md) | **中文** | [日本語](./README.ja.md)
@@ -65,8 +64,8 @@ npx -y agent-add \
 
 ```bash
 npx -y agent-add --host claude-code --mcp https://github.com/affaan-m/everything-claude-code.git#mcp-configs/playwright.json
-npx -y agent-add --host cursor     --mcp https://github.com/affaan-m/everything-claude-code.git#mcp-configs/playwright.json
-npx -y agent-add --host codex      --mcp https://github.com/affaan-m/everything-claude-code.git#mcp-configs/playwright.json
+npx -y agent-add --host cursor      --mcp https://github.com/affaan-m/everything-claude-code.git#mcp-configs/playwright.json
+npx -y agent-add --host codex       --mcp https://github.com/affaan-m/everything-claude-code.git#mcp-configs/playwright.json
 
 # 不指定 AI 工具将会有个可交互的菜单供选择
 npx -y agent-add --mcp https://github.com/affaan-m/everything-claude-code.git#mcp-configs/playwright.json
@@ -128,7 +127,7 @@ npx -y agent-add --host claude-code \
   --command https://github.com/wshobson/commands.git#tools/refactor.md
 ```
 
-### 安装 Sub-agent
+### 安装子代理（Sub-agent）
 
 ```bash
 # 从 Microsoft Playwright 官方仓库安装测试规划代理（⭐68k）
@@ -165,16 +164,6 @@ npx -y agent-add --host claude-code --pack https://your-team.com/agent-pack.json
 
 > 当目标宿主不支持某种资产类型时，Pack 模式会自动跳过（不报错），方便同一份 Pack 部署到不同宿主。
 
-## 5 种资产类型
-
-| 资产类型 | 说明 | 文件格式 |
-|----------|------|----------|
-| **MCP** | MCP Server 配置 | JSON（或 TOML） |
-| **Skill** | 可复用的 Agent 技能 | 目录（含 `SKILL.md` 入口） |
-| **Prompt** | 项目级规则/系统提示词 | Markdown 文件 |
-| **Command** | 自定义斜杠命令 | Markdown 文件 |
-| **Sub-agent** | 子代理配置 | Markdown + YAML frontmatter |
-
 ## 来源格式
 
 | 来源 | 示例 | MCP | Prompt | Skill | Command | Sub-agent |
@@ -187,16 +176,18 @@ npx -y agent-add --host claude-code --pack https://your-team.com/agent-pack.json
 | HTTP URL | `https://example.com/config.json` | ✅ | ✅ | ❌ | ✅ | ✅ |
 
 > Git 来源支持 `@ref` 指定分支/标签/commit，`#path` 指定仓库内子路径（sparse checkout，不会克隆整个仓库）。
+
 > 内联 JSON 格式为 `{"<名称>": {...config...}}`，key 即资产名称。内联 Markdown 从第一个 `# 标题` 推断名称。
+
 > Skill 是目录资产，不支持内联内容或单文件 HTTP URL。
 
 ## CLI 参考
 
 ```
-agent-add [OPTIONS]
+npx -y agent-add [OPTIONS]
 
 Options:
-  --host <host>         指定目标宿主 ID
+  --host <host>         指定目标 AI Agent
   --mcp <source>        安装 MCP Server 配置
   --skill <source>      安装 Skill 目录
   --prompt <source>     安装 Prompt 文件
@@ -208,6 +199,218 @@ Options:
 ```
 
 所有资产 flag 可重复使用（安装多个同类资产），也可与 `--pack` 自由组合。
+
+## 资产开发者指南
+
+如果你是 MCP Server、Skill、Prompt 等资产的**开发者或分发者**，以下是 agent-add 接受的文件格式规范。
+
+### MCP 配置文件
+
+agent-add 支持两种 JSON 格式，自动识别：
+
+**格式 A：内层配置（单个 server）**
+
+```json
+{
+  "command": "npx",
+  "args": ["@playwright/mcp@latest"],
+  "env": {}
+}
+```
+
+资产名从文件名推断：`playwright.json` → 名称为 `playwright`。
+
+**格式 B：包含 `mcpServers` 的完整配置**
+
+```json
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    }
+  }
+}
+```
+
+agent-add 会自动解包 `mcpServers`，提取内层的 server 名称和配置。
+
+> 包裹格式目前仅支持单个 server。如需安装多个 MCP，请使用多个 `--mcp` flag 或 Pack 的多源语法。
+
+**内联 JSON** 同样支持两种格式：
+
+```bash
+# 格式 A：顶层 key 即名称
+npx -y agent-add --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}'
+
+# 格式 B：自动解包 mcpServers
+npx -y agent-add --mcp '{"mcpServers":{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}}'
+```
+
+agent-add 会自动将配置合并到目标宿主的配置文件中（如 `.cursor/mcp.json` 的 `mcpServers` 字段、Codex 的 TOML 等），开发者无需关心宿主差异。
+
+### Skill 目录
+
+Skill 是一个**目录**，根目录必须包含 `SKILL.md` 入口文件：
+
+```
+my-skill/
+├── SKILL.md          ← 必须存在
+├── helpers/
+│   └── utils.py
+└── templates/
+    └── report.md
+```
+
+```markdown
+<!-- SKILL.md -->
+---
+name: my-skill
+description: A reusable agent skill.
+---
+
+# Skill: my-skill
+
+This skill does something useful.
+```
+
+安装时整个目录会被递归复制到宿主的 skills 目录下（如 `.cursor/skills/my-skill/`）。
+
+### Prompt 文件
+
+纯 Markdown 文件，无特殊格式要求：
+
+```markdown
+# Code Review Rules
+
+Always review for security issues first.
+Use bullet points for lists.
+```
+
+agent-add 根据宿主自动选择写入策略：
+
+- **追加模式**（Cursor → `AGENTS.md`、Claude Code → `CLAUDE.md` 等）：内容被 HTML 注释 marker 包裹后追加到文件末尾，保证幂等：
+  ```html
+  <!-- agent-add:code-review-rules -->
+  # Code Review Rules
+  ...
+  <!-- /agent-add:code-review-rules -->
+  ```
+- **独立文件模式**（Windsurf → `.windsurf/rules/`、Roo Code → `.roo/rules/` 等）：在规则目录下创建 `<name>.md` 文件
+
+### Command 文件
+
+Markdown 文件，支持可选的 YAML frontmatter：
+
+```markdown
+---
+description: Run a comprehensive code review.
+---
+
+# code-review
+
+Review the current file for bugs, security issues, and style violations.
+```
+
+安装到宿主的 commands 目录（如 `.cursor/commands/code-review.md`）。
+
+### Sub-agent 文件
+
+Markdown + YAML frontmatter。支持 **`agent-add/<host>/<key>` 宿主特化语法** —— 同一份文件可为不同宿主提供不同的 frontmatter 字段值：
+
+```markdown
+---
+description: A playwright testing agent.
+agent-add/cursor/name: cursor-playwright
+agent-add/claude-code/name: claude-playwright
+---
+
+# Playwright Test Agent
+
+Plan and generate Playwright tests.
+```
+
+安装时，agent-add 会：
+1. 将匹配当前宿主的 `agent-add/<host>/*` 值**提升到顶层**
+2. **移除**所有 `agent-add/*` 前缀的 key
+
+**安装到 Cursor 后：**
+
+```markdown
+---
+description: A playwright testing agent.
+name: cursor-playwright
+---
+
+# Playwright Test Agent
+
+Plan and generate Playwright tests.
+```
+
+**安装到 Claude Code 后：**
+
+```markdown
+---
+description: A playwright testing agent.
+name: claude-playwright
+---
+
+# Playwright Test Agent
+
+Plan and generate Playwright tests.
+```
+
+### Pack Manifest
+
+JSON 文件，将多种资产打包在一起分发：
+
+```json
+{
+  "name": "my-team/frontend-pack",
+  "assets": [
+    { "type": "mcp",      "source": "./mcps/playwright.json" },
+    { "type": "skill",    "source": "./skills/e2e-guide" },
+    { "type": "prompt",   "source": "./prompts/code-review.md" },
+    { "type": "command",  "source": "./commands/deploy.md" },
+    { "type": "subAgent", "source": "./agents/reviewer.md" }
+  ]
+}
+```
+
+**字段规范：**
+
+| 字段 | 要求 | 说明 |
+|------|------|------|
+| `name` | 必填 | 格式 `namespace/pack-name`，仅允许 `[a-zA-Z0-9_-]` |
+| `assets` | 必填 | 至少 1 项 |
+| `assets[].type` | 必填 | `mcp` \| `skill` \| `prompt` \| `command` \| `subAgent` |
+| `assets[].source` | 必填 | 字符串或字符串数组（多源自动展开为多个同类资产） |
+
+**多源示例** —— 同一个 `type` 安装多个文件：
+
+```json
+{
+  "name": "my-team/mcp-collection",
+  "assets": [
+    {
+      "type": "mcp",
+      "source": ["./mcps/playwright.json", "./mcps/filesystem.json"]
+    }
+  ]
+}
+```
+
+### 资产名称推断
+
+当未显式指定名称时，agent-add 按以下优先级从来源字符串推断：
+
+| 来源类型 | 推断规则 | 示例 |
+|----------|----------|------|
+| 内联 JSON | 取唯一的顶层 key | `{"playwright":{...}}` → `playwright` |
+| 内联 Markdown | 取第一个 `# 标题`，转 kebab-case | `# Code Review` → `code-review` |
+| Git URL + `#path` | 取 `#` 后路径的最后一段（去扩展名） | `...git#skills/pdf` → `pdf` |
+| Git URL 无 `#` | 取仓库名（去 `.git` 后缀） | `...playwright.git` → `playwright` |
+| 本地路径 / HTTP | 取文件名（去扩展名） | `./mcps/playwright.json` → `playwright` |
 
 ## 贡献
 

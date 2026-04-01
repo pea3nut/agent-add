@@ -24,8 +24,18 @@ export class KiroAdapter implements HostAdapter {
       installDir: '.kiro/steering',
       writeStrategy: 'create-file-in-dir',
     },
-    skill: NOT_SUPPORTED('Kiro does not support project-level skill directories.'),
+    skill: {
+      supported: true,
+      installDir: '.kiro/skills/',
+      entryFile: 'SKILL.md',
+      writeStrategy: 'copy-file',
+    },
     command: NOT_SUPPORTED('Kiro does not support custom slash commands via files.'),
-    subAgent: NOT_SUPPORTED('Kiro does not support sub-agent configuration files.'),
+    subAgent: {
+      supported: true,
+      installDir: '.kiro/agents/',
+      fileExtension: '.md',
+      writeStrategy: 'copy-file',
+    },
   };
 }

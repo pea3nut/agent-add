@@ -24,8 +24,23 @@ export class GeminiAdapter implements HostAdapter {
       targetFile: 'GEMINI.md',
       writeStrategy: 'append-with-marker',
     },
-    skill: NOT_SUPPORTED('Gemini CLI does not support project-level skill directories.'),
-    command: NOT_SUPPORTED('Gemini CLI does not support custom slash commands via files.'),
-    subAgent: NOT_SUPPORTED('Gemini CLI does not support sub-agent configuration files.'),
+    skill: {
+      supported: true,
+      installDir: '.gemini/skills/',
+      entryFile: 'SKILL.md',
+      writeStrategy: 'copy-file',
+    },
+    command: {
+      supported: true,
+      installDir: '.gemini/commands/',
+      fileExtension: '.toml',
+      writeStrategy: 'copy-file',
+    },
+    subAgent: {
+      supported: true,
+      installDir: '.gemini/agents/',
+      fileExtension: '.md',
+      writeStrategy: 'copy-file',
+    },
   };
 }

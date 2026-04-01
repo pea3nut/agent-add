@@ -24,8 +24,23 @@ export class GitHubCopilotAdapter implements HostAdapter {
       targetFile: '.github/copilot-instructions.md',
       writeStrategy: 'append-with-marker',
     },
-    skill: NOT_SUPPORTED('GitHub Copilot does not support project-level skill directories.'),
-    command: NOT_SUPPORTED('GitHub Copilot does not support custom slash commands via files.'),
-    subAgent: NOT_SUPPORTED('GitHub Copilot does not support sub-agent configuration files.'),
+    skill: {
+      supported: true,
+      installDir: '.github/skills/',
+      entryFile: 'SKILL.md',
+      writeStrategy: 'copy-file',
+    },
+    command: {
+      supported: true,
+      installDir: '.github/prompts/',
+      fileExtension: '.prompt.md',
+      writeStrategy: 'copy-file',
+    },
+    subAgent: {
+      supported: true,
+      installDir: '.github/agents/',
+      fileExtension: '.agent.md',
+      writeStrategy: 'copy-file',
+    },
   };
 }

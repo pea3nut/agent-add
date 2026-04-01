@@ -1,4 +1,5 @@
 import path from 'path';
+import { unwrapMcpServers } from '../utils/unwrap-mcp-servers.js';
 
 /**
  * Infer asset name from source string.
@@ -24,7 +25,12 @@ export function inferName(source: string): string {
     if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
       throw new Error(`内联 JSON 必须为对象类型`);
     }
-    const keys = Object.keys(parsed as Record<string, unknown>);
+    const obj = parsed as Record<string, unknown>;
+    const unwrapped = unwrapMcpServers(obj);
+    if (unwrapped) {
+      return unwrapped.name;
+    }
+    const keys = Object.keys(obj);
     if (keys.length !== 1) {
       throw new Error(
         `内联 JSON 必须包含恰好一个 key（作为资产名称），当前有 ${keys.length} 个 key`,

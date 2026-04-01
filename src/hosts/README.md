@@ -14,21 +14,21 @@ Every adapter in `src/hosts/<id>.ts` must match the paths and capabilities docum
 | Cursor | `cursor` | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Claude Code | `claude-code` | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Claude Desktop | `claude-desktop` | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Windsurf | `windsurf` | ✅ | ✅ | ✅ | ❌ | ❌ |
-| GitHub Copilot | `github-copilot` | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Gemini CLI | `gemini` | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Roo Code | `roo-code` | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Kilo Code | `kilo-code` | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Qwen Code | `qwen-code` | ✅ | ✅ | ✅ | ❌ | ❌ |
-| opencode | `opencode` | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Augment | `augment` | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Kiro CLI | `kiro` | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Tabnine CLI | `tabnine` | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Kimi Code | `kimi` | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Trae | `trae` | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Windsurf | `windsurf` | ✅ | ✅ | ✅ | ✅ | ❌ |
+| GitHub Copilot | `github-copilot` | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Gemini CLI | `gemini` | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Roo Code | `roo-code` | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Kilo Code | `kilo-code` | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Qwen Code | `qwen-code` | ✅ | ✅ | ✅ | ✅ | ✅ |
+| opencode | `opencode` | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Augment | `augment` | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Kiro CLI | `kiro` | ✅ | ✅ | ✅ | ❌ | ✅ |
+| Tabnine CLI | `tabnine` | ✅ | ✅ | ❌ | ✅ | ❌ |
+| Kimi Code | `kimi` | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Trae | `trae` | ✅ | ✅ | ✅ | ❌ | ❌ |
 | OpenClaw | `openclaw` | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Codex CLI | `codex` | ✅ (TOML) | ✅ | ❌ | ❌ | ❌ |
-| Mistral Vibe | `vibe` | ✅ (TOML) | ❌ | ❌ | ❌ | ❌ |
+| Codex CLI | `codex` | ✅ (TOML) | ✅ | ✅ | ❌ | ✅ (TOML) |
+| Mistral Vibe | `vibe` | ✅ (TOML) | ✅ | ✅ | ❌ | ❌ |
 
 ---
 
@@ -72,7 +72,7 @@ Every adapter in `src/hosts/<id>.ts` must match the paths and capabilities docum
   - Windows: `%APPDATA%\Codeium\windsurf\mcp_config.json` → key `mcpServers`
 - **Prompt**: `.windsurf/rules/<name>.md` (strategy: `create-file-in-dir`, installDir: `.windsurf/rules`)
 - **Skill**: `.windsurf/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.windsurf/skills`)
-- **Command**: ❌ — Windsurf does not have a custom slash command mechanism equivalent to Command.
+- **Command**: `.windsurf/workflows/<name>.md` (strategy: `copy-file`, installDir: `.windsurf/workflows`)
 - **Sub-agent**: ❌ — Windsurf does not have a sub-agent file format.
 
 ### GitHub Copilot
@@ -80,18 +80,18 @@ Every adapter in `src/hosts/<id>.ts` must match the paths and capabilities docum
 - **Docs**: https://docs.github.com/en/copilot/tutorials/enhance-agent-mode-with-mcp
 - **MCP**: `.vscode/mcp.json` → key `servers` (strategy: `inject-json-key`)
 - **Prompt**: `.github/copilot-instructions.md` (strategy: `append-with-marker`)
-- **Skill**: ❌ — GitHub Copilot does not support project-level skill directories.
-- **Command**: ❌ — GitHub Copilot does not support custom slash commands via files.
-- **Sub-agent**: ❌ — GitHub Copilot does not support sub-agent configuration files.
+- **Skill**: `.github/skills/<name>/SKILL.md` (strategy: `copy-file`)
+- **Command**: `.github/prompts/<name>.prompt.md` (strategy: `copy-file`)
+- **Sub-agent**: `.github/agents/<name>.agent.md` (strategy: `copy-file`)
 
 ### Gemini CLI
 
 - **Docs**: https://google-gemini.github.io/gemini-cli/docs/tools/mcp-server.html
 - **MCP**: `.gemini/settings.json` → key `mcpServers` (strategy: `inject-json-key`)
 - **Prompt**: `GEMINI.md` in project root (strategy: `append-with-marker`)
-- **Skill**: ❌ — Gemini CLI does not support project-level skill directories.
-- **Command**: ❌ — Gemini CLI does not support custom slash commands via files.
-- **Sub-agent**: ❌ — Gemini CLI does not support sub-agent configuration files.
+- **Skill**: `.gemini/skills/<name>/SKILL.md` (strategy: `copy-file`)
+- **Command**: `.gemini/commands/<name>.toml` (strategy: `copy-file`)
+- **Sub-agent**: `.gemini/agents/<name>.md` (strategy: `copy-file`)
 
 ### Roo Code
 
@@ -99,7 +99,7 @@ Every adapter in `src/hosts/<id>.ts` must match the paths and capabilities docum
 - **MCP**: `.roo/mcp.json` → key `mcpServers` (strategy: `inject-json-key`)
 - **Prompt**: `.roo/rules/<name>.md` (strategy: `create-file-in-dir`, installDir: `.roo/rules`)
 - **Skill**: `.roo/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.roo/skills`)
-- **Command**: ❌ — Roo Code does not support custom slash commands via files.
+- **Command**: `.roo/commands/<name>.md` (strategy: `copy-file`, installDir: `.roo/commands`)
 - **Sub-agent**: ❌ — Roo Code does not support sub-agent configuration files.
 
 ### Kilo Code
@@ -107,9 +107,9 @@ Every adapter in `src/hosts/<id>.ts` must match the paths and capabilities docum
 - **Docs**: https://kilo.ai/docs/automate/mcp/using-in-kilo-code
 - **MCP**: `.kilocode/mcp.json` → key `mcpServers` (strategy: `inject-json-key`)
 - **Prompt**: `.kilocode/rules/<name>.md` (strategy: `create-file-in-dir`, installDir: `.kilocode/rules`)
-- **Skill**: ❌ — Kilo Code does not support project-level skill directories.
-- **Command**: ❌ — Kilo Code does not support custom slash commands via files.
-- **Sub-agent**: ❌ — Kilo Code does not support sub-agent configuration files.
+- **Skill**: `.kilocode/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.kilocode/skills`)
+- **Command**: `.kilocode/commands/<name>.md` (strategy: `copy-file`, installDir: `.kilocode/commands`)
+- **Sub-agent**: `.kilocode/agents/<name>.md` (strategy: `copy-file`, installDir: `.kilocode/agents`)
 
 ### Qwen Code
 
@@ -117,17 +117,17 @@ Every adapter in `src/hosts/<id>.ts` must match the paths and capabilities docum
 - **MCP**: `.qwen/settings.json` → key `mcpServers` (strategy: `inject-json-key`)
 - **Prompt**: `AGENTS.md` in project root (strategy: `append-with-marker`)
 - **Skill**: `.qwen/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.qwen/skills`)
-- **Command**: ❌ — Qwen Code does not support custom slash commands via files.
-- **Sub-agent**: ❌ — Qwen Code does not support sub-agent configuration files.
+- **Command**: `.qwen-code/commands/<name>.md` (strategy: `copy-file`, installDir: `.qwen-code/commands`)
+- **Sub-agent**: `.qwen/agents/<name>.md` (strategy: `copy-file`, installDir: `.qwen/agents`)
 
 ### opencode
 
 - **Docs**: https://opencode.ai/docs
 - **MCP**: `opencode.json` → key `mcp` (strategy: `inject-json-key`)
 - **Prompt**: `AGENTS.md` in project root (strategy: `append-with-marker`)
-- **Skill**: ❌ — opencode does not support project-level skill directories.
-- **Command**: ❌ — opencode does not support custom slash commands via files.
-- **Sub-agent**: ❌ — opencode does not support sub-agent configuration files.
+- **Skill**: `.opencode/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.opencode/skills`)
+- **Command**: `.opencode/commands/<name>.md` (strategy: `copy-file`, installDir: `.opencode/commands`)
+- **Sub-agent**: `.opencode/agents/<name>.md` (strategy: `copy-file`, installDir: `.opencode/agents`)
 
 ### Augment
 
@@ -136,18 +136,18 @@ Every adapter in `src/hosts/<id>.ts` must match the paths and capabilities docum
   - macOS/Linux: `~/.augment/settings.json` → key `mcpServers`
   - Windows: `%USERPROFILE%\.augment\settings.json` → key `mcpServers`
 - **Prompt**: `.augment/rules/<name>.md` (strategy: `create-file-in-dir`, installDir: `.augment/rules`)
-- **Skill**: ❌ — Augment does not support project-level skill directories.
-- **Command**: ❌ — Augment does not support custom slash commands via files.
-- **Sub-agent**: ❌ — Augment does not support sub-agent configuration files.
+- **Skill**: `.augment/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.augment/skills`)
+- **Command**: `.augment/commands/<name>.md` (strategy: `copy-file`, installDir: `.augment/commands`)
+- **Sub-agent**: `.augment/agents/<name>.md` (strategy: `copy-file`, installDir: `.augment/agents`)
 
 ### Kiro CLI
 
 - **Docs**: https://kiro.dev/docs/mcp/
 - **MCP**: `.kiro/settings/mcp.json` → key `mcpServers` (strategy: `inject-json-key`)
 - **Prompt**: `.kiro/steering/<name>.md` (strategy: `create-file-in-dir`, installDir: `.kiro/steering`)
-- **Skill**: ❌ — Kiro does not support project-level skill directories.
+- **Skill**: `.kiro/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.kiro/skills`)
 - **Command**: ❌ — Kiro does not support custom slash commands via files.
-- **Sub-agent**: ❌ — Kiro does not support sub-agent configuration files.
+- **Sub-agent**: `.kiro/agents/<name>.md` (strategy: `copy-file`, installDir: `.kiro/agents`)
 
 ### Tabnine CLI
 
@@ -155,7 +155,7 @@ Every adapter in `src/hosts/<id>.ts` must match the paths and capabilities docum
 - **MCP**: `.tabnine/mcp_servers.json` → key `mcpServers` (strategy: `inject-json-key`)
 - **Prompt**: `.tabnine/guidelines/<name>.md` (strategy: `create-file-in-dir`, installDir: `.tabnine/guidelines`)
 - **Skill**: ❌ — Tabnine CLI does not support project-level skill directories.
-- **Command**: ❌ — Tabnine CLI does not support custom slash commands via files.
+- **Command**: `.tabnine/agent/commands/<name>.md` (strategy: `copy-file`, installDir: `.tabnine/agent/commands`)
 - **Sub-agent**: ❌ — Tabnine CLI does not support sub-agent configuration files.
 
 ### Kimi Code
@@ -165,7 +165,7 @@ Every adapter in `src/hosts/<id>.ts` must match the paths and capabilities docum
   - macOS/Linux: `~/.kimi/mcp.json` → key `mcpServers`
   - Windows: `%USERPROFILE%\.kimi\mcp.json` → key `mcpServers`
 - **Prompt**: `AGENTS.md` in project root (strategy: `append-with-marker`)
-- **Skill**: ❌ — Kimi Code does not support project-level skill directories.
+- **Skill**: `.kimi/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.kimi/skills`)
 - **Command**: ❌ — Kimi Code does not support custom slash commands via files.
 - **Sub-agent**: ❌ — Kimi Code does not support sub-agent configuration files.
 
@@ -174,7 +174,7 @@ Every adapter in `src/hosts/<id>.ts` must match the paths and capabilities docum
 - **Docs**: https://docs.trae.ai/ide/model-context-protocol
 - **MCP**: `.trae/mcp.json` → key `mcpServers` (strategy: `inject-json-key`)
 - **Prompt**: `.trae/rules/<name>.md` (strategy: `create-file-in-dir`, installDir: `.trae/rules`)
-- **Skill**: ❌ — Trae does not support project-level skill directories.
+- **Skill**: `.trae/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.trae/skills`)
 - **Command**: ❌ — Trae does not support custom slash commands via files.
 - **Sub-agent**: ❌ — Trae does not support sub-agent configuration files.
 
@@ -196,16 +196,16 @@ Every adapter in `src/hosts/<id>.ts` must match the paths and capabilities docum
   - macOS/Linux: `~/.codex/config.toml` (TOML table format: `[mcp_servers.<name>]`)
   - Windows: `%USERPROFILE%\.codex\config.toml`
 - **Prompt**: `AGENTS.md` in project root (strategy: `append-with-marker`)
-- **Skill**: ❌ — Codex CLI does not support project-level skill directories.
+- **Skill**: `.codex/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.codex/skills`)
 - **Command**: ❌ — Codex CLI does not support custom slash commands via files.
-- **Sub-agent**: ❌ — Codex CLI does not support sub-agent configuration files.
+- **Sub-agent**: `.codex/agents/<name>.toml` (strategy: `copy-file`, installDir: `.codex/agents`)
 
 ### Mistral Vibe
 
 - **Docs**: https://docs.mistral.ai/mistral-vibe/introduction/configuration
 - **MCP**: `.vibe/config.toml` (TOML array format: `[[mcp_servers]]`)
-- **Prompt**: ❌ — Mistral Vibe does not support project-level rules or prompt files.
-- **Skill**: ❌ — Mistral Vibe does not support project-level skill directories.
+- **Prompt**: `AGENTS.md` in project root (strategy: `append-with-marker`)
+- **Skill**: `.vibe/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.vibe/skills`)
 - **Command**: ❌ — Mistral Vibe does not support custom slash commands via files.
 - **Sub-agent**: ❌ — Mistral Vibe does not support sub-agent configuration files.
 

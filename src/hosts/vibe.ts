@@ -18,8 +18,17 @@ export class VibeAdapter implements HostAdapter {
       configFile: '.vibe/config.toml',
       writeStrategy: 'inject-json-key',
     },
-    prompt: NOT_SUPPORTED('Mistral Vibe does not support project-level rules or prompt files.'),
-    skill: NOT_SUPPORTED('Mistral Vibe does not support project-level skill directories.'),
+    prompt: {
+      supported: true,
+      targetFile: 'AGENTS.md',
+      writeStrategy: 'append-with-marker',
+    },
+    skill: {
+      supported: true,
+      installDir: '.vibe/skills/',
+      entryFile: 'SKILL.md',
+      writeStrategy: 'copy-file',
+    },
     command: NOT_SUPPORTED('Mistral Vibe does not support custom slash commands via files.'),
     subAgent: NOT_SUPPORTED('Mistral Vibe does not support sub-agent configuration files.'),
   };
