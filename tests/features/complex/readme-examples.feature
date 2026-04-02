@@ -102,7 +102,7 @@ Feature: README.zh-CN.md documentation examples
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --mcp https://github.com/modelcontextprotocol/servers.git#.mcp.json
     Then the exit code is 0
     And the config file exists: test -f "$SETUP_TMPDIR/.cursor/mcp.json"
-    And the MCP key exists: grep -q '".mcp"' "$SETUP_TMPDIR/.cursor/mcp.json"
+    And the MCP key uses unwrapped server name: grep -q '"mcp-docs"' "$SETUP_TMPDIR/.cursor/mcp.json"
 
   @P1 @network
   Scenario: Install MCP from HTTP URL on Cursor
@@ -111,6 +111,7 @@ Feature: README.zh-CN.md documentation examples
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --mcp https://raw.githubusercontent.com/modelcontextprotocol/servers/main/.mcp.json
     Then the exit code is 0
     And the config file exists: test -f "$SETUP_TMPDIR/.cursor/mcp.json"
+    And the MCP key uses unwrapped server name: grep -q '"mcp-docs"' "$SETUP_TMPDIR/.cursor/mcp.json"
 
   @P1 @network
   Scenario: Install Skill from Git HTTPS on Cursor (README skill example)
@@ -120,6 +121,7 @@ Feature: README.zh-CN.md documentation examples
     Then the exit code is 0
     And the skill directory exists: test -d "$SETUP_TMPDIR/.cursor/skills/pdf"
     And the SKILL.md exists: test -f "$SETUP_TMPDIR/.cursor/skills/pdf/SKILL.md"
+    And the SKILL.md is not empty: test -s "$SETUP_TMPDIR/.cursor/skills/pdf/SKILL.md"
 
   @P1 @network
   Scenario: Install Command from Git HTTPS on Cursor (README command example)
@@ -128,6 +130,7 @@ Feature: README.zh-CN.md documentation examples
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --command https://github.com/wshobson/commands.git#tools/security-scan.md
     Then the exit code is 0
     And the command file exists: test -f "$SETUP_TMPDIR/.cursor/commands/security-scan.md"
+    And the command file is not empty: test -s "$SETUP_TMPDIR/.cursor/commands/security-scan.md"
 
   @P1 @network
   Scenario: Install Sub-agent from Git HTTPS on Cursor (README sub-agent example)
@@ -136,6 +139,7 @@ Feature: README.zh-CN.md documentation examples
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --sub-agent https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md
     Then the exit code is 0
     And the sub-agent file exists: test -f "$SETUP_TMPDIR/.cursor/agents/backend-developer.md"
+    And the sub-agent file is not empty: test -s "$SETUP_TMPDIR/.cursor/agents/backend-developer.md"
 
   @P1 @network
   Scenario: Install multiple sub-agents in one command (README batch example)

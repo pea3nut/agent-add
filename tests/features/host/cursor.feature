@@ -20,6 +20,7 @@ Feature: Cursor host basic installation
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --skill ./my-skill
     Then the skill directory exists: test -d "$SETUP_TMPDIR/.cursor/skills/my-skill"
     And the SKILL.md entry exists: test -f "$SETUP_TMPDIR/.cursor/skills/my-skill/SKILL.md"
+    And the SKILL.md has correct content: grep -q 'test skill' "$SETUP_TMPDIR/.cursor/skills/my-skill/SKILL.md"
 
   @P1
   Scenario: Install prompt on Cursor host
@@ -37,6 +38,7 @@ Feature: Cursor host basic installation
     And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --command ./my-command.md
     Then the command file exists: test -f "$SETUP_TMPDIR/.cursor/commands/my-command.md"
+    And the command has correct content: grep -q 'test command' "$SETUP_TMPDIR/.cursor/commands/my-command.md"
 
   @P1
   Scenario: Install sub-agent on Cursor host
@@ -45,3 +47,4 @@ Feature: Cursor host basic installation
     And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --sub-agent ./my-agent.md
     Then the sub-agent file exists: test -f "$SETUP_TMPDIR/.cursor/agents/my-agent.md"
+    And the sub-agent has correct content: grep -q 'test sub-agent' "$SETUP_TMPDIR/.cursor/agents/my-agent.md"

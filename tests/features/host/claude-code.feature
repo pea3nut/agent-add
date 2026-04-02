@@ -20,6 +20,7 @@ Feature: Claude Code host basic installation
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host claude-code --skill ./my-skill
     Then the skill directory exists: test -d "$SETUP_TMPDIR/.claude/skills/my-skill"
     And the SKILL.md entry exists: test -f "$SETUP_TMPDIR/.claude/skills/my-skill/SKILL.md"
+    And the SKILL.md has correct content: grep -q 'test skill' "$SETUP_TMPDIR/.claude/skills/my-skill/SKILL.md"
 
   @P1
   Scenario: Install prompt on Claude Code host
@@ -37,6 +38,7 @@ Feature: Claude Code host basic installation
     And a .claude directory exists: mkdir -p "$SETUP_TMPDIR/.claude"
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host claude-code --command ./my-command.md
     Then the command file exists: test -f "$SETUP_TMPDIR/.claude/commands/my-command.md"
+    And the command has correct content: grep -q 'test command' "$SETUP_TMPDIR/.claude/commands/my-command.md"
 
   @P1
   Scenario: Install sub-agent on Claude Code host
@@ -45,3 +47,4 @@ Feature: Claude Code host basic installation
     And a .claude directory exists: mkdir -p "$SETUP_TMPDIR/.claude"
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host claude-code --sub-agent ./my-agent.md
     Then the sub-agent file exists: test -f "$SETUP_TMPDIR/.claude/agents/my-agent.md"
+    And the sub-agent has correct content: grep -q 'test sub-agent' "$SETUP_TMPDIR/.claude/agents/my-agent.md"

@@ -104,7 +104,8 @@ async function handleTomlMcp(
 
 export const mcpHandler: AssetHandler = {
   async handle(job: InstallJob): Promise<InstallResult> {
-    const { host, assetName, resolvedSource } = job;
+    const { host, resolvedSource } = job;
+    let assetName = job.assetName;
     const mcpCapability = host.assets['mcp'];
 
     const resolvedPath = resolveConfigFilePath(mcpCapability.configFile!);
@@ -126,6 +127,7 @@ export const mcpHandler: AssetHandler = {
       const unwrapped = unwrapMcpServers(newServerConfig);
       if (unwrapped) {
         newServerConfig = unwrapped.config;
+        assetName = unwrapped.name;
       }
     } catch (err) {
       return {

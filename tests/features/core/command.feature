@@ -18,6 +18,7 @@ Feature: Command installation on Cursor
     And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --command ./my-command.md
     Then the command file exists: test -f "$SETUP_TMPDIR/.cursor/commands/my-command.md"
+    And the command file has correct content: grep -q 'test command' "$SETUP_TMPDIR/.cursor/commands/my-command.md"
 
   @P1
   Scenario: Repeated command install returns exists

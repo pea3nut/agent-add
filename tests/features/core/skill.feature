@@ -19,6 +19,7 @@ Feature: Skill installation on Cursor
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --skill ./my-skill
     Then the skill directory exists: test -d "$SETUP_TMPDIR/.cursor/skills/my-skill"
     And the SKILL.md entry exists: test -f "$SETUP_TMPDIR/.cursor/skills/my-skill/SKILL.md"
+    And the SKILL.md has correct content: grep -q 'test skill' "$SETUP_TMPDIR/.cursor/skills/my-skill/SKILL.md"
 
   @P1
   Scenario: Repeated skill install returns exists

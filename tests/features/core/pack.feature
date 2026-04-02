@@ -20,9 +20,13 @@ Feature: Pack installation on Cursor
     Then the MCP config exists: test -f "$SETUP_TMPDIR/.cursor/mcp.json"
     And the MCP key exists: grep -q '"playwright"' "$SETUP_TMPDIR/.cursor/mcp.json"
     And the skill directory exists: test -d "$SETUP_TMPDIR/.cursor/skills/my-skill"
+    And the SKILL.md has correct content: grep -q 'test skill' "$SETUP_TMPDIR/.cursor/skills/my-skill/SKILL.md"
     And the AGENTS.md exists: test -f "$SETUP_TMPDIR/AGENTS.md"
+    And the prompt marker exists: grep -q '<!-- agent-add:my-prompt -->' "$SETUP_TMPDIR/AGENTS.md"
     And the command file exists: test -f "$SETUP_TMPDIR/.cursor/commands/my-command.md"
+    And the command has correct content: grep -q 'test command' "$SETUP_TMPDIR/.cursor/commands/my-command.md"
     And the sub-agent file exists: test -f "$SETUP_TMPDIR/.cursor/agents/my-agent.md"
+    And the sub-agent has correct content: grep -q 'test sub-agent' "$SETUP_TMPDIR/.cursor/agents/my-agent.md"
 
   @P1
   Scenario: Pack install on Claude Desktop skips unsupported assets

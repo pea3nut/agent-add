@@ -18,6 +18,7 @@ Feature: Sub-agent installation on Cursor
     And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --sub-agent ./my-agent.md
     Then the sub-agent file exists: test -f "$SETUP_TMPDIR/.cursor/agents/my-agent.md"
+    And the sub-agent file has correct content: grep -q 'test sub-agent' "$SETUP_TMPDIR/.cursor/agents/my-agent.md"
 
   @P0
   Scenario: Sub-agent install strips agent-add frontmatter fields
