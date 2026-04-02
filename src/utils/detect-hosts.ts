@@ -80,6 +80,35 @@ export function isHostDetected(host: HostConfig, cwd: string): boolean {
   return checkHostDetection(host, buildSearchDirs(cwd));
 }
 
+const POPULARITY_ORDER: string[] = [
+  'cursor',
+  'claude-code',
+  'trae',
+  'qwen-code',
+  'github-copilot',
+  'codex',
+  'windsurf',
+  'gemini',
+  'kimi',
+  'augment',
+  'roo-code',
+  'kiro',
+  'tabnine',
+  'kilo-code',
+  'opencode',
+  'openclaw',
+  'vibe',
+  'claude-desktop',
+];
+
+function sortByPopularity(hosts: HostConfig[]): HostConfig[] {
+  return hosts.slice().sort((a, b) => {
+    const ai = POPULARITY_ORDER.indexOf(a.id);
+    const bi = POPULARITY_ORDER.indexOf(b.id);
+    return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi);
+  });
+}
+
 export function detectHosts(cwd: string): HostConfig[] {
   const allHosts = getAllHosts();
   const searchDirs = buildSearchDirs(cwd);
@@ -94,5 +123,5 @@ export function detectHosts(cwd: string): HostConfig[] {
     }
   }
 
-  return [...detected, ...notDetected];
+  return [...sortByPopularity(detected), ...sortByPopularity(notDetected)];
 }
