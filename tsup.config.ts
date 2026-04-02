@@ -8,5 +8,5 @@ export default defineConfig({
   sourcemap: true,
   dts: false,
   outDir: 'dist',
-  noExternal: [],
+  noExternal: [/.*/],
 });

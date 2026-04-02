@@ -25,7 +25,8 @@
     "test": "vitest run tests/unit tests/integration",
     "test:contract": "vitest run tests/contract",
     "test:integration": "vitest run tests/integration",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "agent-add": "tsx src/index.ts"
   },
   "engines": {
     "node": ">=18"
@@ -38,17 +39,16 @@
     "claude"
   ],
   "license": "MPL-2.0",
-  "dependencies": {
+  "devDependencies": {
     "@inquirer/select": "^5.1.2",
+    "@types/node": "^25.5.0",
     "commander": "^14.0.3",
     "smol-toml": "^1.6.1",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.0",
     "yaml": "^2.8.2",
     "zod": "^4.3.6"
-  },
-  "devDependencies": {
-    "@types/node": "^25.5.0",
-    "tsup": "^8.5.1",
-    "typescript": "^5.9.3",
-    "vitest": "^4.1.0"
   }
 }
