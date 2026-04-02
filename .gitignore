@@ -143,6 +143,7 @@ vite.config.ts.timestamp-*
 .cursor/
 .specify/
 .claude/
+vibe/
 specs/
 CLAUDE.md
 AGENTS.md
