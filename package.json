@@ -1,6 +1,6 @@
 {
   "name": "agent-add",
-  "version": "0.0.1-beta.1",
+  "version": "0.0.1",
   "description": "Cross-host AI Agent Pack installer — install MCP, Skill, Prompt, Command, Sub-agent in one command",
   "repository": {
     "type": "git",

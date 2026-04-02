@@ -4,7 +4,7 @@
 
 **MCP、Skill、スラッシュコマンド、サブエージェントなどを Claude Code や Cursor などの AI ツールにワンコマンドでインストール**
 
-[![npm](https://img.shields.io/npm/v/@pea3nut/agent-add)](https://www.npmjs.com/package/@pea3nut/agent-add)
+[![npm](https://img.shields.io/npm/v/agent-add)](https://www.npmjs.com/package/agent-add)
 [![License: MPL-2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](LICENSE)
 [![Scenario Tests](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/pea3nut/agent-add/master/tests/test-results/badge.json)](tests/test-results/)
 
