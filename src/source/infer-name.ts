@@ -12,11 +12,13 @@ import { unwrapMcpServers } from '../utils/unwrap-mcp-servers.js';
  * 3. If local path or http-file URL, use filename without extension
  */
 export function inferName(source: string): string {
+  const s = source.trim(); // normalize: remove leading/trailing whitespace or BOM
+
   // Inline JSON: extract single top-level key as name
-  if (source.startsWith('{')) {
+  if (s.startsWith('{')) {
     let parsed: unknown;
     try {
-      parsed = JSON.parse(source);
+      parsed = JSON.parse(s);
     } catch {
       throw new Error(
         `内联 JSON 解析失败。格式应为 {"<name>":{...}}，例如：{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}`,
@@ -40,8 +42,8 @@ export function inferName(source: string): string {
   }
 
   // Inline Markdown: extract first `# Heading` and convert to kebab-case
-  if (source.includes('\n')) {
-    for (const line of source.split('\n')) {
+  if (s.includes('\n')) {
+    for (const line of s.split('\n')) {
       const match = /^#\s+(.+)/.exec(line.trim());
       if (match) {
         return match[1]!
@@ -57,9 +59,9 @@ export function inferName(source: string): string {
   }
 
   // Git URL with #path: take the last path segment
-  const hashIdx = source.indexOf('#');
+  const hashIdx = s.indexOf('#');
   if (hashIdx !== -1) {
-    const subPath = source.slice(hashIdx + 1);
+    const subPath = s.slice(hashIdx + 1);
     const segments = subPath.split('/').filter(Boolean);
     if (segments.length > 0) {
       const last = segments[segments.length - 1];
@@ -68,8 +70,8 @@ export function inferName(source: string): string {
   }
 
   // Git SSH/HTTPS without #path: use repo name (strip @ref before extension stripping)
-  if (source.startsWith('git@') || (source.startsWith('https://') && source.includes('.git'))) {
-    const urlPart = source.split('#')[0];
+  if (s.startsWith('git@') || (s.startsWith('https://') && s.includes('.git'))) {
+    const urlPart = s.split('#')[0];
     const repoSegment = urlPart.split('/').pop() ?? urlPart.split(':').pop() ?? urlPart;
     const atIdx = (repoSegment ?? '').indexOf('@');
     const cleanSegment = atIdx !== -1 ? repoSegment!.slice(0, atIdx) : repoSegment;
@@ -77,7 +79,7 @@ export function inferName(source: string): string {
   }
 
   // Local path or HTTP file: use filename without extension
-  const basename = path.basename(source.split('?')[0] ?? source);
+  const basename = path.basename(s.split('?')[0] ?? s);
   return stripExtension(basename);
 }
 

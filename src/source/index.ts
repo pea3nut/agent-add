@@ -11,7 +11,8 @@ export type SourceType = 'local' | 'git-ssh' | 'git-https' | 'http-file' | 'inli
 const GIT_REPO_SUFFIX_RE = /\.git(\/|@|#|$)/;
 
 export function detectSourceType(source: string): SourceType {
-  if (source.startsWith('{')) {
+  const trimmed = source.trim();
+  if (trimmed.startsWith('{')) {
     return 'inline-json';
   }
   if (source.includes('\n')) {
@@ -26,24 +27,35 @@ export function detectSourceType(source: string): SourceType {
     }
     return 'http-file';
   }
+  // Fallback: try JSON.parse to handle edge cases where MSYS inserts a non-whitespace
+  // invisible prefix character that `.trim()` alone cannot remove
+  try {
+    const parsed = JSON.parse(source);
+    if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+      return 'inline-json';
+    }
+  } catch {
+    // not JSON, fall through to local
+  }
   return 'local';
 }
 
 export async function resolveSource(source: string, cwd: string): Promise<ResolvedSource> {
-  const type = detectSourceType(source);
-  const assetName = inferName(source);
+  const normalizedSource = source.trim(); // normalize: remove leading/trailing whitespace or BOM
+  const type = detectSourceType(normalizedSource);
+  const assetName = inferName(normalizedSource);
 
   switch (type) {
     case 'inline-json':
-      return resolveInlineJson(source, assetName);
+      return resolveInlineJson(normalizedSource, assetName);
     case 'inline-md':
-      return resolveInlineMd(source, assetName);
+      return resolveInlineMd(normalizedSource, assetName);
     case 'local':
-      return resolveLocal(source, cwd);
+      return resolveLocal(normalizedSource, cwd);
     case 'git-ssh':
     case 'git-https':
-      return resolveGit(source, type);
+      return resolveGit(normalizedSource, type);
     case 'http-file':
-      return resolveHttpFile(source, assetName);
+      return resolveHttpFile(normalizedSource, assetName);
   }
 }

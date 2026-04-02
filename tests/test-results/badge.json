@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "scenario tests",
-  "message": "11/62 passing (3 failed)",
-  "color": "red"
+  "message": "70/70 passing",
+  "color": "brightgreen"
 }

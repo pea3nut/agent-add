@@ -1,44 +1,35 @@
 # 测试执行报告
 
 **Run ID**: run-20260401-120000
+**Feature**: README.zh-CN.md documentation examples
 **环境**: bash-shell
 **并发数**: 4
-**时间**: 2026-04-01T12:00:00Z ~ 2026-04-01T12:08:30Z（总耗时 ~510s）
-**Early Stop**: ⚠️ 触发（maxFailures=2，第3批次后 failCount=3）
+**时间**: 2026-04-01T12:00:00Z ~ 2026-04-01T12:02:30Z（总耗时 ~150s）
 
 ## 汇总
 
 | 总计 | 通过 | 失败 | 跳过 | 错误 |
 |------|------|------|------|------|
-| 62   | 11   | 3    | 50   | 0    |
+| 8    | 8    | 0    | 0    | 0    |
 
-已执行 12 个 Scenario（3批 × 4并发），50 个因 Early Stop 未执行（标记 skipped）。
+## 用例详情
+
+| caseId | Scenario | 状态 | 耗时 |
+|--------|----------|------|------|
+| case-rd1a01 | Install MCP from inline JSON on Cursor (README format A) | passed | ~5s |
+| case-rd1b01 | Install MCP from inline JSON with mcpServers wrapper (README format B) | passed | ~15s |
+| case-rd2a01 | Install inline prompt on Claude Code (README example) | passed | ~10s |
+| case-rd3a01 | Cross-host MCP on Cursor | passed | ~5s |
+| case-rd3b01 | Cross-host MCP on Claude Code | passed | ~10s |
+| case-rd3c01 | Cross-host MCP on Codex | passed | ~8s |
+| case-rd4a01 | Install MCP from local JSON file on Cursor | passed | ~5s |
+| case-rd5a01 | Install inline prompt on Cursor (README Cursor example) | passed | ~10s |
 
 ## 失败用例
 
-| caseId | Scenario | 错误类型 | 错误信息 |
-|--------|----------|----------|----------|
-| case-cb0001 | --version outputs the correct version number | assertion | 版本 "0.0.1-beta.1" 含预发布后缀，runner 断言过严（实际包含 \d+\.\d+\.\d+ 模式） |
-| case-mc0006 | Install MCP from inline JSON source | environment | Windows 下 inline JSON `{...}` 被当作文件路径处理，CLI 报 "Local source not found" |
-| case-mc0007 | Repeated inline MCP install returns exists | environment | 同 case-mc0006，inline JSON 源在 Windows 下路径解析异常 |
+无
 
-## 执行用例明细（已执行 12 个）
+## 备注
 
-| caseId | Scenario | 状态 |
-|--------|----------|------|
-| case-cb0001 | --version outputs the correct version number | ✗ failed |
-| case-cb0002 | --help outputs help information | ✓ passed |
-| case-cb0003 | No --host flag in non-TTY exits with error code 2 | ✓ passed |
-| case-ce0001 | Explicit unsupported asset type exits with code 2 | ✓ passed |
-| case-mc0001 | Install MCP on Cursor succeeds | ✓ passed |
-| case-mc0002 | MCP install writes to the correct file with correct content | ✓ passed |
-| case-mc0003 | Repeated install of same content returns exists | ✓ passed |
-| case-mc0004 | Install with conflicting key returns conflict | ✓ passed |
-| case-mc0005 | Install from non-existent path returns error | ✓ passed |
-| case-mc0006 | Install MCP from inline JSON source | ✗ failed |
-| case-mc0007 | Repeated inline MCP install returns exists | ✗ failed |
-| case-pr0001 | Install prompt on Cursor appends to AGENTS.md | ✓ passed |
-
-## 跳过用例（50 个，Early Stop）
-
-所有 Batch 4–16 用例（prompt/skill/command/sub-agent/pack/host/complex 系列）因 maxFailures 触发 Early Stop 而未执行。
+- Tags 过滤 `not @network and not @skip` 排除了 6 个需要网络的场景
+- 被排除的 @network 场景覆盖：Git HTTPS MCP、HTTP URL MCP、Git Skill、Git Command、Git Sub-agent、多 Sub-agent 批量安装

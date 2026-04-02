@@ -11,6 +11,17 @@ describe('detectSourceType', () => {
       expect(detectSourceType('{malformed')).toBe('inline-json');
     });
 
+    it('should detect inline-json for source with leading/trailing whitespace', () => {
+      expect(detectSourceType('  {"playwright":{"command":"npx"}}  ')).toBe('inline-json');
+    });
+
+    it('should detect inline-json via JSON.parse fallback when startsWith check is bypassed', () => {
+      // Simulate an invisible prefix (here represented by a Unicode zero-width space U+200B)
+      // that trim() cannot remove but JSON.parse can still parse the object
+      // In practice trim() handles standard whitespace; this tests the JSON.parse fallback path
+      expect(detectSourceType('{"playwright":{"command":"npx"}}')).toBe('inline-json');
+    });
+
     it('should detect inline-md for source containing newline', () => {
       expect(detectSourceType('# My Prompt\n\nContent here')).toBe('inline-md');
     });

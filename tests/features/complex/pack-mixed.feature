@@ -18,8 +18,8 @@ Feature: Pack mixed skip/install and capability validation
   Scenario: Explicit flag for unsupported asset type exits with code 2
     Given a temp working directory is created
     And a .roo directory exists: mkdir -p "$SETUP_TMPDIR/.roo"
-    And the command fixture is copied: cp "$PROJECT_ROOT/tests/fixtures/command/my-command.md" "$SETUP_TMPDIR/my-command.md"
-    When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host roo-code --command ./my-command.md > "$SETUP_TMPDIR/out.txt" 2>&1; echo $? > "$SETUP_TMPDIR/exitcode.txt"; true
+    And the sub-agent fixture is copied: cp "$PROJECT_ROOT/tests/fixtures/sub-agent/my-agent.md" "$SETUP_TMPDIR/my-agent.md"
+    When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host roo-code --sub-agent ./my-agent.md > "$SETUP_TMPDIR/out.txt" 2>&1; echo $? > "$SETUP_TMPDIR/exitcode.txt"; true
     Then the exit code is 2: grep -q "^2$" "$SETUP_TMPDIR/exitcode.txt"
     And the output mentions unsupported: grep -qi "does not support" "$SETUP_TMPDIR/out.txt"
 

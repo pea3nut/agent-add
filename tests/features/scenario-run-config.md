@@ -49,9 +49,13 @@ notes:
   file operations happen inside this directory.
 - Cursor and Claude Code detection relies on `.cursor/` or `.claude/` directories being
   present in the temp working directory. The `Given` step must create these before CLI invocation.
-- For Claude Desktop scenarios, pass `AGENT_ADD_HOME="$SETUP_TMPDIR"` to the CLI command
-  so that the `~/Library/Application Support/Claude/` path expands relative to the temp dir.
-  Note: on Windows, `%APPDATA%` path is NOT redirected by AGENT_ADD_HOME (only `~/` prefix is).
+- For Claude Desktop scenarios, pass `AGENT_ADD_HOME` to the CLI command so that config paths
+  expand relative to the temp dir. On Windows, use `cygpath -w "$SETUP_TMPDIR"` to get the
+  Windows-native path, then set `AGENT_ADD_HOME` to that value — both `~/` and `%APPDATA%`
+  prefix paths are redirected via `AGENT_ADD_HOME`. Example:
+    WIN_TMPDIR=$(cygpath -w "$SETUP_TMPDIR" 2>/dev/null || echo "$SETUP_TMPDIR") && AGENT_ADD_HOME="$WIN_TMPDIR" node ...
+  Assert config existence cross-platform:
+    test -f "$SETUP_TMPDIR/Library/Application Support/Claude/claude_desktop_config.json" || test -f "$SETUP_TMPDIR/AppData/Roaming/Claude/claude_desktop_config.json"
 - Assertions use standard POSIX tools: `test -f`, `cat`, `grep`. Do NOT use `jq` as it
   may not be available in the execution environment; use `grep -q '"key"'` for JSON key checks.
 - After all scenarios complete, update `tests/test-results/badge.json` based on the
@@ -65,3 +69,13 @@ notes:
 - Pack manifest source paths are resolved relative to CWD (not the manifest file's directory).
   When running pack tests, source paths in manifest.json must be relative to the CWD
   set at CLI invocation time (i.e., `$SETUP_TMPDIR`).
+- The feature step `Then the output matches the pattern \d+\.\d+\.\d+` means the output
+  CONTAINS the pattern as a substring, not a full-string match. Evaluate with:
+    node "..." --version | grep -E '\d+\.\d+\.\d+'
+  Pre-release suffixes like `-beta.1` are valid and must NOT cause the assertion to fail.
+- On Windows (Git-bash / MSYS2), prefix CLI invocations that pass inline JSON arguments
+  (i.e., `--mcp '{"...":...}'` or any flag whose value starts with `{`) with
+  `MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL='*'` to prevent MSYS from converting forward
+  slashes inside the JSON string before Node.js receives it. Example:
+    MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL='*' node "$PROJECT_ROOT/bin/agent-add.js" \
+      --host cursor --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp@latest"]}}'

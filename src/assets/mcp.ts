@@ -22,7 +22,10 @@ function resolveConfigFilePath(
     return path.join(getHomedir(), rawPath.slice(2));
   }
   if (process.platform === 'win32' && rawPath.startsWith('%APPDATA%')) {
-    const appData = process.env['APPDATA'] ?? path.join(getHomedir(), 'AppData', 'Roaming');
+    const agentHome = process.env['AGENT_ADD_HOME'];
+    const appData = agentHome
+      ? path.join(agentHome, 'AppData', 'Roaming')
+      : (process.env['APPDATA'] ?? path.join(os.homedir(), 'AppData', 'Roaming'));
     return path.join(appData, rawPath.slice('%APPDATA%'.length));
   }
   if (process.platform === 'win32' && rawPath.startsWith('%USERPROFILE%')) {

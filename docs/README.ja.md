@@ -18,7 +18,7 @@
 npx -y agent-add \
   # MCP をインストール
   --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}'
-  --mcp git@github.com:affaan-m/everything-claude-code.git#mcp-configs/mcp-servers.json \
+  --mcp git@github.com:modelcontextprotocol/servers.git#.mcp.json \
 
   # Skill をインストール
   --skill https://github.com/anthropics/skills.git#skills/pdf \
@@ -27,10 +27,10 @@ npx -y agent-add \
   --prompt $'# Code Review Rules\n\nAlways review for security issues first.'
 
   # スラッシュコマンドを追加
-  --command https://github.com/wshobson/commands.git#tools/code-review.md
+  --command https://github.com/wshobson/commands.git#tools/security-scan.md
 
   # サブエージェントをインストール
-  --sub-agent https://github.com/microsoft/playwright.git#packages/playwright/src/agents/playwright-test-planner.agent.md
+  --sub-agent https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md
 ```
 
 ---
@@ -65,12 +65,12 @@ AI ツールはそれぞれ独自の設定形式を持っています — Cursor
 agent-add はこれらの違いをすべて吸収します。ワンコマンドで任意の AI ツールにインストールできます：
 
 ```bash
-npx -y agent-add --host claude-code --mcp https://github.com/affaan-m/everything-claude-code.git#mcp-configs/playwright.json
-npx -y agent-add --host cursor      --mcp https://github.com/affaan-m/everything-claude-code.git#mcp-configs/playwright.json
-npx -y agent-add --host codex       --mcp https://github.com/affaan-m/everything-claude-code.git#mcp-configs/playwright.json
+npx -y agent-add --host claude-code --mcp https://github.com/modelcontextprotocol/servers.git#.mcp.json
+npx -y agent-add --host cursor      --mcp https://github.com/modelcontextprotocol/servers.git#.mcp.json
+npx -y agent-add --host codex       --mcp https://github.com/modelcontextprotocol/servers.git#.mcp.json
 
 # --host を省略すると対話式の選択メニューが表示されます
-npx -y agent-add --mcp https://github.com/affaan-m/everything-claude-code.git#mcp-configs/playwright.json
+npx -y agent-add --mcp https://github.com/modelcontextprotocol/servers.git#.mcp.json
 ```
 
 ## 使い方
@@ -84,11 +84,11 @@ npx -y agent-add \
 
 # Git リポジトリからインストール
 npx -y agent-add \
-  --mcp git@github.com:affaan-m/everything-claude-code.git#mcp-configs/playwright.json
+  --mcp git@github.com:modelcontextprotocol/servers.git#.mcp.json
 
 # HTTP URL からインストール
 npx -y agent-add \
-  --mcp https://raw.githubusercontent.com/affaan-m/everything-claude-code/main/mcp-configs/playwright.json
+  --mcp https://raw.githubusercontent.com/modelcontextprotocol/servers/main/.mcp.json
 ```
 
 ### Skill のインストール
@@ -123,24 +123,24 @@ npx -y agent-add --host claude-code \
 ```bash
 # commands リポジトリからインストール
 npx -y agent-add --host cursor \
-  --command https://github.com/wshobson/commands.git#tools/code-review.md
+  --command https://github.com/wshobson/commands.git#tools/security-scan.md
 
 npx -y agent-add --host claude-code \
-  --command https://github.com/wshobson/commands.git#tools/refactor.md
+  --command https://github.com/wshobson/commands.git#tools/ai-assistant.md
 ```
 
 ### サブエージェントのインストール
 
 ```bash
-# Microsoft Playwright 公式リポジトリからテスト計画エージェントをインストール（⭐68k）
+# VoltAgent の awesome-claude-code-subagents リポジトリからバックエンド開発エージェントをインストール（⭐16k）
 npx -y agent-add --host cursor \
-  --sub-agent https://github.com/microsoft/playwright.git#packages/playwright/src/agents/playwright-test-planner.agent.md
+  --sub-agent https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md
 
-# 3点セットをインストール：プランナー + ジェネレーター + ヒーラー
+# 3点セットをインストール：バックエンド + Python + コードレビュー
 npx -y agent-add --host cursor \
-  --sub-agent https://github.com/microsoft/playwright.git#packages/playwright/src/agents/playwright-test-planner.agent.md \
-  --sub-agent https://github.com/microsoft/playwright.git#packages/playwright/src/agents/playwright-test-generator.agent.md \
-  --sub-agent https://github.com/microsoft/playwright.git#packages/playwright/src/agents/playwright-test-healer.agent.md
+  --sub-agent https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md \
+  --sub-agent https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/02-language-specialists/python-pro.md \
+  --sub-agent https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/04-quality-security/code-reviewer.md
 ```
 
 ## ソース形式
