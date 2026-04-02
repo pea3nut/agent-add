@@ -25,11 +25,11 @@ Rules:
 Examples:
   # Install MCP from JSON config file
   agent-add --mcp ./mcps/playwright.json --host cursor
-  agent-add --mcp git@github.com:org/mcps.git#playwright/playwright.json --host cursor
+  agent-add --mcp https://github.com/org/mcps.git#playwright/playwright.json --host cursor
 
   # Install Skill from directory (must contain SKILL.md)
   agent-add --skill ./skills/e2e-guide --host claude-code
-  agent-add --skill git@github.com:demo/skills.git#e2e-guide --host claude-code
+  agent-add --skill https://github.com/demo/skills.git#e2e-guide --host claude-code
 
   # Install Prompt and Command from Markdown files
   agent-add --prompt ./prompts/dev-practices.md --host cursor
@@ -40,7 +40,7 @@ Examples:
 
   # Install full Agent Pack from Manifest JSON
   agent-add --pack ./agent-pack.json --host cursor
-  agent-add --pack git@github.com:org/packs.git#frontend/agent-pack.json
+  agent-add --pack https://github.com/org/packs.git#frontend/agent-pack.json
 
   # Combine pack with extra assets
   agent-add --pack ./agent-pack.json --mcp ./extra.json --host claude-code`)

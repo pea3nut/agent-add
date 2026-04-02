@@ -15,22 +15,13 @@
 ---
 
 ```bash
-npx -y agent-add \ 
-  # 安装 MCP
-  --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}'
-  --mcp git@github.com:modelcontextprotocol/servers.git#.mcp.json \
-
-  # 安装 SKill
-  --skill https://github.com/anthropics/skills.git#skills/pdf \
-
-  # 增加 System Prompt / 基础 Rule
-  --prompt '你是一个有帮助的 AI 代理'
-
-  # 添加斜杠命令
-  --command https://github.com/wshobson/commands.git#tools/security-scan.md
-
-  # 安装子代理命令
-  --sub-agent https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md
+npx -y agent-add \
+  --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}' \
+  --mcp 'https://github.com/modelcontextprotocol/servers.git#.mcp.json' \
+  --skill 'https://github.com/anthropics/skills.git#skills/pdf' \
+  --prompt $'# Code Review Rules\n\nAlways review for security issues first.' \
+  --command 'https://github.com/wshobson/commands.git#tools/security-scan.md' \
+  --sub-agent 'https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md'
 ```
 
 ---
@@ -63,12 +54,12 @@ npx -y agent-add \
 各个 AI 工具配置不尽相同，agent-add 可以帮您抹平它们的不同之处，用一条命令就能安装到所有 AI 工具中的任意一个：
 
 ```bash
-npx -y agent-add --host claude-code --mcp https://github.com/modelcontextprotocol/servers.git#.mcp.json
-npx -y agent-add --host cursor      --mcp https://github.com/modelcontextprotocol/servers.git#.mcp.json
-npx -y agent-add --host codex       --mcp https://github.com/modelcontextprotocol/servers.git#.mcp.json
+npx -y agent-add --host claude-code --mcp 'https://github.com/modelcontextprotocol/servers.git#.mcp.json'
+npx -y agent-add --host cursor      --mcp 'https://github.com/modelcontextprotocol/servers.git#.mcp.json'
+npx -y agent-add --host codex       --mcp 'https://github.com/modelcontextprotocol/servers.git#.mcp.json'
 
 # 不指定 AI 工具将会有个可交互的菜单供选择
-npx -y agent-add --mcp https://github.com/modelcontextprotocol/servers.git#.mcp.json
+npx -y agent-add --mcp 'https://github.com/modelcontextprotocol/servers.git#.mcp.json'
 ```
 
 ## 用法
@@ -82,11 +73,11 @@ npx -y agent-add \
 
 # 从 Git 仓库中的配置文件安装
 npx -y agent-add \
-  --mcp git@github.com:modelcontextprotocol/servers.git#.mcp.json
+  --mcp 'https://github.com/modelcontextprotocol/servers.git#.mcp.json'
 
 # 从 HTTP URL 直接安装
 npx -y agent-add \
-  --mcp https://raw.githubusercontent.com/modelcontextprotocol/servers/main/.mcp.json
+  --mcp 'https://raw.githubusercontent.com/modelcontextprotocol/servers/main/.mcp.json'
 ```
 
 ### 安装 Skill
@@ -94,10 +85,10 @@ npx -y agent-add \
 ```bash
 # 从 Anthropic 官方 Skills 仓库安装
 npx -y agent-add \
-  --skill https://github.com/anthropics/skills.git#skills/pdf
+  --skill 'https://github.com/anthropics/skills.git#skills/pdf'
 
 npx -y agent-add \
-  --skill https://github.com/anthropics/skills.git#skills/webapp-testing
+  --skill 'https://github.com/anthropics/skills.git#skills/webapp-testing'
 ```
 
 ### 安装 Prompt（Rule 文件 / System Prompt）
@@ -109,11 +100,11 @@ npx -y agent-add --host claude-code \
 
 # 从知名 Cursor Rules 仓库安装
 npx -y agent-add --host cursor \
-  --prompt https://raw.githubusercontent.com/PatrickJS/awesome-cursorrules/main/rules/nextjs-react-tailwind/.cursorrules
+  --prompt 'https://raw.githubusercontent.com/PatrickJS/awesome-cursorrules/main/rules/nextjs-react-tailwind/.cursorrules'
 
 # 从 HTTP URL 安装团队共享的 Prompt
 npx -y agent-add --host claude-code \
-  --prompt https://your-team.com/shared/code-review-rules.md
+  --prompt 'https://your-team.com/shared/code-review-rules.md'
 ```
 
 ### 安装斜杠命令（Command）
@@ -121,10 +112,10 @@ npx -y agent-add --host claude-code \
 ```bash
 # 从 commands 仓库安装
 npx -y agent-add --host cursor \
-  --command https://github.com/wshobson/commands.git#tools/security-scan.md
+  --command 'https://github.com/wshobson/commands.git#tools/security-scan.md'
 
 npx -y agent-add --host claude-code \
-  --command https://github.com/wshobson/commands.git#tools/ai-assistant.md
+  --command 'https://github.com/wshobson/commands.git#tools/ai-assistant.md'
 ```
 
 ### 安装子代理（Sub-agent）
@@ -132,13 +123,13 @@ npx -y agent-add --host claude-code \
 ```bash
 # 从社区 Sub-agent 仓库安装后端开发代理（⭐16k）
 npx -y agent-add --host cursor \
-  --sub-agent https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md
+  --sub-agent 'https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md'
 
 # 安装完整的三件套：后端 + Python + 代码审查
 npx -y agent-add --host cursor \
-  --sub-agent https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md \
-  --sub-agent https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/02-language-specialists/python-pro.md \
-  --sub-agent https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/04-quality-security/code-reviewer.md
+  --sub-agent 'https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md' \
+  --sub-agent 'https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/02-language-specialists/python-pro.md' \
+  --sub-agent 'https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/04-quality-security/code-reviewer.md'
 ```
 
 ## 来源格式
@@ -377,7 +368,7 @@ JSON 文件，将多种资产打包在一起分发：
     {
       "type": "mcp",
       "source": [
-        "git@github.com:modelcontextprotocol/servers.git#.mcp.json",
+        "https://github.com/modelcontextprotocol/servers.git#.mcp.json",
         "https://raw.githubusercontent.com/my-team/mcps/main/filesystem.json"
       ]
     }

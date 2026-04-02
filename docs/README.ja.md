@@ -16,21 +16,12 @@
 
 ```bash
 npx -y agent-add \
-  # MCP をインストール
-  --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}'
-  --mcp git@github.com:modelcontextprotocol/servers.git#.mcp.json \
-
-  # Skill をインストール
-  --skill https://github.com/anthropics/skills.git#skills/pdf \
-
-  # System Prompt / ベースルールを追加
-  --prompt $'# Code Review Rules\n\nAlways review for security issues first.'
-
-  # スラッシュコマンドを追加
-  --command https://github.com/wshobson/commands.git#tools/security-scan.md
-
-  # サブエージェントをインストール
-  --sub-agent https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md
+  --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}' \
+  --mcp 'https://github.com/modelcontextprotocol/servers.git#.mcp.json' \
+  --skill 'https://github.com/anthropics/skills.git#skills/pdf' \
+  --prompt $'# Code Review Rules\n\nAlways review for security issues first.' \
+  --command 'https://github.com/wshobson/commands.git#tools/security-scan.md' \
+  --sub-agent 'https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md'
 ```
 
 ---
@@ -65,12 +56,12 @@ AI ツールはそれぞれ独自の設定形式を持っています — Cursor
 agent-add はこれらの違いをすべて吸収します。ワンコマンドで任意の AI ツールにインストールできます：
 
 ```bash
-npx -y agent-add --host claude-code --mcp https://github.com/modelcontextprotocol/servers.git#.mcp.json
-npx -y agent-add --host cursor      --mcp https://github.com/modelcontextprotocol/servers.git#.mcp.json
-npx -y agent-add --host codex       --mcp https://github.com/modelcontextprotocol/servers.git#.mcp.json
+npx -y agent-add --host claude-code --mcp 'https://github.com/modelcontextprotocol/servers.git#.mcp.json'
+npx -y agent-add --host cursor      --mcp 'https://github.com/modelcontextprotocol/servers.git#.mcp.json'
+npx -y agent-add --host codex       --mcp 'https://github.com/modelcontextprotocol/servers.git#.mcp.json'
 
 # --host を省略すると対話式の選択メニューが表示されます
-npx -y agent-add --mcp https://github.com/modelcontextprotocol/servers.git#.mcp.json
+npx -y agent-add --mcp 'https://github.com/modelcontextprotocol/servers.git#.mcp.json'
 ```
 
 ## 使い方
@@ -84,11 +75,11 @@ npx -y agent-add \
 
 # Git リポジトリからインストール
 npx -y agent-add \
-  --mcp git@github.com:modelcontextprotocol/servers.git#.mcp.json
+  --mcp 'https://github.com/modelcontextprotocol/servers.git#.mcp.json'
 
 # HTTP URL からインストール
 npx -y agent-add \
-  --mcp https://raw.githubusercontent.com/modelcontextprotocol/servers/main/.mcp.json
+  --mcp 'https://raw.githubusercontent.com/modelcontextprotocol/servers/main/.mcp.json'
 ```
 
 ### Skill のインストール
@@ -96,10 +87,10 @@ npx -y agent-add \
 ```bash
 # Anthropic 公式 Skills リポジトリからインストール
 npx -y agent-add \
-  --skill https://github.com/anthropics/skills.git#skills/pdf
+  --skill 'https://github.com/anthropics/skills.git#skills/pdf'
 
 npx -y agent-add \
-  --skill https://github.com/anthropics/skills.git#skills/webapp-testing
+  --skill 'https://github.com/anthropics/skills.git#skills/webapp-testing'
 ```
 
 ### Prompt のインストール（ルールファイル / System Prompt）
@@ -111,11 +102,11 @@ npx -y agent-add --host claude-code \
 
 # 有名な Cursor Rules リポジトリからインストール
 npx -y agent-add --host cursor \
-  --prompt https://raw.githubusercontent.com/PatrickJS/awesome-cursorrules/main/rules/nextjs-react-tailwind/.cursorrules
+  --prompt 'https://raw.githubusercontent.com/PatrickJS/awesome-cursorrules/main/rules/nextjs-react-tailwind/.cursorrules'
 
 # HTTP URL からチーム共有のプロンプトをインストール
 npx -y agent-add --host claude-code \
-  --prompt https://your-team.com/shared/code-review-rules.md
+  --prompt 'https://your-team.com/shared/code-review-rules.md'
 ```
 
 ### スラッシュコマンドのインストール
@@ -123,10 +114,10 @@ npx -y agent-add --host claude-code \
 ```bash
 # commands リポジトリからインストール
 npx -y agent-add --host cursor \
-  --command https://github.com/wshobson/commands.git#tools/security-scan.md
+  --command 'https://github.com/wshobson/commands.git#tools/security-scan.md'
 
 npx -y agent-add --host claude-code \
-  --command https://github.com/wshobson/commands.git#tools/ai-assistant.md
+  --command 'https://github.com/wshobson/commands.git#tools/ai-assistant.md'
 ```
 
 ### サブエージェントのインストール
@@ -134,13 +125,13 @@ npx -y agent-add --host claude-code \
 ```bash
 # VoltAgent の awesome-claude-code-subagents リポジトリからバックエンド開発エージェントをインストール（⭐16k）
 npx -y agent-add --host cursor \
-  --sub-agent https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md
+  --sub-agent 'https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md'
 
 # 3点セットをインストール：バックエンド + Python + コードレビュー
 npx -y agent-add --host cursor \
-  --sub-agent https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md \
-  --sub-agent https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/02-language-specialists/python-pro.md \
-  --sub-agent https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/04-quality-security/code-reviewer.md
+  --sub-agent 'https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md' \
+  --sub-agent 'https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/02-language-specialists/python-pro.md' \
+  --sub-agent 'https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/04-quality-security/code-reviewer.md'
 ```
 
 ## ソース形式
@@ -379,7 +370,7 @@ Plan and generate Playwright tests.
     {
       "type": "mcp",
       "source": [
-        "git@github.com:modelcontextprotocol/servers.git#.mcp.json",
+        "https://github.com/modelcontextprotocol/servers.git#.mcp.json",
         "https://raw.githubusercontent.com/my-team/mcps/main/filesystem.json"
       ]
     }
