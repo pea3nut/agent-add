@@ -352,11 +352,11 @@ Plan and generate Playwright tests.
 {
   "name": "my-team/frontend-pack",
   "assets": [
-    { "type": "mcp",      "source": "./mcps/playwright.json" },
-    { "type": "skill",    "source": "./skills/e2e-guide" },
-    { "type": "prompt",   "source": "./prompts/code-review.md" },
-    { "type": "command",  "source": "./commands/deploy.md" },
-    { "type": "subAgent", "source": "./agents/reviewer.md" }
+    { "type": "mcp",      "source": "https://github.com/modelcontextprotocol/servers.git#.mcp.json" },
+    { "type": "skill",    "source": "https://github.com/anthropics/skills.git#skills/pdf" },
+    { "type": "prompt",   "source": "https://raw.githubusercontent.com/PatrickJS/awesome-cursorrules/main/rules/nextjs-react-tailwind/.cursorrules" },
+    { "type": "command",  "source": "https://github.com/wshobson/commands.git#tools/security-scan.md" },
+    { "type": "subAgent", "source": "https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md" }
   ]
 }
 ```
@@ -370,7 +370,7 @@ Plan and generate Playwright tests.
 | `assets[].type` | はい | `mcp` \| `skill` \| `prompt` \| `command` \| `subAgent` |
 | `assets[].source` | はい | 文字列または文字列の配列（マルチソースは同タイプの複数アセットに自動展開） |
 
-**マルチソースの例** — 同じタイプの複数ファイルをインストール：
+**マルチソースの例** — 複数の MCP を一度にインストール：
 
 ```json
 {
@@ -378,7 +378,10 @@ Plan and generate Playwright tests.
   "assets": [
     {
       "type": "mcp",
-      "source": ["./mcps/playwright.json", "./mcps/filesystem.json"]
+      "source": [
+        "git@github.com:modelcontextprotocol/servers.git#.mcp.json",
+        "https://raw.githubusercontent.com/my-team/mcps/main/filesystem.json"
+      ]
     }
   ]
 }

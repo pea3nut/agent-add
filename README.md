@@ -352,11 +352,11 @@ A JSON file that bundles multiple assets for distribution:
 {
   "name": "my-team/frontend-pack",
   "assets": [
-    { "type": "mcp",      "source": "./mcps/playwright.json" },
-    { "type": "skill",    "source": "./skills/e2e-guide" },
-    { "type": "prompt",   "source": "./prompts/code-review.md" },
-    { "type": "command",  "source": "./commands/deploy.md" },
-    { "type": "subAgent", "source": "./agents/reviewer.md" }
+    { "type": "mcp",      "source": "https://github.com/modelcontextprotocol/servers.git#.mcp.json" },
+    { "type": "skill",    "source": "https://github.com/anthropics/skills.git#skills/pdf" },
+    { "type": "prompt",   "source": "https://raw.githubusercontent.com/PatrickJS/awesome-cursorrules/main/rules/nextjs-react-tailwind/.cursorrules" },
+    { "type": "command",  "source": "https://github.com/wshobson/commands.git#tools/security-scan.md" },
+    { "type": "subAgent", "source": "https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md" }
   ]
 }
 ```
@@ -370,7 +370,7 @@ A JSON file that bundles multiple assets for distribution:
 | `assets[].type` | Yes | `mcp` \| `skill` \| `prompt` \| `command` \| `subAgent` |
 | `assets[].source` | Yes | String or array of strings (multi-source auto-expands into multiple assets) |
 
-**Multi-source example** — install multiple files of the same type:
+**Multi-source example** — install multiple MCP servers at once:
 
 ```json
 {
@@ -378,7 +378,10 @@ A JSON file that bundles multiple assets for distribution:
   "assets": [
     {
       "type": "mcp",
-      "source": ["./mcps/playwright.json", "./mcps/filesystem.json"]
+      "source": [
+        "git@github.com:modelcontextprotocol/servers.git#.mcp.json",
+        "https://raw.githubusercontent.com/my-team/mcps/main/filesystem.json"
+      ]
     }
   ]
 }
