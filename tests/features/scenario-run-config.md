@@ -24,7 +24,7 @@ require internet access and should be excluded from the default run.
 
 ## tags
 
-not @network and not @skip
+not @skip
 
 ## concurrency
 
