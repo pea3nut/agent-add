@@ -39,19 +39,19 @@ npx -y agent-add \
 |------|-----|--------|-------|---------|-----------|
 | <img src="https://www.google.com/s2/favicons?domain=cursor.com&sz=32" width="16"> Cursor | ✅ | ✅ | ✅ | ✅ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=32" width="16"> Claude Code | ✅ | ✅ | ✅ | ✅ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=trae.ai&sz=32" width="16"> Trae | ✅ | ✅ | ✅ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=qwen.ai&sz=32" width="16"> Qwen Code | ✅ | ✅ | ✅ | ✅ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=github.com&sz=32" width="16"> GitHub Copilot | ✅ | ✅ | ✅ | ✅ | ✅ |
-| <img src="https://www.google.com/s2/favicons?domain=gemini.google.com&sz=32" width="16"> Gemini CLI | ✅ | ✅ | ✅ | ✅ | ✅ |
-| <img src="https://www.google.com/s2/favicons?domain=windsurf.com&sz=32" width="16"> Windsurf | ✅ | ✅ | ✅ | ✅ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=roocode.com&sz=32" width="16"> Roo Code | ✅ | ✅ | ✅ | ✅ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=openai.com&sz=32" width="16"> Codex CLI | ✅ | ✅ | ✅ | ❌ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=windsurf.com&sz=32" width="16"> Windsurf | ✅ | ✅ | ✅ | ✅ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=gemini.google.com&sz=32" width="16"> Gemini CLI | ✅ | ✅ | ✅ | ✅ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=kimi.ai&sz=32" width="16"> Kimi Code | ✅ | ✅ | ✅ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=augmentcode.com&sz=32" width="16"> Augment | ✅ | ✅ | ✅ | ✅ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=roocode.com&sz=32" width="16"> Roo Code | ✅ | ✅ | ✅ | ✅ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=kiro.dev&sz=32" width="16"> Kiro CLI | ✅ | ✅ | ✅ | ❌ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=tabnine.com&sz=32" width="16"> Tabnine CLI | ✅ | ✅ | ❌ | ✅ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=kilo.ai&sz=32" width="16"> Kilo Code | ✅ | ✅ | ✅ | ✅ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=opencode.ai&sz=32" width="16"> opencode | ✅ | ✅ | ✅ | ✅ | ✅ |
-| <img src="https://www.google.com/s2/favicons?domain=augmentcode.com&sz=32" width="16"> Augment | ✅ | ✅ | ✅ | ✅ | ✅ |
-| <img src="https://www.google.com/s2/favicons?domain=qwen.ai&sz=32" width="16"> Qwen Code | ✅ | ✅ | ✅ | ✅ | ✅ |
-| <img src="https://www.google.com/s2/favicons?domain=kiro.dev&sz=32" width="16"> Kiro CLI | ✅ | ✅ | ✅ | ❌ | ✅ |
-| <img src="https://www.google.com/s2/favicons?domain=trae.ai&sz=32" width="16"> Trae | ✅ | ✅ | ✅ | ❌ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=tabnine.com&sz=32" width="16"> Tabnine CLI | ✅ | ✅ | ❌ | ✅ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=kimi.ai&sz=32" width="16"> Kimi Code | ✅ | ✅ | ✅ | ❌ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=openclawlab.com&sz=32" width="16"> OpenClaw | ✅ | ✅ | ✅ | ❌ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=mistral.ai&sz=32" width="16"> Mistral Vibe | ✅ | ✅ | ✅ | ❌ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=32" width="16"> Claude Desktop | ✅ | ❌ | ❌ | ❌ | ❌ |

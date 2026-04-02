@@ -32,7 +32,7 @@ export class QwenCodeAdapter implements HostAdapter {
     },
     command: {
       supported: true,
-      installDir: '.qwen-code/commands/',
+      installDir: '.qwen/commands/',
       fileExtension: '.md',
       writeStrategy: 'copy-file',
     },
