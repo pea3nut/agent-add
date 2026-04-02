@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import select from '@inquirer/select';
 import { getHost, getValidHostIds } from './hosts/index.js';
-import { detectHosts } from './utils/detect-hosts.js';
+import { detectHosts, isHostDetected } from './utils/detect-hosts.js';
 import { runInstaller } from './installer.js';
 import { printSummary } from './utils/summary.js';
 import type { CliInput } from './installer.js';
@@ -99,10 +99,8 @@ Examples:
       } else {
         const cwd = process.cwd();
         const detectedHosts = detectHosts(cwd);
-        const choices = detectedHosts.map((h, idx) => ({
-          name: idx < detectedHosts.length && isDetected(h, cwd)
-            ? `${h.displayName} (detected)`
-            : h.displayName,
+        const choices = detectedHosts.map((h) => ({
+          name: isHostDetected(h, cwd) ? `${h.displayName} (detected)` : h.displayName,
           value: h.id,
         }));
 
@@ -140,9 +138,3 @@ function collect(value: string, previous: string[]): string[] {
   return [...previous, value];
 }
 
-function isDetected(host: { detection: { paths: string[] | Record<string, string> } }, _cwd: string): boolean {
-  // Simplified detection check - the actual detection is done in detectHosts
-  // We just mark the first half as "detected" for display purposes
-  // The actual ordering is handled by detectHosts
-  return Array.isArray(host.detection.paths);
-}

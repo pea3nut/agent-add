@@ -4,6 +4,8 @@ import os from 'os';
 import { getAllHosts } from '../hosts/index.js';
 import type { HostConfig, HostDetection } from '../hosts/types.js';
 
+const MAX_WALK_DEPTH = 3;
+
 function expandDetectionPath(p: string): string {
   if (p.startsWith('~/')) {
     return path.join(os.homedir(), p.slice(2));
@@ -35,47 +37,57 @@ function pathExistsSync(p: string): boolean {
   }
 }
 
-export function detectHosts(cwd: string): HostConfig[] {
-  const allHosts = getAllHosts();
-  const detected: HostConfig[] = [];
-  const notDetected: HostConfig[] = [];
-
+function buildSearchDirs(cwd: string): string[] {
   let dir = cwd;
   const visited = new Set<string>();
+  let depth = 0;
 
-  while (!visited.has(dir)) {
+  while (!visited.has(dir) && depth < MAX_WALK_DEPTH) {
     visited.add(dir);
+    depth++;
+    // Stop at git repo boundary — don't cross into parent repos
+    if (pathExistsSync(path.join(dir, '.git'))) break;
     const parent = path.dirname(dir);
     if (parent === dir) break;
     dir = parent;
   }
 
-  const searchDirs = Array.from(visited);
+  return Array.from(visited);
+}
 
-  for (const host of allHosts) {
-    let found = false;
-
-    if (Array.isArray(host.detection.paths)) {
-      for (const searchDir of searchDirs) {
-        for (const detPath of host.detection.paths as string[]) {
-          if (pathExistsSync(path.resolve(searchDir, detPath))) {
-            found = true;
-            break;
-          }
-        }
-        if (found) break;
-      }
-    } else {
-      const paths = getDetectionPaths(host.detection, cwd);
-      for (const p of paths) {
-        if (pathExistsSync(p)) {
-          found = true;
-          break;
+function checkHostDetection(host: HostConfig, searchDirs: string[]): boolean {
+  if (Array.isArray(host.detection.paths)) {
+    for (const searchDir of searchDirs) {
+      for (const detPath of host.detection.paths as string[]) {
+        if (pathExistsSync(path.resolve(searchDir, detPath))) {
+          return true;
         }
       }
     }
+    return false;
+  } else {
+    const paths = getDetectionPaths(host.detection, searchDirs[0] ?? '');
+    for (const p of paths) {
+      if (pathExistsSync(p)) {
+        return true;
+      }
+    }
+    return false;
+  }
+}
 
-    if (found) {
+export function isHostDetected(host: HostConfig, cwd: string): boolean {
+  return checkHostDetection(host, buildSearchDirs(cwd));
+}
+
+export function detectHosts(cwd: string): HostConfig[] {
+  const allHosts = getAllHosts();
+  const searchDirs = buildSearchDirs(cwd);
+  const detected: HostConfig[] = [];
+  const notDetected: HostConfig[] = [];
+
+  for (const host of allHosts) {
+    if (checkHostDetection(host, searchDirs)) {
       detected.push(host);
     } else {
       notDetected.push(host);

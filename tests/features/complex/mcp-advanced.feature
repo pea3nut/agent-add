@@ -60,6 +60,16 @@ Feature: MCP advanced installation scenarios
     And the TOML contains BROWSER env: grep -q 'BROWSER' "$SETUP_TMPDIR/.codex/config.toml"
     And the TOML contains chromium value: grep -q 'chromium' "$SETUP_TMPDIR/.codex/config.toml"
 
+  @P0
+  Scenario: Inline JSON MCP install on Cursor succeeds (cross-drive atomic write regression)
+    Given a temp working directory is created
+    And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
+    When the user runs: cd "$SETUP_TMPDIR" && MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL='*' node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}'
+    Then the exit code is 0
+    And the config file exists: test -f "$SETUP_TMPDIR/.cursor/mcp.json"
+    And the MCP key exists: grep -q '"playwright"' "$SETUP_TMPDIR/.cursor/mcp.json"
+    And no temp files remain: test $(ls "$SETUP_TMPDIR/.cursor/" | grep -c '\.tmp$') -eq 0
+
   @P2
   Scenario: Vibe MCP install produces TOML array format
     Given a temp working directory is created

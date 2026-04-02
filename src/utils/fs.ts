@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import os from 'os';
 
 export async function ensureDir(dirPath: string): Promise<void> {
   await fs.promises.mkdir(dirPath, { recursive: true });
@@ -19,7 +18,7 @@ export async function atomicWriteJSON(filePath: string, data: unknown): Promise<
   const dir = path.dirname(filePath);
   await ensureDir(dir);
 
-  const tmpPath = path.join(os.tmpdir(), `agent-add-${Date.now()}-${Math.random().toString(36).slice(2)}.tmp`);
+  const tmpPath = path.join(dir, `.agent-add-${Date.now()}-${Math.random().toString(36).slice(2)}.tmp`);
   const content = JSON.stringify(data, null, 2) + '\n';
 
   try {
