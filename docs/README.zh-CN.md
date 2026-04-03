@@ -392,7 +392,36 @@ JSON 文件，将多种资产打包在一起分发：
 
 ## 贡献
 
-欢迎贡献！添加新宿主支持请参考 [Host Capability Matrix](../src/hosts/README.md)。
+欢迎贡献！以下是入门指南。
+
+### 环境搭建
+
+```bash
+npm install
+npm run agent-add -- \
+  --skill https://github.com/pea3nut/scenario-test.git#skills/scenario-test \
+  --command https://github.com/pea3nut/scenario-test.git#commands/scenario-exec.md \
+  --sub-agent https://github.com/pea3nut/scenario-test.git#agents/scenario-case-runner.md
+```
+
+最后一条命令安装 [scenario-test](https://github.com/pea3nut/scenario-test) — 一个通过 AI agent 执行 Gherkin 场景的测试框架。运行场景测试时需要，但其文件不会提交到仓库。
+
+### 运行测试
+
+```bash
+npm test                # 所有 unit + integration 测试
+npm run test:contract   # 仅 CLI 黑盒契约测试
+npx vitest run tests/unit/hosts/cursor.test.ts  # 单个文件
+```
+
+场景测试（`tests/features/` 中的 Gherkin `.feature` 文件）通过 AI agent 执行，需要预先安装 [scenario-test](https://github.com/pea3nut/scenario-test)。在 AI 工具中使用 `/scenario-exec` 命令触发：
+
+```
+/scenario-exec tests/features/core
+/scenario-exec tests/features/host
+```
+
+每个场景在独立的临时目录中运行。运行配置定义在 `tests/features/scenario-run-config.md`（executor、并发数、tag 过滤等）。运行前请确保已执行 `npm run build`，因为场景测试调用编译后的 `bin/agent-add.js`。
 
 ## License
 

@@ -394,7 +394,37 @@ Plan and generate Playwright tests.
 
 ## コントリビュート
 
-コントリビューション歓迎です！新しいホストの追加については [Host Capability Matrix](../src/hosts/README.md) を参照してください。
+コントリビューション歓迎です！以下は始め方のガイドです。
+
+### セットアップ
+
+```bash
+npm install
+npm run build
+npm run agent-add -- \
+  --skill https://github.com/pea3nut/scenario-test.git#skills/scenario-test \
+  --command https://github.com/pea3nut/scenario-test.git#commands/scenario-exec.md \
+  --sub-agent https://github.com/pea3nut/scenario-test.git#agents/scenario-case-runner.md
+```
+
+最後のコマンドは [scenario-test](https://github.com/pea3nut/scenario-test) をインストールします — AI エージェントで Gherkin シナリオを実行するテストフレームワークです。シナリオテストの実行に必要ですが、そのファイルはリポジトリにコミットされません。
+
+### テストの実行
+
+```bash
+npm test                # すべての unit + integration テスト
+npm run test:contract   # CLI ブラックボックス契約テストのみ
+npx vitest run tests/unit/hosts/cursor.test.ts  # 単一ファイル
+```
+
+シナリオテスト（`tests/features/` 内の Gherkin `.feature` ファイル）は AI エージェントによって実行されます。事前に [scenario-test](https://github.com/pea3nut/scenario-test) のインストールが必要です。AI ツール内で `/scenario-exec` コマンドを使用して実行します：
+
+```
+/scenario-exec tests/features/core
+/scenario-exec tests/features/host
+```
+
+各シナリオは独立した一時ディレクトリで実行されます。実行設定は `tests/features/scenario-run-config.md`（executor、同時実行数、タグフィルターなど）で定義されています。シナリオはコンパイル済みの `bin/agent-add.js` を呼び出すため、実行前に `npm run build` を実行してください。
 
 ## License
 

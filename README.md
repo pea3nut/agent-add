@@ -394,7 +394,37 @@ When no name is explicitly specified, agent-add infers it from the source string
 
 ## Contributing
 
-Contributions welcome! To add a new host, see the [Host Capability Matrix](./src/hosts/README.md).
+Contributions welcome! Here's how to get started.
+
+### Setup
+
+```bash
+npm install
+npm run build
+npm run agent-add -- \
+  --skill https://github.com/pea3nut/scenario-test.git#skills/scenario-test \
+  --command https://github.com/pea3nut/scenario-test.git#commands/scenario-exec.md \
+  --sub-agent https://github.com/pea3nut/scenario-test.git#agents/scenario-case-runner.md
+```
+
+The last command installs [scenario-test](https://github.com/pea3nut/scenario-test) — a testing framework that runs Gherkin scenarios via AI agents. It is required for running scenario tests but its files are gitignored.
+
+### Running Tests
+
+```bash
+npm test                # All unit + integration tests
+npm run test:contract   # CLI black-box contract tests only
+npx vitest run tests/unit/hosts/cursor.test.ts  # Single file
+```
+
+Scenario tests (Gherkin `.feature` files in `tests/features/`) are executed by AI agents via [scenario-test](https://github.com/pea3nut/scenario-test). Use the `/scenario-exec` command in your AI tool:
+
+```
+/scenario-exec tests/features/core
+/scenario-exec tests/features/host
+```
+
+Each scenario runs in an isolated temp directory. The run configuration is defined in `tests/features/scenario-run-config.md` (executor, concurrency, tag filters, etc.). Make sure to `npm run build` before running scenarios as they invoke the compiled `bin/agent-add.js`.
 
 ## License
 
