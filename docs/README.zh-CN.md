@@ -64,6 +64,8 @@ npx -y agent-add --mcp 'https://github.com/modelcontextprotocol/servers.git#.mcp
 
 ## 用法
 
+安装 [Node.js](https://nodejs.org/)（v18+）后即可通过 `npx` 直接运行，无需额外安装。
+
 ### 安装 MCP
 
 ```bash
