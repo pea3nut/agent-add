@@ -1,6 +1,6 @@
 {
   "name": "agent-add",
-  "version": "0.0.2",
+  "version": "1.0.3",
   "description": "Cross-host AI Agent Pack installer — install MCP, Skill, Prompt, Command, Sub-agent in one command",
   "repository": {
     "type": "git",
@@ -26,7 +26,8 @@
     "test:contract": "vitest run tests/contract",
     "test:integration": "vitest run tests/integration",
     "lint": "tsc --noEmit",
-    "agent-add": "tsx src/index.ts"
+    "agent-add": "tsx src/index.ts",
+    "install:vibe": "npm run agent-add -- --pack vibe/manifest.json"
   },
   "engines": {
     "node": ">=18"

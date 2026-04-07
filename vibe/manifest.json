@@ -1,0 +1,10 @@
+{
+  "name": "agent-add/dev-pack",
+  "assets": [
+    { "type": "skill", "source": "https://github.com/pea3nut/scenario-test.git#skills/scenario-test" },
+    { "type": "command", "source": "https://github.com/pea3nut/scenario-test.git#commands/scenario-exec.md" },
+    { "type": "subAgent", "source": "https://github.com/pea3nut/scenario-test.git#agents/scenario-case-runner.md" },
+    { "type": "command", "source": "./vibe/tasks/verify-host-readme.md" },
+    { "type": "prompt", "source": "./vibe/system-prompt.md" }
+  ]
+}

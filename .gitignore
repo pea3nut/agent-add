@@ -144,7 +144,7 @@ vite.config.ts.timestamp-*
 .cursor/
 .specify/
 .claude/
-vibe/
+vibe/runtime
 specs/
 CLAUDE.md
 AGENTS.md

@@ -401,13 +401,10 @@ Plan and generate Playwright tests.
 ```bash
 npm install
 npm run build
-npm run agent-add -- \
-  --skill https://github.com/pea3nut/scenario-test.git#skills/scenario-test \
-  --command https://github.com/pea3nut/scenario-test.git#commands/scenario-exec.md \
-  --sub-agent https://github.com/pea3nut/scenario-test.git#agents/scenario-case-runner.md
+npm run install:vibe
 ```
 
-最後のコマンドは [scenario-test](https://github.com/pea3nut/scenario-test) をインストールします — AI エージェントで Gherkin シナリオを実行するテストフレームワークです。シナリオテストの実行に必要ですが、そのファイルはリポジトリにコミットされません。
+最後のコマンドは `vibe/manifest.json` パックマニフェストを通じて開発に必要なアセットをインストールします。[scenario-test](https://github.com/pea3nut/scenario-test)（skill + command + sub-agent）、verify-host-readme コマンド、システムプロンプトが含まれます。検出されたホストがサポートしないアセットは自動的にスキップされます。
 
 ### テストの実行
 

@@ -398,13 +398,11 @@ JSON 文件，将多种资产打包在一起分发：
 
 ```bash
 npm install
-npm run agent-add -- \
-  --skill https://github.com/pea3nut/scenario-test.git#skills/scenario-test \
-  --command https://github.com/pea3nut/scenario-test.git#commands/scenario-exec.md \
-  --sub-agent https://github.com/pea3nut/scenario-test.git#agents/scenario-case-runner.md
+npm run build
+npm run install:vibe
 ```
 
-最后一条命令安装 [scenario-test](https://github.com/pea3nut/scenario-test) — 一个通过 AI agent 执行 Gherkin 场景的测试框架。运行场景测试时需要，但其文件不会提交到仓库。
+最后一条命令通过 `vibe/manifest.json` 包清单安装开发所需资产，包括 [scenario-test](https://github.com/pea3nut/scenario-test)（skill + command + sub-agent）、verify-host-readme 命令和系统提示词。当前宿主不支持的资产会被自动跳过。
 
 ### 运行测试
 

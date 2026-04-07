@@ -401,13 +401,10 @@ Contributions welcome! Here's how to get started.
 ```bash
 npm install
 npm run build
-npm run agent-add -- \
-  --skill https://github.com/pea3nut/scenario-test.git#skills/scenario-test \
-  --command https://github.com/pea3nut/scenario-test.git#commands/scenario-exec.md \
-  --sub-agent https://github.com/pea3nut/scenario-test.git#agents/scenario-case-runner.md
+npm run install:vibe
 ```
 
-The last command installs [scenario-test](https://github.com/pea3nut/scenario-test) — a testing framework that runs Gherkin scenarios via AI agents. It is required for running scenario tests but its files are gitignored.
+The last command installs dev assets via the pack manifest at `vibe/manifest.json`, including [scenario-test](https://github.com/pea3nut/scenario-test) (skill + command + sub-agent), a verify-host-readme command, and a system prompt. Assets unsupported by the detected host are automatically skipped.
 
 ### Running Tests
 
