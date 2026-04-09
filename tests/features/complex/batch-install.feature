@@ -40,3 +40,11 @@ Feature: Batch directory installation with /* glob
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --command ./my-command.md
     Then the exit code is 0
     And the command is installed: test -f "$SETUP_TMPDIR/.cursor/commands/my-command.md"
+
+  @P1 @network
+  Scenario: Batch install commands from git repo with #path/*
+    Given a temp working directory is created
+    And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
+    When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --command "https://github.com/wshobson/commands.git#workflows/*" > "$SETUP_TMPDIR/out.txt" 2>&1; echo $? > "$SETUP_TMPDIR/exitcode.txt"; true
+    Then the exit code is 0: grep -q "^0$" "$SETUP_TMPDIR/exitcode.txt"
+    And at least one command is installed: ls "$SETUP_TMPDIR/.cursor/commands/"*.md | wc -l | grep -qE '^[1-9]'

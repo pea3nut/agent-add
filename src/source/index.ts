@@ -10,6 +10,68 @@ export type SourceType = 'local' | 'git-ssh' | 'git-https' | 'http-file' | 'inli
 // .git suffix: appears as .git at end, before #, @, or /
 const GIT_REPO_SUFFIX_RE = /\.git(\/|@|#|$)/;
 
+// GitHub shorthand: owner/repo or owner/repo#path
+const GITHUB_SHORTHAND_RE = /^([a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+)(#.*)?$/;
+
+// GitHub web URL: https://github.com/owner/repo[/tree|blob/ref/path]
+const GITHUB_WEB_RE = /^https?:\/\/(www\.)?github\.com\/([^/#]+\/[^/#]+?)(?:\.git)?\/?(?:\/(tree|blob)\/([^/]+)\/?(.*?))?$/;
+
+// GitLab web URL: https://gitlab.com/owner/repo[/-/tree|blob/ref/path]
+const GITLAB_WEB_RE = /^https?:\/\/(www\.)?gitlab\.com\/([^/#]+\/[^/#]+?)(?:\.git)?\/?(?:\/(?:-\/)?(tree|blob)\/([^/]+)\/?(.*?))?$/;
+
+/**
+ * Normalize GitHub/GitLab web URLs and shorthand syntax into git-compatible URLs.
+ * Returns the original string unchanged if no pattern matches.
+ */
+export function normalizeGitUrl(source: string): string {
+  // Skip inline JSON, inline Markdown, SSH URLs, local paths
+  if (source.startsWith('{') || source.includes('\n') || source.startsWith('git@')) {
+    return source;
+  }
+
+  // GitHub shorthand: owner/repo or owner/repo#path
+  const shorthandMatch = GITHUB_SHORTHAND_RE.exec(source);
+  if (shorthandMatch) {
+    const ownerRepo = shorthandMatch[1];
+    const fragment = shorthandMatch[2] ?? ''; // #path if present
+    return `https://github.com/${ownerRepo}.git${fragment}`;
+  }
+
+  // GitHub web URL
+  const ghMatch = GITHUB_WEB_RE.exec(source);
+  if (ghMatch) {
+    const ownerRepo = ghMatch[2];
+    const ref = ghMatch[4];
+    const subPath = ghMatch[5];
+    let url = `https://github.com/${ownerRepo}.git`;
+    if (subPath) {
+      url += `#${subPath}`;
+    }
+    if (ref) {
+      url += `@${ref}`;
+    }
+    return url;
+  }
+
+  // GitLab web URL
+  const glMatch = GITLAB_WEB_RE.exec(source);
+  if (glMatch) {
+    const ownerRepo = glMatch[2];
+    const ref = glMatch[4];
+    const subPath = glMatch[5];
+    let url = `https://gitlab.com/${ownerRepo}.git`;
+    if (subPath) {
+      url += `#${subPath}`;
+    }
+    if (ref) {
+      url += `@${ref}`;
+    }
+    return url;
+  }
+
+  return source;
+}
+
 export function detectSourceType(source: string): SourceType {
   const trimmed = source.trim();
   if (trimmed.startsWith('{')) {
@@ -41,7 +103,8 @@ export function detectSourceType(source: string): SourceType {
 }
 
 export async function resolveSource(source: string, cwd: string): Promise<ResolvedSource> {
-  const normalizedSource = source.trim(); // normalize: remove leading/trailing whitespace or BOM
+  const trimmed = source.trim(); // normalize: remove leading/trailing whitespace or BOM
+  const normalizedSource = normalizeGitUrl(trimmed);
   const type = detectSourceType(normalizedSource);
   const assetName = inferName(normalizedSource);
 
