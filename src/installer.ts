@@ -5,6 +5,7 @@ import type { AssetDescriptor } from './manifest/schema.js';
 import type { InstallJob, InstallResult, ResolvedSource } from './assets/types.js';
 import { resolveSource } from './source/index.js';
 import { inferName } from './source/infer-name.js';
+import { expandDirectory } from './source/expand-directory.js';
 import { loadManifest } from './manifest/parser.js';
 import { mcpHandler } from './assets/mcp.js';
 import { skillHandler } from './assets/skill.js';
@@ -149,14 +150,37 @@ export async function runInstaller(
   let explicitCount = explicitDescriptors.length;
   let idx = 0;
   for (const item of expandedItems) {
-    const resolved = await resolveSource(item.source, cwd);
-    const assetName = inferName(item.source);
-    resolvedItems.push({
-      assetType: item.assetType,
-      assetName,
-      resolved,
-      fromExplicitFlag: idx < explicitCount,
-    });
+    const isGlob = item.source.endsWith('/*');
+    const cleanSource = isGlob ? item.source.slice(0, -2) : item.source;
+    const resolved = await resolveSource(cleanSource, cwd);
+    const fromExplicitFlag = idx < explicitCount;
+
+    if (isGlob) {
+      const entries = await expandDirectory(resolved.localPath, item.assetType);
+      if (entries.length === 0) {
+        process.stderr.write(
+          `agent-add error: No matching files found in directory for ${item.assetType}\n` +
+          `  Source: ${item.source}\n`,
+        );
+        process.exit(2);
+      }
+      for (const entry of entries) {
+        resolvedItems.push({
+          assetType: item.assetType,
+          assetName: entry.assetName,
+          resolved: { ...resolved, localPath: entry.localPath },
+          fromExplicitFlag,
+        });
+      }
+    } else {
+      const assetName = inferName(cleanSource);
+      resolvedItems.push({
+        assetType: item.assetType,
+        assetName,
+        resolved,
+        fromExplicitFlag,
+      });
+    }
     idx++;
   }
 
