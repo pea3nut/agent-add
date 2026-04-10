@@ -4,12 +4,12 @@
   "description": "Cross-host AI Agent Pack installer — install MCP, Skill, Prompt, Command, Sub-agent in one command",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pea3nut/agent-get.git"
+    "url": "https://github.com/pea3nut/agent-add.git"
   },
   "bugs": {
-    "url": "https://github.com/pea3nut/agent-get/issues"
+    "url": "https://github.com/pea3nut/agent-add/issues"
   },
-  "homepage": "https://github.com/pea3nut/agent-get",
+  "homepage": "https://github.com/pea3nut/agent-add",
   "bin": {
     "agent-add": "bin/agent-add.js"
   },

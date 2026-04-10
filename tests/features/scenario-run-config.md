@@ -41,8 +41,8 @@ not @skip
 ## 运行时注记
 
 notes:
-- Before running any scenario, ensure the CLI binary exists at `bin/agent-add.js`.
-  If it does not exist, run `npm run build` first.
+- Before running any scenario, always run `npm run build` first to ensure the CLI
+  binary at `bin/agent-add.js` reflects the latest source code.
 - Every feature file uses a `Background` block to set `PROJECT_ROOT=$(git rev-parse --show-toplevel)`.
   This variable is available in all subsequent steps and replaces hardcoded absolute paths.
 - The `Given` steps create a unique temp working directory via `mktemp -d`. All subsequent
