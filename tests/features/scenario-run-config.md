@@ -28,7 +28,7 @@ not @skip
 
 ## concurrency
 
-4
+8
 
 ## maxFailures
 

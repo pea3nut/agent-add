@@ -2,32 +2,6 @@ import { describe, it, expect } from 'vitest';
 import { normalizeGitUrl } from '../../../src/source/index.js';
 
 describe('normalizeGitUrl', () => {
-  describe('GitHub shorthand', () => {
-    it('should convert owner/repo to GitHub git URL', () => {
-      expect(normalizeGitUrl('anthropics/claude-code')).toBe(
-        'https://github.com/anthropics/claude-code.git',
-      );
-    });
-
-    it('should convert owner/repo#path to GitHub git URL with fragment', () => {
-      expect(normalizeGitUrl('anthropics/claude-code#skills/pdf')).toBe(
-        'https://github.com/anthropics/claude-code.git#skills/pdf',
-      );
-    });
-
-    it('should handle owner/repo with dots and hyphens', () => {
-      expect(normalizeGitUrl('my-org/my.repo')).toBe(
-        'https://github.com/my-org/my.repo.git',
-      );
-    });
-
-    it('should handle owner/repo with underscores', () => {
-      expect(normalizeGitUrl('my_org/my_repo')).toBe(
-        'https://github.com/my_org/my_repo.git',
-      );
-    });
-  });
-
   describe('GitHub web URLs', () => {
     it('should convert plain repo URL', () => {
       expect(normalizeGitUrl('https://github.com/anthropics/claude-code')).toBe(
