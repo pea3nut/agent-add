@@ -164,10 +164,11 @@ export async function runInstaller(
         );
         process.exit(2);
       }
+      const dirName = path.basename(resolved.localPath);
       for (const entry of entries) {
         resolvedItems.push({
           assetType: item.assetType,
-          assetName: entry.assetName,
+          assetName: `${dirName}/${entry.assetName}`,
           resolved: { ...resolved, localPath: entry.localPath },
           fromExplicitFlag,
         });

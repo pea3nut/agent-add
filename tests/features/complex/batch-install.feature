@@ -10,9 +10,9 @@ Feature: Batch directory installation with /* glob
     And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --command "./my-commands/*"
     Then the exit code is 0
-    And command A is installed: test -f "$SETUP_TMPDIR/.cursor/commands/cmd-a.md"
-    And command B is installed: test -f "$SETUP_TMPDIR/.cursor/commands/cmd-b.md"
-    And command C is installed: test -f "$SETUP_TMPDIR/.cursor/commands/cmd-c.md"
+    And command A is installed: test -f "$SETUP_TMPDIR/.cursor/commands/my-commands/cmd-a.md"
+    And command B is installed: test -f "$SETUP_TMPDIR/.cursor/commands/my-commands/cmd-b.md"
+    And command C is installed: test -f "$SETUP_TMPDIR/.cursor/commands/my-commands/cmd-c.md"
 
   @P0
   Scenario: Batch install MCP configs from local directory with /*
@@ -47,4 +47,4 @@ Feature: Batch directory installation with /* glob
     And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --command "https://github.com/wshobson/commands.git#workflows/*" > "$SETUP_TMPDIR/out.txt" 2>&1; echo $? > "$SETUP_TMPDIR/exitcode.txt"; true
     Then the exit code is 0: grep -q "^0$" "$SETUP_TMPDIR/exitcode.txt"
-    And at least one command is installed: ls "$SETUP_TMPDIR/.cursor/commands/"*.md | wc -l | grep -qE '^[1-9]'
+    And at least one command is installed: ls "$SETUP_TMPDIR/.cursor/commands/workflows/"*.md | wc -l | grep -qE '^[1-9]'

@@ -133,6 +133,11 @@ describe('normalizeGitUrl', () => {
       expect(normalizeGitUrl(url)).toBe(url);
     });
 
+    it('should not transform git HTTPS URLs with #fragment (regression: # must not leak into owner/repo match)', () => {
+      const url = 'https://github.com/wshobson/commands.git#workflows';
+      expect(normalizeGitUrl(url)).toBe(url);
+    });
+
     it('should not transform non-GitHub/GitLab HTTPS URLs', () => {
       const url = 'https://example.com/playwright.json';
       expect(normalizeGitUrl(url)).toBe(url);
