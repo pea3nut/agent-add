@@ -8,37 +8,37 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class KiloCodeAdapter implements HostAdapter {
   readonly id = 'kilo-code';
   readonly displayName = 'Kilo Code';
-  readonly docs = 'https://kilo.ai/docs/automate/mcp/using-in-kilo-code';
+  readonly docs = 'https://kilo.ai/docs';
   readonly detection = {
-    paths: ['.kilocode/'],
+    paths: ['.kilo/', '.kilocode/'],
   };
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
       supported: true,
-      configFile: '.kilocode/mcp.json',
-      configKey: 'mcpServers',
+      configFile: '.kilo/kilo.json',
+      configKey: 'mcp',
       writeStrategy: 'inject-json-key',
     },
     prompt: {
       supported: true,
-      installDir: '.kilocode/rules',
+      installDir: '.kilo/rules',
       writeStrategy: 'create-file-in-dir',
     },
     skill: {
       supported: true,
-      installDir: '.kilocode/skills/',
+      installDir: '.kilo/skills/',
       entryFile: 'SKILL.md',
       writeStrategy: 'copy-file',
     },
     command: {
       supported: true,
-      installDir: '.kilocode/commands/',
+      installDir: '.kilo/commands/',
       fileExtension: '.md',
       writeStrategy: 'copy-file',
     },
     subAgent: {
       supported: true,
-      installDir: '.kilocode/agents/',
+      installDir: '.kilo/agents/',
       fileExtension: '.md',
       writeStrategy: 'copy-file',
     },

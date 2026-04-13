@@ -146,7 +146,6 @@ vite.config.ts.timestamp-*
 .claude/
 .playwright-cli/
 .playwright/
-vibe/runtime
 specs/
 CLAUDE.md
 AGENTS.md
