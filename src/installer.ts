@@ -27,6 +27,16 @@ export interface CliInput {
   host?: string;
 }
 
+async function cleanupTempDirs(tempDirs: Set<string>): Promise<void> {
+  for (const dir of tempDirs) {
+    try {
+      await fs.promises.rm(dir, { recursive: true, force: true });
+    } catch {
+      // ignore cleanup errors
+    }
+  }
+}
+
 function getHandler(assetType: AssetType) {
   switch (assetType) {
     case 'mcp': return mcpHandler;
@@ -43,13 +53,13 @@ async function validateAsset(
 ): Promise<string | null> {
   if (assetType === 'skill') {
     if (resolved.type === 'http-file' || resolved.type === 'inline-json' || resolved.type === 'inline-md') {
-      return 'Skill 资产必须指向目录来源（本地路径或 Git URL），不支持内联内容或直接 HTTP(S) URL';
+      return 'Skill assets must point to a directory source (local path or Git URL); inline content and direct HTTP(S) URLs are not supported';
     }
     const skillMdPath = path.join(resolved.localPath, 'SKILL.md');
     try {
       await fs.promises.access(skillMdPath);
     } catch {
-      return `Skill 目录内缺少 SKILL.md 文件（期望路径：${skillMdPath}）`;
+      return `Skill directory is missing a SKILL.md file (expected path: ${skillMdPath})`;
     }
     return null;
   }
@@ -58,10 +68,10 @@ async function validateAsset(
     try {
       await fs.promises.access(resolved.localPath);
     } catch {
-      return `MCP 来源文件不存在：${resolved.localPath}`;
+      return `MCP source file does not exist: ${resolved.localPath}`;
     }
     if (!resolved.localPath.endsWith('.json')) {
-      return `MCP 来源文件扩展名必须为 .json（得到：${resolved.localPath}）`;
+      return `MCP source file extension must be .json (got: ${resolved.localPath})`;
     }
     return null;
   }
@@ -70,10 +80,10 @@ async function validateAsset(
     try {
       await fs.promises.access(resolved.localPath);
     } catch {
-      return `来源文件不存在：${resolved.localPath}`;
+      return `Source file does not exist: ${resolved.localPath}`;
     }
     if (!resolved.localPath.endsWith('.md')) {
-      return `${assetType} 来源文件扩展名必须为 .md（得到：${resolved.localPath}）`;
+      return `${assetType} source file extension must be .md (got: ${resolved.localPath})`;
     }
     return null;
   }
@@ -147,12 +157,17 @@ export async function runInstaller(
     fromExplicitFlag: boolean;
   }> = [];
 
+  const tempDirsToClean = new Set<string>();
+
   let explicitCount = explicitDescriptors.length;
   let idx = 0;
   for (const item of expandedItems) {
     const isGlob = item.source.endsWith('/*');
     const cleanSource = isGlob ? item.source.slice(0, -2) : item.source;
     const resolved = await resolveSource(cleanSource, cwd);
+    if (resolved.tempDir) {
+      tempDirsToClean.add(resolved.tempDir);
+    }
     const fromExplicitFlag = idx < explicitCount;
 
     if (isGlob) {
@@ -162,6 +177,7 @@ export async function runInstaller(
           `agent-add error: No matching files found in directory for ${item.assetType}\n` +
           `  Source: ${item.source}\n`,
         );
+        await cleanupTempDirs(tempDirsToClean);
         process.exit(2);
       }
       const dirName = path.basename(resolved.localPath);
@@ -174,7 +190,7 @@ export async function runInstaller(
         });
       }
     } else {
-      const assetName = inferName(cleanSource);
+      const assetName = inferName(cleanSource, { isDirectorySource: item.assetType === 'skill' });
       resolvedItems.push({
         assetType: item.assetType,
         assetName,
@@ -190,6 +206,7 @@ export async function runInstaller(
     if (validationError) {
       process.stderr.write(`agent-add error: ${validationError}\n`);
       process.stderr.write(`  Source: ${item.resolved.originalSource}\n`);
+      await cleanupTempDirs(tempDirsToClean);
       process.exit(2);
     }
   }
@@ -228,16 +245,7 @@ export async function runInstaller(
     results.push(result);
   }
 
-  for (const item of resolvedItems) {
-    if (item.resolved.tempDir) {
-      try {
-        const fs2 = await import('fs');
-        await fs2.promises.rm(item.resolved.tempDir, { recursive: true, force: true });
-      } catch {
-        // ignore cleanup errors
-      }
-    }
-  }
+  await cleanupTempDirs(tempDirsToClean);
 
   return { host, results };
 }

@@ -10,6 +10,11 @@ export type SourceType = 'local' | 'git-ssh' | 'git-https' | 'http-file' | 'inli
 // .git suffix: appears as .git at end, before #, @, or /
 const GIT_REPO_SUFFIX_RE = /\.git(\/|@|#|$)/;
 
+// Extensions this tool fetches directly as a single file (mcp/prompt/command/subAgent).
+// If the part of the URL before "#" already looks like one of these, the "#"
+// is treated as a URL fragment rather than a git subPath marker.
+const DIRECT_FILE_EXT_RE = /\.(json|md)$/i;
+
 // GitHub web URL: https://github.com/owner/repo[/tree|blob/ref/path]
 const GITHUB_WEB_RE = /^https?:\/\/(www\.)?github\.com\/([^/#]+\/[^/#]+?)(?:\.git)?\/?(?:\/(tree|blob)\/([^/]+)\/?(.*?))?$/;
 
@@ -73,8 +78,15 @@ export function detectSourceType(source: string): SourceType {
     return 'git-ssh';
   }
   if (source.startsWith('https://') || source.startsWith('http://')) {
-    if (GIT_REPO_SUFFIX_RE.test(source) || source.includes('#')) {
+    if (GIT_REPO_SUFFIX_RE.test(source)) {
       return 'git-https';
+    }
+    const hashIdx = source.indexOf('#');
+    if (hashIdx !== -1) {
+      const beforeHash = (source.slice(0, hashIdx).split('?')[0] ?? '');
+      if (!DIRECT_FILE_EXT_RE.test(beforeHash)) {
+        return 'git-https';
+      }
     }
     return 'http-file';
   }

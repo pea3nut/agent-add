@@ -10,12 +10,12 @@ export async function resolveInlineJson(source: string, assetName: string): Prom
     parsed = JSON.parse(source);
   } catch {
     throw new Error(
-      `内联 JSON 解析失败。格式应为 {"<name>":{...}}，例如：{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}`,
+      `Failed to parse inline JSON. Expected format: {"<name>":{...}}, e.g.: {"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}`,
     );
   }
 
   if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-    throw new Error(`内联 JSON 必须为对象类型，得到：${JSON.stringify(parsed)}`);
+    throw new Error(`Inline JSON must be an object, got: ${JSON.stringify(parsed)}`);
   }
 
   const obj = parsed as Record<string, unknown>;
@@ -28,7 +28,7 @@ export async function resolveInlineJson(source: string, assetName: string): Prom
     const entries = Object.entries(obj);
     if (entries.length !== 1) {
       throw new Error(
-        `内联 JSON 必须包含恰好一个 key（作为资产名称），当前有 ${entries.length} 个 key`,
+        `Inline JSON must contain exactly one key (used as the asset name), got ${entries.length} keys`,
       );
     }
     [, value] = entries[0]!;

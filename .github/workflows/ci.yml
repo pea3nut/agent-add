@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    name: Lint & Test (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Node 18 is dropped from this matrix: the dev/test toolchain (vitest 4,
+        # tsup/rolldown, commander 14, @inquirer/select 5) requires Node >=20 and
+        # cannot run `npm test`/`npm run build` on Node 18. This is separate from
+        # (and doesn't verify) the package's documented "engines": ">=18" for the
+        # published CLI itself.
+        node-version: [20.x, 22.x, 24.x]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint (type-check)
+        run: npm run lint
+
+      - name: Run unit & integration tests
+        run: npm test
+
+      - name: Build
+        run: npm run build

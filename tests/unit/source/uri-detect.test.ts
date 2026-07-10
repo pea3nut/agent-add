@@ -105,5 +105,21 @@ describe('detectSourceType', () => {
     it('https URL with # but no .git is git-https', () => {
       expect(detectSourceType('https://github.com/org/repo#main/src')).toBe('git-https');
     });
+
+    it('plain .md file URL with a # fragment is http-file, not git-https (regression)', () => {
+      expect(detectSourceType('https://example.com/prompt.md#usage')).toBe('http-file');
+    });
+
+    it('plain .json file URL with a # fragment is http-file, not git-https (regression)', () => {
+      expect(detectSourceType('https://example.com/config.json#section')).toBe('http-file');
+    });
+
+    it('plain .md file URL with a query string and # fragment is http-file', () => {
+      expect(detectSourceType('https://example.com/prompt.md?raw=1#usage')).toBe('http-file');
+    });
+
+    it('non-.git repo URL with # subPath ending in .json is still git-https when the repo itself has no extension', () => {
+      expect(detectSourceType('https://git.example.com/org/repo#configs/settings.json')).toBe('git-https');
+    });
   });
 });

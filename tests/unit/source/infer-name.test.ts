@@ -103,4 +103,25 @@ describe('inferName', () => {
       expect(inferName('https://github.com/org/repo.git@abc123f')).toBe('repo');
     });
   });
+
+  describe('isDirectorySource (skill assets)', () => {
+    it('should not strip a dotted directory name from a local path (regression)', () => {
+      expect(inferName('./skills/pdf.js-tools', { isDirectorySource: true })).toBe('pdf.js-tools');
+    });
+
+    it('should not strip a dotted directory name from a git #path last segment (regression)', () => {
+      expect(inferName('git@github.com:demo/skills.git#pdf.js-tools', { isDirectorySource: true })).toBe(
+        'pdf.js-tools',
+      );
+    });
+
+    it('should still strip .git suffix for a bare repo (whole repo is the skill directory)', () => {
+      expect(inferName('git@github.com:org/repo.git', { isDirectorySource: true })).toBe('repo');
+    });
+
+    it('should behave identically to the default when the name has no dot', () => {
+      expect(inferName('./skills/e2e-guide', { isDirectorySource: true })).toBe('e2e-guide');
+      expect(inferName('./skills/e2e-guide')).toBe('e2e-guide');
+    });
+  });
 });

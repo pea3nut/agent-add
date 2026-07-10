@@ -26,10 +26,14 @@ export const skillHandler: AssetHandler = {
     const entryFile = path.join(targetDir, 'SKILL.md');
 
     try {
-      await fs.promises.access(targetDir);
+      // Check the entry file, not just the directory: a directory that
+      // exists without SKILL.md means a previous install was interrupted
+      // partway through copyDirRecursive, and should be retried rather
+      // than permanently reported as already installed.
+      await fs.promises.access(entryFile);
       return { job, status: 'exists', targetPath: entryFile };
     } catch {
-      // target doesn't exist, proceed with install
+      // target doesn't exist or is an incomplete install, proceed with install
     }
 
     await copyDirRecursive(resolvedSource.localPath, targetDir);

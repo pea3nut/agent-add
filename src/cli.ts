@@ -89,7 +89,7 @@ Examples:
 
       if (cliInput.host) {
         hostId = cliInput.host;
-      } else if (!process.stdout.isTTY) {
+      } else if (!process.stdin.isTTY || !process.stdout.isTTY) {
         const validIds = getValidHostIds().join(', ');
         process.stderr.write(
           `agent-add error: Non-interactive environment detected. Please specify a host with --host <host>.\n`,

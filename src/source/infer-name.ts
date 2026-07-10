@@ -1,17 +1,27 @@
 import path from 'path';
 import { unwrapMcpServers } from '../utils/unwrap-mcp-servers.js';
 
+export interface InferNameOptions {
+  /**
+   * Set for sources that resolve to a directory (e.g. skill assets), where
+   * the last path segment / basename IS the asset name and must not have a
+   * trailing ".something" stripped as if it were a file extension.
+   */
+  isDirectorySource?: boolean;
+}
+
 /**
  * Infer asset name from source string.
  *
  * Rules:
  * 0. If inline JSON (starts with `{`): extract the single top-level key
  * 0. If inline Markdown (contains `\n`): extract first `# Heading` and kebab-case it
- * 1. If source contains `#path`, use last segment of path (minus extension)
+ * 1. If source contains `#path`, use last segment of path (minus extension, unless isDirectorySource)
  * 2. If git URL without #path (e.g. git@...repo.git), use repo name (strip .git)
- * 3. If local path or http-file URL, use filename without extension
+ * 3. If local path or http-file URL, use filename without extension (unless isDirectorySource)
  */
-export function inferName(source: string): string {
+export function inferName(source: string, options: InferNameOptions = {}): string {
+  const { isDirectorySource = false } = options;
   const s = source.trim(); // normalize: remove leading/trailing whitespace or BOM
 
   // Inline JSON: extract single top-level key as name
@@ -21,11 +31,11 @@ export function inferName(source: string): string {
       parsed = JSON.parse(s);
     } catch {
       throw new Error(
-        `内联 JSON 解析失败。格式应为 {"<name>":{...}}，例如：{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}`,
+        `Failed to parse inline JSON. Expected format: {"<name>":{...}}, e.g.: {"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}`,
       );
     }
     if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-      throw new Error(`内联 JSON 必须为对象类型`);
+      throw new Error(`Inline JSON must be an object`);
     }
     const obj = parsed as Record<string, unknown>;
     const unwrapped = unwrapMcpServers(obj);
@@ -35,7 +45,7 @@ export function inferName(source: string): string {
     const keys = Object.keys(obj);
     if (keys.length !== 1) {
       throw new Error(
-        `内联 JSON 必须包含恰好一个 key（作为资产名称），当前有 ${keys.length} 个 key`,
+        `Inline JSON must contain exactly one key (used as the asset name), got ${keys.length} keys`,
       );
     }
     return keys[0]!;
@@ -54,7 +64,7 @@ export function inferName(source: string): string {
       }
     }
     throw new Error(
-      `内联 Markdown 必须包含一级标题（如 # My Prompt）以推断资产名称`,
+      `Inline Markdown must contain a level-1 heading (e.g. # My Prompt) to infer the asset name`,
     );
   }
 
@@ -64,8 +74,8 @@ export function inferName(source: string): string {
     const subPath = s.slice(hashIdx + 1);
     const segments = subPath.split('/').filter(Boolean);
     if (segments.length > 0) {
-      const last = segments[segments.length - 1];
-      return stripExtension(last);
+      const last = segments[segments.length - 1]!;
+      return isDirectorySource ? last : stripExtension(last);
     }
   }
 
@@ -80,7 +90,7 @@ export function inferName(source: string): string {
 
   // Local path or HTTP file: use filename without extension
   const basename = path.basename(s.split('?')[0] ?? s);
-  return stripExtension(basename);
+  return isDirectorySource ? basename : stripExtension(basename);
 }
 
 function stripExtension(filename: string): string {
