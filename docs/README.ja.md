@@ -286,6 +286,10 @@ Review the current file for bugs, security issues, and style violations.
 
 ホストの commands ディレクトリにインストールされます（例：`.cursor/commands/code-review.md`）。
 
+Gemini CLI では、Markdown 本文が `.gemini/commands/<name>.toml` の `prompt` 文字列に
+変換されます。任意のフロントマター `description` 文字列は保持され、その他のフィールドは
+省略されます。他のホストでは元の Markdown が保持されます。
+
 ### Sub-agent ファイル
 
 Markdown + YAML フロントマター。**`agent-add/<host>/<key>` ホスト特化構文**をサポートしています — 同一ファイルで異なるホストに異なるフロントマター値を提供できます。これはサブエージェントのモデルを指定する際に特に便利です。
