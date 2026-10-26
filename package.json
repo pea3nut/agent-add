@@ -45,12 +45,12 @@
     "@inquirer/select": "4.3.4",
     "@types/node": "^25.5.0",
     "commander": "13.1.0",
-    "smol-toml": "^1.6.1",
+    "smol-toml": "^1.9.1",
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vitest": "^4.1.0",
-    "yaml": "^2.8.2",
-    "zod": "^4.3.6"
+    "yaml": "^2.8.3",
+    "zod": "^4.6.6"
   }
 }
