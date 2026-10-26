@@ -81,3 +81,16 @@ Feature: MCP advanced installation scenarios
     And the TOML uses array format: grep -q 'mcp_servers' "$SETUP_TMPDIR/.vibe/config.toml"
     And the TOML contains name field: grep -q 'playwright' "$SETUP_TMPDIR/.vibe/config.toml"
     And the TOML contains transport field: grep -q 'stdio' "$SETUP_TMPDIR/.vibe/config.toml"
+
+  @P0
+  Scenario: Reject malformed TOML ending in an array comment without hanging
+    Given a temp working directory is created
+    And an isolated home is configured: export HOME="$SETUP_TMPDIR/home" AGENT_ADD_HOME="$SETUP_TMPDIR/home" && mkdir -p "$HOME/.codex"
+    And the MCP fixture is copied: cp "$PROJECT_ROOT/tests/fixtures/mcp/playwright.json" "$SETUP_TMPDIR/playwright.json"
+    And the existing TOML ends in a comment without a newline: printf '%s' 'a=[1 #' > "$HOME/.codex/config.toml"
+    And the original config is saved: cp "$HOME/.codex/config.toml" "$SETUP_TMPDIR/before.toml"
+    When the user runs with a five-second process timeout: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host codex --mcp ./playwright.json > "$SETUP_TMPDIR/out.txt" 2>&1; echo $? > "$SETUP_TMPDIR/exitcode.txt"; true
+    Then the CLI finishes within five seconds rather than timing out
+    And the recorded CLI exit code is 1: test "$(cat "$SETUP_TMPDIR/exitcode.txt")" -eq 1
+    And the output reports a TOML parsing error: grep -q 'Failed to parse TOML config file' "$SETUP_TMPDIR/out.txt"
+    And the existing config is byte-for-byte unchanged: cmp "$HOME/.codex/config.toml" "$SETUP_TMPDIR/before.toml"
