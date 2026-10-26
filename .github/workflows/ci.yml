@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # The dev toolchain requires Node 20+. Test the published CLI separately.
+        # 开发工具链需要 Node 20+；是否支持 Node 18，要另测已打包的 CLI，不能用开发环境代替。
         node-version: [20.x, 22.x, 24.x]
     steps:
       - uses: actions/checkout@v4
@@ -48,12 +48,14 @@ jobs:
           name: cli-package
           path: ${{ runner.temp }}/agent-add-*.tgz
 
+  # 下载上面构建的发布包，不在旧 Node 下安装开发依赖，验证真实用户的运行时环境。
   runtime:
     name: Published CLI smoke (Node ${{ matrix.node-version }})
     needs: test
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        # 同时覆盖最低承诺版本 18.0.0 和各主版本的最新补丁，避免漏掉早期 Node 18。
         node-version: [18.0.0, 18.x, 20.x, 22.x, 24.x]
     steps:
       - uses: actions/checkout@v4
