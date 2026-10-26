@@ -1,5 +1,6 @@
 import type { InstallResult, InstallStatus } from '../assets/types.js';
 import type { HostConfig } from '../hosts/types.js';
+import { describeSource } from './redact.js';
 
 export interface InstallSummary {
   host: HostConfig;
@@ -35,7 +36,8 @@ export function formatSummary(summary: InstallSummary): string {
     const symbol = STATUS_SYMBOLS[result.status];
     const assetLabel = truncate(`${result.job.assetType}/${result.job.assetName}`, 22);
     const targetInfo = result.targetPath ? ` → ${result.targetPath}` : '';
-    lines.push(`  ${symbol.padEnd(12)} ${assetLabel}${targetInfo}`);
+    const sourceInfo = result.status === 'updated' ? ` (overwritten from ${describeSource(result.job.resolvedSource.originalSource)})` : '';
+    lines.push(`  ${symbol.padEnd(12)} ${assetLabel}${targetInfo}${sourceInfo}`);
   }
 
   if (skipped.length > 0) {
@@ -60,10 +62,18 @@ export function formatSummary(summary: InstallSummary): string {
   const conflictCount = conflicts.length;
   lines.push(`${writtenCount} written · ${skippedCount} skipped · ${conflictCount} conflicts`);
 
+  if (conflicts.length > 0) {
+    lines.push('');
+    lines.push('  Preflight failed. No target files were changed.');
+  }
   for (const result of conflicts) {
     lines.push('');
     lines.push(`  ! conflict: ${result.job.assetType}/${result.job.assetName} — ${result.reason ?? 'target exists with user modifications'}`);
-    lines.push('              To override, remove the existing entry and re-run.');
+    lines.push(`              Source: ${describeSource(result.job.resolvedSource.originalSource)}`);
+    if (result.canOverwrite !== false) {
+      lines.push('              To overwrite conflicting assets, re-run the same command with --overwrite.');
+      lines.push(`              Example: agent-add --pack ./manifest.json --host ${host.id} --overwrite`);
+    }
   }
 
   const errors = results.filter((r) => r.status === 'error');

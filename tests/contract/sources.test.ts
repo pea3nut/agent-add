@@ -92,15 +92,37 @@ describe('temp-dir cleanup on failure (real subprocess)', () => {
     expect(leftoverHttpDirs()).toEqual([]);
   });
 
-  it('removes the HTTP download dir when an asset handler throws while writing', async () => {
-    // CLAUDE.md is a directory, so the prompt handler's write throws EISDIR.
+  it('removes the HTTP download dir when preflight finds an invalid target', async () => {
+    // Target inspection now catches EISDIR before any installation writes.
     fs.mkdirSync(path.join(projectDir, 'CLAUDE.md'));
 
     const result = await runCli(['--prompt', `${baseUrl}/prompts/review.md`, '--host', 'claude-code'], projectDir, tmpEnv);
 
-    expect(result.exitCode).toBe(2);
-    expect(result.stderr).toMatch(/EISDIR/);
+    expect(result.exitCode).toBe(1);
+    expect(result.stdout).toMatch(/EISDIR/);
     expect(leftoverHttpDirs()).toEqual([]);
+  });
+
+  it('removes download and staging dirs on an actual execution-phase write error', async () => {
+    const preload = path.join(projectDir, 'fail-staged-write.cjs');
+    fs.writeFileSync(preload, `
+      const fs = require('fs');
+      const original = fs.promises.writeFile;
+      fs.promises.writeFile = async function(file, ...args) {
+        if (String(file).includes('.agent-add-stage-')) throw new Error('Injected staged write error');
+        return original.call(this, file, ...args);
+      };
+    `);
+    const result = await runCli(
+      ['--prompt', `${baseUrl}/prompts/review.md`, '--host', 'claude-code', '--overwrite'],
+      projectDir,
+      { ...tmpEnv, NODE_OPTIONS: `--require=${preload}` },
+    );
+    expect(result.exitCode).toBe(1);
+    expect(result.stdout).toContain('Injected staged write error');
+    expect(leftoverHttpDirs()).toEqual([]);
+    expect(fs.readdirSync(projectDir).filter((name) => name.startsWith('.agent-add-stage-'))).toEqual([]);
+    expect(fs.existsSync(path.join(projectDir, 'CLAUDE.md'))).toBe(false);
   });
 });
 

@@ -164,11 +164,27 @@ Options:
   --command <source>    安装 Command 文件
   --sub-agent <source>  安装 Sub-agent 文件
   --pack <source>       安装 Agent Pack manifest
+  --overwrite          覆盖冲突资产（最后声明的来源优先）
   -V, --version         显示版本号
   -h, --help            显示帮助信息
 ```
 
 所有资产 flag 可重复使用（安装多个同类资产），也可与 `--pack` 自由组合。
+
+### 冲突与覆盖
+
+默认保护已有内容：本次输入或已有安装中，不同内容指向同一个最终目标时报告冲突。所有受支持资产先完成准备和预检；预检失败时，**所有目标均不写入**。相同输入合并为一次安装；已安装内容相同时返回 `exists`，不重写。
+
+可覆盖的冲突会提示重新运行原命令并追加 `--overwrite`：
+
+```bash
+agent-add --pack ./manifest.json --host claude-code --overwrite
+```
+
+- **最后声明者优先**：按 CLI 参数顺序，pack 在出现位置展开；manifest 的资产及 source 数组保持声明顺序，`/*` 子项按相对路径排序，不依赖下载速度。
+- **只覆盖命中的资产**：MCP 仅替换同名 server；追加型 prompt 仅替换对应 marker，保留用户正文和其他 prompt。command、sub-agent、独立文件型 prompt 仅替换目标文件。追加型 prompt 内容变化也需要 `--overwrite`，不再默认更新。
+- **Skill 完整替换，不合并**：新来源没有的旧文件会删除，包括用户添加的文件；比较隐藏文件，不影响其他 skill。缺少 `SKILL.md` 的不完整目录仍默认自动恢复，沿用原先合并来源文件的行为。
+- **不绕过校验**：损坏配置、无效来源、权限、符号链接及结构性目标重叠仍报错。写入前再次检查目标，skill 先暂存再切换目录。没有跨进程锁，也不提供整批回滚；执行中出现新的 I/O 错误时，先前成功的写入会保留。
 
 ## 资产开发者指南
 
