@@ -12,6 +12,7 @@ export async function expandDirectory(
   assetType: AssetType,
 ): Promise<Array<{ assetName: string; localPath: string }>> {
   const entries = await fs.promises.readdir(localPath, { withFileTypes: true });
+  entries.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
 
   if (assetType === 'skill') {
     const results: Array<{ assetName: string; localPath: string }> = [];

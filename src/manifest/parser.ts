@@ -1,33 +1,35 @@
 import fs from 'fs';
 import { resolveSource } from '../source/index.js';
 import { ManifestSchema, type Manifest } from './schema.js';
+import { describeSource, redact } from '../utils/redact.js';
 
 export async function loadManifest(source: string, cwd: string): Promise<Manifest> {
   let jsonContent: string;
 
   try {
     const resolved = await resolveSource(source, cwd);
-    jsonContent = await fs.promises.readFile(resolved.localPath, 'utf-8');
-
-    if (resolved.tempDir) {
-      try {
-        await fs.promises.rm(resolved.tempDir, { recursive: true, force: true });
-      } catch {
-        // ignore cleanup errors
+    try {
+      jsonContent = await fs.promises.readFile(resolved.localPath, 'utf-8');
+    } finally {
+      if (resolved.tempDir) {
+        try {
+          await fs.promises.rm(resolved.tempDir, { recursive: true, force: true });
+        } catch {
+          // Cleanup must not mask the original failure.
+        }
       }
     }
   } catch (err) {
-    process.stderr.write(`agent-add error: Failed to load Manifest from: ${source}\n`);
-    process.stderr.write(`  Cause: ${(err as Error).message}\n`);
+    process.stderr.write(`agent-add error: Failed to load Manifest from: ${describeSource(source)}\n`);
+    process.stderr.write(`  Cause: ${redact((err as Error).message)}\n`);
     process.exit(2);
   }
 
   let rawData: unknown;
   try {
     rawData = JSON.parse(jsonContent);
-  } catch (err) {
-    process.stderr.write(`agent-add error: Invalid JSON in Manifest: ${source}\n`);
-    process.stderr.write(`  Cause: ${(err as Error).message}\n`);
+  } catch {
+    process.stderr.write(`agent-add error: Invalid JSON in Manifest: ${describeSource(source)}\n`);
     process.exit(2);
   }
 

@@ -79,6 +79,20 @@ describe('temp-dir cleanup on failure (real subprocess)', () => {
     return fs.readdirSync(privateTmp).filter((name) => name.startsWith('agent-add-http-'));
   }
 
+  it('resolves HTTP sources during a dry run and cleans up without writing targets', async () => {
+    const result = await runCli(
+      ['--prompt', `${baseUrl}/prompts/review.md`, '--host', 'claude-code', '--dry-run'],
+      projectDir,
+      tmpEnv,
+    );
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain('would-write');
+    expect(requestedUrls).toContain('/prompts/review.md');
+    expect(leftoverHttpDirs()).toEqual([]);
+    expect(fs.existsSync(path.join(projectDir, 'CLAUDE.md'))).toBe(false);
+  });
+
   it('removes the HTTP download dir when a later local source does not exist', async () => {
     const result = await runCli(
       ['--prompt', `${baseUrl}/prompts/review.md`, '--prompt', './does-not-exist.md', '--host', 'claude-code'],
@@ -92,15 +106,37 @@ describe('temp-dir cleanup on failure (real subprocess)', () => {
     expect(leftoverHttpDirs()).toEqual([]);
   });
 
-  it('removes the HTTP download dir when an asset handler throws while writing', async () => {
-    // CLAUDE.md is a directory, so the prompt handler's write throws EISDIR.
+  it('removes the HTTP download dir when preflight finds an invalid target', async () => {
+    // Target inspection now catches EISDIR before any installation writes.
     fs.mkdirSync(path.join(projectDir, 'CLAUDE.md'));
 
     const result = await runCli(['--prompt', `${baseUrl}/prompts/review.md`, '--host', 'claude-code'], projectDir, tmpEnv);
 
-    expect(result.exitCode).toBe(2);
-    expect(result.stderr).toMatch(/EISDIR/);
+    expect(result.exitCode).toBe(1);
+    expect(result.stdout).toMatch(/EISDIR/);
     expect(leftoverHttpDirs()).toEqual([]);
+  });
+
+  it('removes download and staging dirs on an actual execution-phase write error', async () => {
+    const preload = path.join(projectDir, 'fail-staged-write.cjs');
+    fs.writeFileSync(preload, `
+      const fs = require('fs');
+      const original = fs.promises.writeFile;
+      fs.promises.writeFile = async function(file, ...args) {
+        if (String(file).includes('.agent-add-stage-')) throw new Error('Injected staged write error');
+        return original.call(this, file, ...args);
+      };
+    `);
+    const result = await runCli(
+      ['--prompt', `${baseUrl}/prompts/review.md`, '--host', 'claude-code', '--overwrite'],
+      projectDir,
+      { ...tmpEnv, NODE_OPTIONS: `--require=${preload}` },
+    );
+    expect(result.exitCode).toBe(1);
+    expect(result.stdout).toContain('Injected staged write error');
+    expect(leftoverHttpDirs()).toEqual([]);
+    expect(fs.readdirSync(projectDir).filter((name) => name.startsWith('.agent-add-stage-'))).toEqual([]);
+    expect(fs.existsSync(path.join(projectDir, 'CLAUDE.md'))).toBe(false);
   });
 });
 

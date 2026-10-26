@@ -4,13 +4,14 @@ import { getHost, getValidHostIds } from './hosts/index.js';
 import { detectHosts, isHostDetected } from './utils/detect-hosts.js';
 import { runInstaller } from './installer.js';
 import { printSummary } from './utils/summary.js';
-import type { CliInput } from './installer.js';
+import type { CliInput, OrderedInput } from './installer.js';
 
 import pkgJson from '../package.json';
 const pkg = pkgJson as { version: string };
 
 export function createProgram(): Command {
   const program = new Command();
+  const inputs: OrderedInput[] = [];
 
   program
     .name('agent-add')
@@ -19,6 +20,11 @@ export function createProgram(): Command {
     .addHelpText('after', `
 Rules:
   All flags can be combined freely. The same flag can be repeated to install multiple assets.
+  Different content at the same target is a conflict; preflight failures leave all targets unchanged.
+  Use --overwrite to replace conflicts. The last declared source wins (packs expand in place).
+  Use --dry-run to validate and preview changes without writing installation targets.
+  Dry runs may download sources temporarily; use --dry-run --overwrite to preview replacements.
+  Skill overwrite replaces the whole directory, removing old files absent from the source.
   If --host is not specified, an interactive selection will be shown (TTY only).
   In non-interactive environments (CI, pipes), --host is required.
 
@@ -51,6 +57,14 @@ Examples:
     .option('--command <source>', 'Install a Command', collect, [])
     .option('--sub-agent <source>', 'Install a Sub-agent', collect, [])
     .option('--host <host>', 'Target host ID (cursor | claude-code | claude-desktop)')
+    .option('--overwrite', 'Overwrite conflicting assets; the last declared source wins', false)
+    .option('--dry-run', 'Preview changes without writing installation targets', false)
+    .on('option:pack', (source: string) => inputs.push({ type: 'pack', source }))
+    .on('option:mcp', (source: string) => inputs.push({ type: 'mcp', source }))
+    .on('option:skill', (source: string) => inputs.push({ type: 'skill', source }))
+    .on('option:prompt', (source: string) => inputs.push({ type: 'prompt', source }))
+    .on('option:command', (source: string) => inputs.push({ type: 'command', source }))
+    .on('option:sub-agent', (source: string) => inputs.push({ type: 'subAgent', source }))
     .action(async (options: {
       pack: string[];
       mcp: string[];
@@ -59,6 +73,8 @@ Examples:
       command: string[];
       subAgent: string[];
       host?: string;
+      overwrite: boolean;
+      dryRun: boolean;
     }) => {
       const cliInput: CliInput = {
         mcp: options.mcp,
@@ -68,6 +84,9 @@ Examples:
         subAgent: options.subAgent,
         pack: options.pack,
         host: options.host,
+        overwrite: options.overwrite,
+        dryRun: options.dryRun,
+        inputs,
       };
 
       const hasAssetFlags =
@@ -137,4 +156,3 @@ Examples:
 function collect(value: string, previous: string[]): string[] {
   return [...previous, value];
 }
-

@@ -14,6 +14,8 @@ export interface InstallJob {
   assetName: string;
   resolvedSource: ResolvedSource;
   host: HostConfig;
+  cwd?: string;
+  overwrite?: boolean;
 }
 
 export interface InstallResult {
@@ -21,8 +23,21 @@ export interface InstallResult {
   status: InstallStatus;
   targetPath?: string;
   reason?: string;
+  canOverwrite?: boolean;
+}
+
+export interface PreparedAsset {
+  job: InstallJob;
+  targetPath: string;
+  kind: 'file' | 'prompt' | 'mcp-json' | 'mcp-table' | 'mcp-array' | 'skill';
+  content?: string;
+  entry?: Record<string, unknown>;
+  configKey?: string;
+  files?: Map<string, Buffer | null>;
+  modes?: Map<string, number>;
 }
 
 export interface AssetHandler {
+  prepare(job: InstallJob): Promise<PreparedAsset>;
   handle(job: InstallJob): Promise<InstallResult>;
 }

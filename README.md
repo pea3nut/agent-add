@@ -166,11 +166,36 @@ Options:
   --command <source>    Install a Command file
   --sub-agent <source>  Install a Sub-agent file
   --pack <source>       Install an Agent Pack manifest
+  --overwrite          Overwrite conflicting assets (last declared source wins)
+  --dry-run            Preview changes without writing installation targets
   -V, --version         Show version number
   -h, --help            Show help
 ```
 
 All asset flags can be repeated (to install multiple assets of the same type) and freely combined with `--pack`.
+
+### Conflicts and overwriting
+
+By default, different content at the same final target is a conflict, whether it comes from duplicate inputs or an existing installation. All supported assets are prepared and checked before any target is written; a preflight conflict or error leaves **all targets unchanged**. Identical inputs are deduplicated; identical installed content returns `exists` without rewriting it.
+
+To replace conflicting assets, re-run the same command with `--overwrite`:
+
+```bash
+agent-add --pack ./manifest.json --host claude-code --overwrite
+```
+
+To inspect a pack without modifying installation targets, add `--dry-run` (combine it with `--overwrite` to preview which source would win):
+
+```bash
+agent-add --pack ./manifest.json --host claude-code --dry-run --overwrite
+```
+
+Dry runs resolve and validate sources, compare with existing targets, then report `would-write`, `would-update`, `would-skip` or `would-conflict` instead of committing changes. They return exit code 1 for conflicts/errors (2 for invalid CLI/source input), so they work as a CI check. Resolution may temporarily download sources; temporary files are cleaned up. A preview is not a reservation: if targets change before the real install, the actual command rechecks them. No install directories, staging files or target files are created/changed by a dry run.
+
+- **Last declared source wins:** CLI order is preserved, each pack expands at its position, manifest assets and source arrays keep their order, and `/*` children are sorted by relative path. Download timing does not affect the winner.
+- **Scoped updates:** MCP replaces only the named server; appended prompts replace only their marker block, preserving user text and other prompts. Commands, sub-agents, and standalone prompts replace only their target file. Changed appended prompts now require `--overwrite` too.
+- **Skills are replaced, not merged:** old files absent from the source are removed, including user-added files. Hidden files are compared, and other skills are untouched. A directory missing `SKILL.md` still recovers automatically without `--overwrite`, merging source files as before.
+- **Not a validation bypass:** malformed configs, invalid sources, permissions, symlinks, and overlapping file/directory targets still fail. Staged writes recheck targets before committing and skill replacement retains the old directory until the switch succeeds. There is no cross-process lock or batch-wide rollback: a later runtime I/O failure can leave earlier successful writes installed.
 
 ## Asset Developer Guide
 

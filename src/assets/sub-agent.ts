@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
-import { ensureDir } from '../utils/fs.js';
-import type { AssetHandler, InstallJob, InstallResult } from './types.js';
+import { childPath } from '../utils/safe-path.js';
+import { createHandler } from './plan.js';
 
 function applyHostHints(
   frontmatter: Record<string, unknown>,
@@ -50,49 +50,14 @@ function processSubAgentContent(content: string, hostId: string): string {
   return `---\n${newFmStr}\n---\n${body}`;
 }
 
-export const subAgentHandler: AssetHandler = {
-  async handle(job: InstallJob): Promise<InstallResult> {
-    const { host, assetName, resolvedSource } = job;
-    const subAgentCapability = host.assets['subAgent'];
-    const installDir = subAgentCapability.installDir as string;
-    const ext = subAgentCapability.fileExtension ?? '.md';
-    const targetPath = path.resolve(process.cwd(), installDir, `${assetName}${ext}`);
+export const subAgentHandler = createHandler(async (job) => {
+  const { host, assetName, resolvedSource } = job;
+  const subAgentCapability = host.assets['subAgent'];
+  const installDir = subAgentCapability.installDir as string;
+  const ext = subAgentCapability.fileExtension ?? '.md';
+  const targetPath = childPath(path.resolve(job.cwd ?? process.cwd(), installDir), `${assetName}${ext}`);
 
-    let sourceContent: string;
-    try {
-      sourceContent = await fs.promises.readFile(resolvedSource.localPath, 'utf-8');
-    } catch (err) {
-      return {
-        job,
-        status: 'error',
-        reason: `Failed to read sub-agent source: ${(err as Error).message}`,
-      };
-    }
-
-    const processedContent = processSubAgentContent(sourceContent, host.id);
-
-    await ensureDir(path.dirname(targetPath));
-
-    let existingContent: string | null = null;
-    try {
-      existingContent = await fs.promises.readFile(targetPath, 'utf-8');
-    } catch {
-      // file doesn't exist
-    }
-
-    if (existingContent !== null) {
-      if (existingContent === processedContent) {
-        return { job, status: 'exists', targetPath };
-      }
-      return {
-        job,
-        status: 'conflict',
-        targetPath,
-        reason: `${targetPath} already exists with different content`,
-      };
-    }
-
-    await fs.promises.writeFile(targetPath, processedContent, 'utf-8');
-    return { job, status: 'written', targetPath };
-  },
-};
+  const sourceContent = await fs.promises.readFile(resolvedSource.localPath, 'utf-8');
+  const processedContent = processSubAgentContent(sourceContent, host.id);
+  return { job, kind: 'file', targetPath, content: processedContent };
+});
