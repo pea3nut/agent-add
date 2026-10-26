@@ -105,5 +105,60 @@ describe('detectSourceType', () => {
     it('https URL with # but no .git is git-https', () => {
       expect(detectSourceType('https://github.com/org/repo#main/src')).toBe('git-https');
     });
+
+    it('plain .md file URL with a # fragment is http-file, not git-https (regression)', () => {
+      expect(detectSourceType('https://example.com/prompt.md#usage')).toBe('http-file');
+    });
+
+    it('plain .json file URL with a # fragment is http-file, not git-https (regression)', () => {
+      expect(detectSourceType('https://example.com/config.json#section')).toBe('http-file');
+    });
+
+    it('plain .md file URL with a query string and # fragment is http-file', () => {
+      expect(detectSourceType('https://example.com/prompt.md?raw=1#usage')).toBe('http-file');
+    });
+
+    it('ordinary HTTP URLs with a # fragment are http-file regardless of extension', () => {
+      expect(detectSourceType('https://example.com/docs/page#section')).toBe('http-file');
+      expect(detectSourceType('https://example.com/archive.tar.gz#x')).toBe('http-file');
+      expect(detectSourceType('https://example.com/prompt.txt?v=2#usage')).toBe('http-file');
+    });
+
+    it('a non-GitHub/GitLab URL without .git is http-file even with a #path', () => {
+      expect(detectSourceType('https://git.example.com/org/repo#configs/settings.json')).toBe('http-file');
+    });
+
+    it('.git in the middle of a file URL path does not make it a git source', () => {
+      expect(detectSourceType('https://example.com/mirror.git/raw/prompt.md#usage')).toBe('http-file');
+    });
+
+    it('a query string containing @ does not make an HTTP file a git source', () => {
+      expect(detectSourceType('https://example.com/prompt.md?by=me@example.com#usage')).toBe('http-file');
+    });
+  });
+
+  describe('git-https detection by parsed repository URL', () => {
+    it('.git@ref#path on any host is git-https', () => {
+      expect(detectSourceType('https://git.example.com/org/repo.git@main#skills/pdf')).toBe('git-https');
+    });
+
+    it('.git#path@ref on any host is git-https', () => {
+      expect(detectSourceType('https://git.example.com/org/repo.git#skills/pdf@main')).toBe('git-https');
+    });
+
+    it('.git with embedded credentials and @ref is git-https', () => {
+      expect(detectSourceType('https://token@git.example.com/org/repo.git@v1')).toBe('git-https');
+    });
+
+    it('GitHub tree/blob URLs are git-https', () => {
+      expect(detectSourceType('https://github.com/org/repo/tree/main/skills/pdf')).toBe('git-https');
+      expect(detectSourceType('https://github.com/org/repo/blob/main/mcps/x.json')).toBe('git-https');
+      expect(detectSourceType('https://github.com/org/repo/blob/main/README.md#usage')).toBe('git-https');
+    });
+
+    it('GitLab tree/blob URLs are git-https', () => {
+      expect(detectSourceType('https://gitlab.com/org/repo/-/tree/main/skills/pdf')).toBe('git-https');
+      expect(detectSourceType('https://gitlab.com/org/repo/-/blob/main/mcps/x.json')).toBe('git-https');
+    });
   });
 });

@@ -3,6 +3,7 @@ import path from 'path';
 import os from 'os';
 import { readJSONOrNull, atomicWriteJSON, ensureDir } from '../utils/fs.js';
 import { unwrapMcpServers } from '../utils/unwrap-mcp-servers.js';
+import { deepEqualIgnoringKeyOrder } from '../utils/deep-equal.js';
 import type { AssetHandler, InstallJob, InstallResult } from './types.js';
 
 function getHomedir(): string {
@@ -37,10 +38,11 @@ function resolveConfigFilePath(
 async function handleTomlMcp(
   job: InstallJob,
   configFilePath: string,
+  assetName: string,
   newServerConfig: Record<string, unknown>,
 ): Promise<InstallResult> {
   const { parse, stringify } = await import('smol-toml');
-  const { host, assetName } = job;
+  const { host } = job;
 
   await ensureDir(path.dirname(configFilePath));
 
@@ -65,16 +67,25 @@ async function handleTomlMcp(
   if (host.id === 'vibe') {
     // Vibe uses [[mcp_servers]] array format
     const mcpServers = (parsed['mcp_servers'] as Array<Record<string, unknown>>) ?? [];
-    const existing = mcpServers.find((s) => s['name'] === assetName);
-    if (existing) {
-      return { job, status: 'exists', targetPath: configFilePath };
-    }
     const entry: Record<string, unknown> = {
       name: assetName,
       transport: 'stdio',
       command: (newServerConfig['command'] as string) ?? '',
     };
     if (newServerConfig['args']) entry['args'] = newServerConfig['args'];
+
+    const existingIdx = mcpServers.findIndex((s) => s['name'] === assetName);
+    if (existingIdx !== -1) {
+      if (deepEqualIgnoringKeyOrder(mcpServers[existingIdx], entry)) {
+        return { job, status: 'exists', targetPath: configFilePath };
+      }
+      return {
+        job,
+        status: 'conflict',
+        targetPath: configFilePath,
+        reason: `${configFilePath} already has an mcp_servers entry named '${assetName}' with different content`,
+      };
+    }
     mcpServers.push(entry);
     parsed['mcp_servers'] = mcpServers;
   } else {
@@ -83,14 +94,23 @@ async function handleTomlMcp(
       parsed['mcp_servers'] = {};
     }
     const mcpServers = parsed['mcp_servers'] as Record<string, unknown>;
-    if (assetName in mcpServers) {
-      return { job, status: 'exists', targetPath: configFilePath };
-    }
     const entry: Record<string, unknown> = {
       command: (newServerConfig['command'] as string) ?? '',
     };
     if (newServerConfig['args']) entry['args'] = newServerConfig['args'];
     if (newServerConfig['env']) entry['env'] = newServerConfig['env'];
+
+    if (assetName in mcpServers) {
+      if (deepEqualIgnoringKeyOrder(mcpServers[assetName], entry)) {
+        return { job, status: 'exists', targetPath: configFilePath };
+      }
+      return {
+        job,
+        status: 'conflict',
+        targetPath: configFilePath,
+        reason: `${configFilePath} already has a '${assetName}' key with different content`,
+      };
+    }
     mcpServers[assetName] = entry;
   }
 
@@ -139,12 +159,21 @@ export const mcpHandler: AssetHandler = {
 
     // Dispatch to TOML handler when config file has .toml extension
     if (configFilePath.endsWith('.toml')) {
-      return handleTomlMcp(job, configFilePath, newServerConfig);
+      return handleTomlMcp(job, configFilePath, assetName, newServerConfig);
     }
 
     const configKey = mcpCapability.configKey ?? 'mcpServers';
 
-    const existingConfig = (await readJSONOrNull<Record<string, unknown>>(configFilePath)) ?? {};
+    let existingConfig: Record<string, unknown>;
+    try {
+      existingConfig = (await readJSONOrNull<Record<string, unknown>>(configFilePath)) ?? {};
+    } catch (err) {
+      return {
+        job,
+        status: 'error',
+        reason: `Failed to parse existing config file as JSON: ${configFilePath}\n  Cause: ${(err as Error).message}`,
+      };
+    }
     const mcpServers = (existingConfig[configKey] as Record<string, unknown>) ?? {};
 
     if (assetName in mcpServers) {

@@ -19,13 +19,20 @@ export async function resolveHttpFile(source: string, assetName: string): Promis
     );
   }
 
+  const buffer = await response.arrayBuffer();
+
+  // Query and fragment are kept in the request above but never in the filename.
   const urlPath = new URL(source).pathname;
   const ext = path.extname(urlPath) || '.tmp';
   const tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'agent-add-http-'));
   const tmpFile = path.join(tmpDir, `${assetName}${ext}`);
 
-  const buffer = await response.arrayBuffer();
-  await fs.promises.writeFile(tmpFile, Buffer.from(buffer));
+  try {
+    await fs.promises.writeFile(tmpFile, Buffer.from(buffer));
+  } catch (err) {
+    await fs.promises.rm(tmpDir, { recursive: true, force: true }).catch(() => {});
+    throw err;
+  }
 
   return {
     type: 'http-file',

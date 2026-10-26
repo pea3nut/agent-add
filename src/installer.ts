@@ -27,6 +27,16 @@ export interface CliInput {
   host?: string;
 }
 
+async function cleanupTempDirs(tempDirs: Set<string>): Promise<void> {
+  for (const dir of tempDirs) {
+    try {
+      await fs.promises.rm(dir, { recursive: true, force: true });
+    } catch {
+      // ignore cleanup errors
+    }
+  }
+}
+
 function getHandler(assetType: AssetType) {
   switch (assetType) {
     case 'mcp': return mcpHandler;
@@ -43,13 +53,13 @@ async function validateAsset(
 ): Promise<string | null> {
   if (assetType === 'skill') {
     if (resolved.type === 'http-file' || resolved.type === 'inline-json' || resolved.type === 'inline-md') {
-      return 'Skill 资产必须指向目录来源（本地路径或 Git URL），不支持内联内容或直接 HTTP(S) URL';
+      return 'Skill assets must point to a directory source (local path or Git URL); inline content and direct HTTP(S) URLs are not supported';
     }
     const skillMdPath = path.join(resolved.localPath, 'SKILL.md');
     try {
       await fs.promises.access(skillMdPath);
     } catch {
-      return `Skill 目录内缺少 SKILL.md 文件（期望路径：${skillMdPath}）`;
+      return `Skill directory is missing a SKILL.md file (expected path: ${skillMdPath})`;
     }
     return null;
   }
@@ -58,10 +68,10 @@ async function validateAsset(
     try {
       await fs.promises.access(resolved.localPath);
     } catch {
-      return `MCP 来源文件不存在：${resolved.localPath}`;
+      return `MCP source file does not exist: ${resolved.localPath}`;
     }
     if (!resolved.localPath.endsWith('.json')) {
-      return `MCP 来源文件扩展名必须为 .json（得到：${resolved.localPath}）`;
+      return `MCP source file extension must be .json (got: ${resolved.localPath})`;
     }
     return null;
   }
@@ -70,10 +80,10 @@ async function validateAsset(
     try {
       await fs.promises.access(resolved.localPath);
     } catch {
-      return `来源文件不存在：${resolved.localPath}`;
+      return `Source file does not exist: ${resolved.localPath}`;
     }
     if (!resolved.localPath.endsWith('.md')) {
-      return `${assetType} 来源文件扩展名必须为 .md（得到：${resolved.localPath}）`;
+      return `${assetType} source file extension must be .md (got: ${resolved.localPath})`;
     }
     return null;
   }
@@ -147,97 +157,99 @@ export async function runInstaller(
     fromExplicitFlag: boolean;
   }> = [];
 
-  let explicitCount = explicitDescriptors.length;
-  let idx = 0;
-  for (const item of expandedItems) {
-    const isGlob = item.source.endsWith('/*');
-    const cleanSource = isGlob ? item.source.slice(0, -2) : item.source;
-    const resolved = await resolveSource(cleanSource, cwd);
-    const fromExplicitFlag = idx < explicitCount;
+  const tempDirsToClean = new Set<string>();
 
-    if (isGlob) {
-      const entries = await expandDirectory(resolved.localPath, item.assetType);
-      if (entries.length === 0) {
-        process.stderr.write(
-          `agent-add error: No matching files found in directory for ${item.assetType}\n` +
-          `  Source: ${item.source}\n`,
-        );
-        process.exit(2);
+  // process.exit() skips `finally`, so every exit path below cleans up
+  // explicitly; the `finally` covers normal returns and thrown errors.
+  try {
+    let explicitCount = explicitDescriptors.length;
+    let idx = 0;
+    for (const item of expandedItems) {
+      const isGlob = item.source.endsWith('/*');
+      const cleanSource = isGlob ? item.source.slice(0, -2) : item.source;
+      const resolved = await resolveSource(cleanSource, cwd);
+      if (resolved.tempDir) {
+        tempDirsToClean.add(resolved.tempDir);
       }
-      const dirName = path.basename(resolved.localPath);
-      for (const entry of entries) {
+      const fromExplicitFlag = idx < explicitCount;
+
+      if (isGlob) {
+        const entries = await expandDirectory(resolved.localPath, item.assetType);
+        if (entries.length === 0) {
+          process.stderr.write(
+            `agent-add error: No matching files found in directory for ${item.assetType}\n` +
+            `  Source: ${item.source}\n`,
+          );
+          await cleanupTempDirs(tempDirsToClean);
+          process.exit(2);
+        }
+        const dirName = path.basename(resolved.localPath);
+        for (const entry of entries) {
+          resolvedItems.push({
+            assetType: item.assetType,
+            assetName: `${dirName}/${entry.assetName}`,
+            resolved: { ...resolved, localPath: entry.localPath },
+            fromExplicitFlag,
+          });
+        }
+      } else {
+        const assetName = inferName(cleanSource, { isDirectorySource: item.assetType === 'skill' });
         resolvedItems.push({
           assetType: item.assetType,
-          assetName: `${dirName}/${entry.assetName}`,
-          resolved: { ...resolved, localPath: entry.localPath },
+          assetName,
+          resolved,
           fromExplicitFlag,
         });
       }
-    } else {
-      const assetName = inferName(cleanSource);
-      resolvedItems.push({
-        assetType: item.assetType,
-        assetName,
-        resolved,
-        fromExplicitFlag,
-      });
+      idx++;
     }
-    idx++;
-  }
 
-  for (const item of resolvedItems) {
-    const validationError = await validateAsset(item.assetType, item.resolved);
-    if (validationError) {
-      process.stderr.write(`agent-add error: ${validationError}\n`);
-      process.stderr.write(`  Source: ${item.resolved.originalSource}\n`);
-      process.exit(2);
+    for (const item of resolvedItems) {
+      const validationError = await validateAsset(item.assetType, item.resolved);
+      if (validationError) {
+        process.stderr.write(`agent-add error: ${validationError}\n`);
+        process.stderr.write(`  Source: ${item.resolved.originalSource}\n`);
+        await cleanupTempDirs(tempDirsToClean);
+        process.exit(2);
+      }
     }
-  }
 
-  const jobs: InstallJob[] = [];
-  const skippedResults: InstallResult[] = [];
+    const jobs: InstallJob[] = [];
+    const skippedResults: InstallResult[] = [];
 
-  for (const item of resolvedItems) {
-    const capability = host.assets[item.assetType];
-    if (!capability.supported) {
-      skippedResults.push({
-        job: {
+    for (const item of resolvedItems) {
+      const capability = host.assets[item.assetType];
+      if (!capability.supported) {
+        skippedResults.push({
+          job: {
+            assetType: item.assetType,
+            assetName: item.assetName,
+            resolvedSource: item.resolved,
+            host,
+          },
+          status: 'skipped',
+          reason: capability.reason ?? `${host.displayName} does not support ${item.assetType}`,
+        });
+      } else {
+        jobs.push({
           assetType: item.assetType,
           assetName: item.assetName,
           resolvedSource: item.resolved,
           host,
-        },
-        status: 'skipped',
-        reason: capability.reason ?? `${host.displayName} does not support ${item.assetType}`,
-      });
-    } else {
-      jobs.push({
-        assetType: item.assetType,
-        assetName: item.assetName,
-        resolvedSource: item.resolved,
-        host,
-      });
-    }
-  }
-
-  const results: InstallResult[] = [...skippedResults];
-
-  for (const job of jobs) {
-    const handler = getHandler(job.assetType);
-    const result = await handler.handle(job);
-    results.push(result);
-  }
-
-  for (const item of resolvedItems) {
-    if (item.resolved.tempDir) {
-      try {
-        const fs2 = await import('fs');
-        await fs2.promises.rm(item.resolved.tempDir, { recursive: true, force: true });
-      } catch {
-        // ignore cleanup errors
+        });
       }
     }
-  }
 
-  return { host, results };
+    const results: InstallResult[] = [...skippedResults];
+
+    for (const job of jobs) {
+      const handler = getHandler(job.assetType);
+      const result = await handler.handle(job);
+      results.push(result);
+    }
+
+    return { host, results };
+  } finally {
+    await cleanupTempDirs(tempDirsToClean);
+  }
 }

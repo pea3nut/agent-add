@@ -50,6 +50,36 @@ describe('normalizeGitUrl', () => {
         'https://github.com/owner/repo.git',
       );
     });
+
+    it('should convert /tree/ref/path URL with a trailing slash', () => {
+      expect(normalizeGitUrl('https://github.com/owner/repo/tree/main/skills/pdf/')).toBe(
+        'https://github.com/owner/repo.git#skills/pdf@main',
+      );
+    });
+
+    it('should drop a page anchor on a /blob/ URL instead of treating it as a subpath', () => {
+      expect(normalizeGitUrl('https://github.com/owner/repo/blob/main/README.md#usage')).toBe(
+        'https://github.com/owner/repo.git#README.md@main',
+      );
+    });
+
+    it('should add .git to a repo URL with a #path and keep the path', () => {
+      expect(normalizeGitUrl('https://github.com/owner/repo#skills/pdf')).toBe(
+        'https://github.com/owner/repo.git#skills/pdf',
+      );
+    });
+
+    it('should add .git to a repo URL with @ref#path and keep both', () => {
+      expect(normalizeGitUrl('https://github.com/owner/repo@main#skills/pdf')).toBe(
+        'https://github.com/owner/repo.git@main#skills/pdf',
+      );
+    });
+
+    it('should not fold an @ref into the repo name (regression: repo.git@ref became repo.git@ref.git)', () => {
+      expect(normalizeGitUrl('https://github.com/owner/repo.git@v1.0.0')).toBe(
+        'https://github.com/owner/repo.git@v1.0.0',
+      );
+    });
   });
 
   describe('GitLab web URLs', () => {
