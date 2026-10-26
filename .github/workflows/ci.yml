@@ -49,7 +49,7 @@ jobs:
           path: ${{ runner.temp }}/agent-add-*.tgz
 
   runtime:
-    name: Published CLI (Node ${{ matrix.node-version }})
+    name: Published CLI smoke (Node ${{ matrix.node-version }})
     needs: test
     runs-on: ubuntu-latest
     strategy:
