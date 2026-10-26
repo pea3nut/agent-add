@@ -79,6 +79,20 @@ describe('temp-dir cleanup on failure (real subprocess)', () => {
     return fs.readdirSync(privateTmp).filter((name) => name.startsWith('agent-add-http-'));
   }
 
+  it('resolves HTTP sources during a dry run and cleans up without writing targets', async () => {
+    const result = await runCli(
+      ['--prompt', `${baseUrl}/prompts/review.md`, '--host', 'claude-code', '--dry-run'],
+      projectDir,
+      tmpEnv,
+    );
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain('would-write');
+    expect(requestedUrls).toContain('/prompts/review.md');
+    expect(leftoverHttpDirs()).toEqual([]);
+    expect(fs.existsSync(path.join(projectDir, 'CLAUDE.md'))).toBe(false);
+  });
+
   it('removes the HTTP download dir when a later local source does not exist', async () => {
     const result = await runCli(
       ['--prompt', `${baseUrl}/prompts/review.md`, '--prompt', './does-not-exist.md', '--host', 'claude-code'],

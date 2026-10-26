@@ -207,9 +207,9 @@ describe('install preflight and overwrite', () => {
   it('refuses parent/child and cross-type targets even with overwrite', async () => {
     const a = await commandHandler.prepare(job('command', write('a.md', 'a')));
     const b: PreparedAsset = { ...a, job: { ...a.job, assetType: 'subAgent' } };
-    let results = await installPrepared([a, b], true);
+    let results = await installPrepared([a, b], { overwrite: true });
     expect(results.every((r) => r.status === 'conflict' && r.canOverwrite === false)).toBe(true);
-    results = await installPrepared([a, { ...a, targetPath: path.join(a.targetPath, 'nested') }], true);
+    results = await installPrepared([a, { ...a, targetPath: path.join(a.targetPath, 'nested') }], { overwrite: true });
     expect(results.every((r) => r.status === 'conflict' && r.canOverwrite === false)).toBe(true);
     expect(fs.existsSync(path.join(root, '.claude'))).toBe(false);
   });
@@ -268,7 +268,7 @@ describe('install preflight and overwrite', () => {
     const b = await commandHandler.prepare(job('command', write('b.md', 'b')));
     a.job.resolvedSource.originalSource = 'https://user:password@example.com/a.md?token=secret';
     b.job.resolvedSource.originalSource = '{"command":"secret-inline-value"}';
-    const summary = formatSummary({ host: a.job.host, results: await installPrepared([a, b], false) });
+    const summary = formatSummary({ host: a.job.host, results: await installPrepared([a, b]) });
     expect(summary).not.toMatch(/password|token=secret|secret-inline-value/);
     expect(summary).toContain('--overwrite');
   });

@@ -15,12 +15,18 @@ interface WritePlan {
   modes?: Map<string, number>;
 }
 
+interface InstallOptions {
+  overwrite?: boolean;
+  dryRun?: boolean;
+  errors?: InstallResult[];
+}
+
 export function createHandler(prepare: AssetHandler['prepare']): AssetHandler {
   return {
     prepare,
     async handle(job) {
       try {
-        return (await installPrepared([await prepare(job)], job.overwrite ?? false))[0]!;
+        return (await installPrepared([await prepare(job)], { overwrite: job.overwrite }))[0]!;
       } catch (err) {
         return assetError(job, err);
       }
@@ -165,8 +171,7 @@ async function assertWritable(target: string): Promise<void> {
 
 export async function installPrepared(
   assets: PreparedAsset[],
-  overwrite: boolean,
-  errors: InstallResult[] = [],
+  { overwrite = false, dryRun = false, errors = [] }: InstallOptions = {},
 ): Promise<InstallResult[]> {
   const results = new Map<PreparedAsset, InstallResult>();
   const byUnit = new Map<string, PreparedAsset[]>();
@@ -298,7 +303,7 @@ export async function installPrepared(
         results.set(asset, { ...result, status: 'skipped', reason: 'Not installed because preflight failed; no target files were changed' });
       }
     }
-  } else {
+  } else if (!dryRun) {
     for (const plan of plans) {
       try {
         await applyWrite(plan);

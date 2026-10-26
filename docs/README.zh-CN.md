@@ -165,6 +165,7 @@ Options:
   --sub-agent <source>  安装 Sub-agent 文件
   --pack <source>       安装 Agent Pack manifest
   --overwrite          覆盖冲突资产（最后声明的来源优先）
+  --dry-run            预览安装结果，不写入安装目标
   -V, --version         显示版本号
   -h, --help            显示帮助信息
 ```
@@ -180,6 +181,14 @@ Options:
 ```bash
 agent-add --pack ./manifest.json --host claude-code --overwrite
 ```
+
+安装前可使用 `--dry-run` 预览；和 `--overwrite` 一起使用时，可检查最终会选择哪个来源，但仍不写入安装目标：
+
+```bash
+agent-add --pack ./manifest.json --host claude-code --dry-run --overwrite
+```
+
+预览仍会解析、下载（如有需要）、校验来源并读取目标，输出 `would-write` / `would-update` / `would-skip` / `would-conflict`，不创建安装目录、暂存文件或更改目标内容。临时下载文件会清理。冲突或安装错误返回退出码 1，输入／用法错误返回 2。预览不是锁定或事务：之后正式执行会重新检查目标，其间目标可能变化。
 
 - **最后声明者优先**：按 CLI 参数顺序，pack 在出现位置展开；manifest 的资产及 source 数组保持声明顺序，`/*` 子项按相对路径排序，不依赖下载速度。
 - **只覆盖命中的资产**：MCP 仅替换同名 server；追加型 prompt 仅替换对应 marker，保留用户正文和其他 prompt。command、sub-agent、独立文件型 prompt 仅替换目标文件。追加型 prompt 内容变化也需要 `--overwrite`，不再默认更新。

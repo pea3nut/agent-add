@@ -167,6 +167,7 @@ Options:
   --sub-agent <source>  Sub-agent ファイルをインストール
   --pack <source>       Agent Pack マニフェストをインストール
   --overwrite          競合するアセットを上書き（後に指定したソースを優先）
+  --dry-run            インストール先を書き換えずに変更をプレビュー
   -V, --version         バージョンを表示
   -h, --help            ヘルプを表示
 ```
@@ -182,6 +183,14 @@ Options:
 ```bash
 agent-add --pack ./manifest.json --host claude-code --overwrite
 ```
+
+書き込み前の確認には `--dry-run` を指定します。`--overwrite` と組み合わせると、勝つソースをプレビューできますが、実際には上書きしません：
+
+```bash
+agent-add --pack ./manifest.json --host claude-code --dry-run --overwrite
+```
+
+プレビューでもソースの解決・検証、必要なダウンロード、既存ターゲットとの比較を行い、`would-write` / `would-update` / `would-skip` / `would-conflict` を表示します。インストール先のディレクトリや一時ステージ、ターゲットファイルは作成・変更されません。ダウンロード用の一時ファイルは削除されます。競合やインストールエラーは終了コード 1、入力・使用方法のエラーは 2 です。プレビューはロックやトランザクションではなく、実際の実行時にターゲットを再確認します。
 
 - **後に指定したソースを優先**：CLI の順序を保ち、pack は指定位置で展開します。マニフェストのアセット・source 配列は記述順、`/*` の子要素は相対パス順です。ダウンロードの完了順には依存しません。
 - **対象だけを更新**：MCP は同名サーバー、追記型 prompt は対応するマーカーブロックだけを置換し、他の設定やユーザーの文章を保持します。command、sub-agent、単独ファイル型 prompt は対象ファイルのみを置換します。追記型 prompt の変更にも `--overwrite` が必要になりました。

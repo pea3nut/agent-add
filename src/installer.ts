@@ -29,6 +29,7 @@ export interface CliInput {
   pack: string[];
   host?: string;
   overwrite?: boolean;
+  dryRun?: boolean;
   inputs?: OrderedInput[];
 }
 
@@ -150,7 +151,12 @@ export async function runInstaller(cliInput: CliInput, host: HostConfig, cwd: st
         }
       }
     }
-    return { host, results: [...skipped, ...await installPrepared(prepared, cliInput.overwrite ?? false, errors)] };
+    const results = await installPrepared(prepared, {
+      overwrite: cliInput.overwrite,
+      dryRun: cliInput.dryRun,
+      errors,
+    });
+    return { host, dryRun: cliInput.dryRun, results: [...skipped, ...results] };
   } finally {
     await cleanupTempDirs(tempDirs);
   }
