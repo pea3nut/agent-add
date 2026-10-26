@@ -300,6 +300,10 @@ Review the current file for bugs, security issues, and style violations.
 
 安装到宿主的 commands 目录（如 `.cursor/commands/code-review.md`）。
 
+对于 Gemini CLI，Markdown 正文会序列化为 `.gemini/commands/<name>.toml` 中的
+`prompt` 字符串。可选的 frontmatter `description` 字符串会保留，其余 frontmatter
+字段会省略。其他宿主仍保留原始 Markdown。
+
 ### Sub-agent 文件
 
 Markdown + YAML frontmatter。支持 **`agent-add/<host>/<key>` 宿主特化语法** —— 同一份文件可为不同宿主提供不同的 frontmatter 字段值。这在指定 sub-agent 的模型时格外有用

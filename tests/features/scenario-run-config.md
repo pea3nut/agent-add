@@ -1,5 +1,19 @@
 # Scenario Run Config
 
+## Coverage boundaries
+
+Functional behavior and host-specific formats belong in scenario tests. Keep
+traditional tests for simple smoke checks (help, version, startup/runtime
+compatibility) and small isolated utilities that benefit from unit tests. Do not
+duplicate business acceptance cases as unit or integration assertions.
+
+For semantic `Then` steps, inspect the actual generated artifacts against the
+scenario's source fixtures. Parse JSON/TOML when checking host configuration:
+file existence or a matching substring does not prove a usable configuration.
+The installed Node parsers (for example, `smol-toml`) may be used during scenario
+execution. No Gemini application, credentials or network access is needed for
+the Gemini file-format scenarios.
+
 ## testDir
 
 tests
@@ -56,8 +70,10 @@ notes:
     WIN_TMPDIR=$(cygpath -w "$SETUP_TMPDIR" 2>/dev/null || echo "$SETUP_TMPDIR") && AGENT_ADD_HOME="$WIN_TMPDIR" node ...
   Assert config existence cross-platform:
     test -f "$SETUP_TMPDIR/Library/Application Support/Claude/claude_desktop_config.json" || test -f "$SETUP_TMPDIR/AppData/Roaming/Claude/claude_desktop_config.json"
-- Assertions use standard POSIX tools: `test -f`, `cat`, `grep`. Do NOT use `jq` as it
-  may not be available in the execution environment; use `grep -q '"key"'` for JSON key checks.
+- Use standard POSIX tools (`test -f`, `cat`, `grep`, `cmp`) for basic file and output
+  checks. For host-format acceptance, parse the document and check its decoded
+  values as described above; a `grep` check alone is insufficient. Do NOT use
+  `jq`, which may not be available in the execution environment.
 - After all scenarios complete, update `tests/test-results/badge.json` based on the
   run result summary. The file follows the shields.io endpoint schema:
   `{"schemaVersion":1,"label":"scenario tests","message":"<passed>/<total> passing","color":"<color>"}`
