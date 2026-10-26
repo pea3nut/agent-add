@@ -45,7 +45,7 @@ describe('Gemini command install (built CLI)', () => {
   });
 
   it('converts inline Markdown without frontmatter', () => {
-    const content = '# Review\n\nCheck {{args}}.\n';
+    const content = '# Review\n\nCheck {{args}}.';
     const result = spawnSync(process.execPath, [bin, '--command', content, '--host', 'gemini'], {
       cwd: root, encoding: 'utf8', timeout: 15000,
     });

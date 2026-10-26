@@ -51,7 +51,7 @@ test('published CLI reports non-interactive usage errors', async () => {
 
 test('published CLI installs a Gemini pack with all asset types', async () => {
   await withProject((root, options) => {
-    fs.writeFileSync(path.join(root, 'mcp.json'), JSON.stringify({ tools: { command: 'echo', args: ['ok'] } }));
+    fs.writeFileSync(path.join(root, 'mcp.json'), JSON.stringify({ mcpServers: { tools: { command: 'echo', args: ['ok'] } } }));
     fs.writeFileSync(path.join(root, 'prompt.md'), '# Rules\nBe helpful.\n');
     fs.writeFileSync(path.join(root, 'review.md'), '---\ndescription: Review changes\n---\n# Review\nCheck {{args}}.\n');
     fs.writeFileSync(path.join(root, 'reviewer.md'), '---\nname: reviewer\n---\n# Reviewer\n');

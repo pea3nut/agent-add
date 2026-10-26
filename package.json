@@ -24,7 +24,7 @@
     "prepublishOnly": "npm run build",
     "test": "vitest run tests/unit tests/integration",
     "test:contract": "vitest run tests/contract",
-    "test:runtime": "node --test tests/runtime/*.test.cjs",
+    "test:runtime": "node tests/runtime/cli.test.cjs",
     "test:integration": "vitest run tests/integration",
     "lint": "tsc --noEmit",
     "agent-add": "tsx src/index.ts",
