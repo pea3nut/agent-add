@@ -286,6 +286,10 @@ Review the current file for bugs, security issues, and style violations.
 
 Installed to the host's commands directory (e.g. `.cursor/commands/code-review.md`).
 
+For Gemini CLI, the Markdown body is serialized as the `prompt` string in
+`.gemini/commands/<name>.toml`. An optional frontmatter `description` string is
+preserved; other frontmatter fields are omitted. Other hosts keep the original Markdown.
+
 ### Sub-agent File
 
 Markdown + YAML frontmatter. Supports **`agent-add/<host>/<key>` host specialization syntax** — a single file can provide different frontmatter field values for different hosts. This is especially useful when specifying the model for a sub-agent.
