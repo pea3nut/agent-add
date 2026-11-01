@@ -7,6 +7,30 @@ Feature: Native host contracts and audit regressions
   # original config text to check comments, failed writes and idempotency.
 
   @P0
+  Scenario: TD-01 Gemini and Qwen preserve native HTTP and SSE semantics and reject ambiguous transports
+    Given a temp working directory is created
+    When HTTP transport boundaries are exercised: node "$PROJECT_ROOT/tests/features/exercise-contract.cjs" gemini-http "$SETUP_TMPDIR"
+    Then the exit code is 0
+
+  @P0
+  Scenario: TD-02 Ambiguous duplicate keys are rejected without changing JSON JSONC or JSON5
+    Given a temp working directory is created
+    When duplicate configuration boundaries are exercised: node "$PROJECT_ROOT/tests/features/exercise-contract.cjs" duplicate-config "$SETUP_TMPDIR"
+    Then the exit code is 0
+
+  @P0
+  Scenario: TD-03 Goose validates optional native types and preserves false zero and null
+    Given a temp working directory is created
+    When Goose field boundaries are exercised: node "$PROJECT_ROOT/tests/features/exercise-contract.cjs" goose-types "$SETUP_TMPDIR"
+    Then the exit code is 0
+
+  @P0
+  Scenario: TD-04 MCP URL validation rejects malformed authority without probing the network
+    Given a temp working directory is created
+    When URL boundaries are exercised: node "$PROJECT_ROOT/tests/features/exercise-contract.cjs" url-validation "$SETUP_TMPDIR"
+    Then the exit code is 0
+
+  @P0
   Scenario: Zed uses native context_servers and its highest-priority instruction file
     Given a temp working directory is created
     When the native Zed contracts are exercised: node "$PROJECT_ROOT/tests/features/exercise-contract.cjs" zed "$SETUP_TMPDIR"

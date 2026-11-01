@@ -54,6 +54,29 @@ describe('JSON5 targeted edits', () => {
   );
 });
 
+describe.each(['json', 'jsonc', 'json5'] as const)('%s duplicate object keys', (format) => {
+  it.each([
+    '{"key":1,"key":2}',
+    '{"key":1,"\\u006bey":2}',
+    '{"nested":{"key":1,"key":2}}',
+    '{"array":[{"key":1,"key":2}]}',
+  ])('rejects decoded duplicate keys at every depth', (content) => {
+    expect(() => parseConfig(content, format)).toThrow(/Duplicate configuration key/);
+    expect(() => setConfigValue(content, ['other'], true, format)).toThrow(/Duplicate configuration key/);
+  });
+
+  it('allows the same key in separate objects', () => {
+    const content = '{"a":{"key":1},"b":{"key":2}}';
+    expect(parseConfig(setConfigValue(content, ['new'], true, format), format)).toEqual({
+      a: { key: 1 }, b: { key: 2 }, new: true,
+    });
+  });
+
+  it('refuses edits whose serialized effective value differs from the plan', () => {
+    expect(() => setConfigValue('{}', ['new'], { dropped: undefined }, format)).toThrow(/planned value/);
+  });
+});
+
 describe.each(['json', 'jsonc', 'json5', 'yaml'] as const)(
   '%s configuration key safety',
   (format) => {

@@ -8,6 +8,7 @@ const JSON5 = require('json5');
 
 const [scenario, directory] = process.argv.slice(2);
 const root = path.resolve(__dirname, '../..');
+const bin = process.env.AGENT_ADD_BIN || path.join(root, 'bin/agent-add.js');
 const home = process.env.AGENT_ADD_HOME;
 const target = (file) => path.resolve(directory, file);
 const read = (file) => fs.readFileSync(target(file), 'utf8');
@@ -38,7 +39,7 @@ const skill = () => {
 const cli = (host, flags, status = 0, env = {}) => {
   const result = spawnSync(
     process.execPath,
-    [path.join(root, 'bin/agent-add.js'), '--host', host, ...flags],
+    [bin, '--host', host, ...flags],
     {
       cwd: directory,
       env: { ...process.env, ...env },
@@ -63,6 +64,147 @@ const assertSkill = (dir) => {
 };
 
 const cases = {
+  'gemini-http'() {
+    for (const [host, file] of [['gemini', '.gemini/settings.json'], ['qwen-code', '.qwen/settings.json']]) {
+      write(file, '{"keep":true,"mcpServers":{"keep":{"command":"keep"}}}');
+      const endpoint = 'https://example.test/mcp';
+      const headers = { Authorization: 'Bearer fixture-only' };
+      const sources = [
+        [{ httpUrl: endpoint, headers }, { httpUrl: endpoint, headers }],
+        [{ type: 'http', url: endpoint }, { httpUrl: endpoint }],
+        [{ transport: 'streamable-http', serverUrl: endpoint }, { httpUrl: endpoint }],
+        [{ type: 'sse', url: endpoint }, { url: endpoint }],
+        [{ url: endpoint }, { url: endpoint }],
+        [{ httpUrl: endpoint }, { httpUrl: endpoint }],
+        [{ type: 'http', transport: 'streamableHttp', url: endpoint }, { httpUrl: endpoint }],
+        [{ type: 'streamable_http', url: endpoint }, { httpUrl: endpoint }],
+        [{ transport: 'streamableHttp', url: endpoint }, { httpUrl: endpoint }],
+        [{ type: 'sse', transport: 'sse', url: endpoint, headers }, { url: endpoint, headers }],
+        [{ type: 'remote', url: endpoint }, { httpUrl: endpoint }],
+      ];
+      for (const [index, [input, expected]] of sources.entries()) {
+        const name = 'probe' + index;
+        json(name + '.json', { mcpServers: { [name]: input } });
+        cli(host, ['--mcp', './' + name + '.json']);
+        assert.deepEqual(decode(file).mcpServers[name], expected);
+        const installed = read(file);
+        assert.match(cli(host, ['--mcp', './' + name + '.json']), /exists/);
+        assert.equal(read(file), installed);
+      }
+      assert.equal(decode(file).keep, true);
+      assert.deepEqual(decode(file).mcpServers.keep, { command: 'keep' });
+      for (const input of [
+        { httpUrl: endpoint, url: endpoint },
+        { httpUrl: endpoint, serverUrl: endpoint },
+        { httpUrl: endpoint, command: 'node' },
+        { httpUrl: endpoint, type: 'sse' },
+        { url: endpoint, type: 'http', transport: 'sse' },
+        { httpUrl: endpoint, type: 'stdio' },
+        { url: endpoint, type: null },
+        { url: endpoint, transport: 'bogus' },
+        { httpUrl: null },
+      ]) {
+        const before = read(file);
+        json('bad.json', input);
+        write('blocked.md', 'Must not be installed.');
+        cli(host, ['--mcp', './bad.json', '--prompt', './blocked.md'], 1);
+        assert.equal(read(file), before);
+        assert.equal(exists(host === 'gemini' ? 'GEMINI.md' : 'AGENTS.md'), false);
+      }
+    }
+  },
+  'duplicate-config'() {
+    for (const [host, file, key] of [
+      ['cursor', '.cursor/mcp.json', 'mcpServers'],
+      ['amp', '.amp/settings.jsonc', 'amp.mcpServers'],
+      ['openclaw', path.join(home, '.openclaw/openclaw.json'), 'mcp'],
+    ]) {
+      const quoted = JSON.stringify(key);
+      for (const content of [
+        `{${quoted}:{},${quoted}:{"keep":{"command":"keep"}}}`,
+        `{${quoted}:{"keep":{"command":"one","command":"two"}}}`,
+        `{${quoted}:{},"unrelated":[{"a":1,"a":2}]}`,
+        `{${quoted}:{},"escaped":1,"\\u0065scaped":2}`,
+      ]) {
+        write(file, content);
+        const output = mcp(host, { command: 'node' }, 1);
+        assert.match(output, /Duplicate configuration key/);
+        assert.equal(read(file), content);
+      }
+      if (host === 'openclaw') {
+        const content = '{mcp:{}, /* duplicate decoded identifier */ m\\u0063p:{}}';
+        write(file, content);
+        mcp(host, { command: 'node' }, 1);
+        assert.equal(read(file), content);
+      }
+      write(file, `{${quoted}:{},"a":{"same":1},"b":{"same":2}}`);
+      mcp(host, { command: 'node' });
+      assert.deepEqual(host === 'openclaw' ? decode(file).mcp.servers.local : decode(file)[key].local, { command: 'node' });
+      assert.deepEqual(decode(file).a, { same: 1 });
+      assert.deepEqual(decode(file).b, { same: 2 });
+    }
+  },
+  'goose-types'() {
+    const file = path.join(home, '.config/goose/config.yaml');
+    write(file, '# Keep comment\nprovider: fixture\nextensions: {}\n');
+    for (const transport of [{ command: 'node' }, { url: 'https://example.test/mcp' }]) {
+      for (const overrides of [
+        { enabled: 'yes' }, { enabled: null }, { enabled: 1 },
+        { timeout: 'tomorrow' }, { timeout: -1 }, { timeout: 0.5 },
+        { timeout: Number.MAX_SAFE_INTEGER + 1 }, { timeout: 2 ** 64 },
+        { timeout: false }, { timeout: {} },
+      ]) {
+        const before = read(file);
+        json('bad.json', { ...transport, ...overrides });
+        write('blocked.md', 'Must not be installed.');
+        cli('goose', ['--mcp', './bad.json', '--prompt', './blocked.md'], 1);
+        assert.equal(read(file), before);
+        assert.equal(exists('AGENTS.md'), false);
+      }
+      for (const [index, overrides] of [{}, { enabled: false, timeout: 0 }, { timeout: null }, { timeout: Number.MAX_SAFE_INTEGER }].entries()) {
+        const name = (transport.command ? 'stdio' : 'http') + index;
+        json(name + '.json', { mcpServers: { [name]: { ...transport, ...overrides } } });
+        cli('goose', ['--mcp', './' + name + '.json']);
+        const entry = decode(file, yaml.parse).extensions[name];
+        assert.equal(entry.enabled, overrides.enabled === undefined ? true : overrides.enabled);
+        assert.equal(entry.timeout, overrides.timeout === undefined ? 300 : overrides.timeout);
+        const before = read(file);
+        assert.match(cli('goose', ['--mcp', './' + name + '.json']), /exists/);
+        assert.equal(read(file), before);
+      }
+    }
+    assert.match(read(file), /# Keep comment/);
+    assert.equal(decode(file, yaml.parse).provider, 'fixture');
+    const before = read(file);
+    write('overflow.json', '{"command":"node","timeout":1e999}');
+    cli('goose', ['--mcp', './overflow.json'], 1);
+    assert.equal(read(file), before);
+  },
+  'url-validation'() {
+    const snapshot = (dir) => fs.readdirSync(dir).sort().flatMap((name) => {
+      const file = path.join(dir, name);
+      return fs.statSync(file).isDirectory()
+        ? [[file, 'directory'], ...snapshot(file)]
+        : [[file, fs.readFileSync(file, 'base64')]];
+    });
+    for (const host of ['cursor', 'claude-code', 'claude-desktop', 'windsurf', 'github-copilot', 'gemini', 'roo-code', 'kilo-code', 'qwen-code', 'opencode', 'augment', 'kiro', 'tabnine', 'kimi', 'trae', 'openclaw', 'codex', 'vibe', 'zed', 'cline', 'continue', 'goose', 'amp']) {
+      for (const url of ['https://', 'https://?q=x', 'https://#fragment', 'https:///example.test/mcp', 'https://example.test:99999/mcp', 'https://[invalid]/mcp', 'file:///tmp/mcp', '', 42, null]) {
+        json('local.json', { url });
+        const before = snapshot(directory);
+        assert.match(cli(host, ['--mcp', './local.json'], 1), /MCP URL must be an HTTP\(S\) URL/);
+        assert.deepEqual(snapshot(directory), before);
+      }
+    }
+    for (const [index, url] of ['http://localhost:8080/mcp', 'https://example.test/a?q=x#fragment', 'http://127.0.0.1/mcp', 'http://[::1]:8080/mcp', 'https://example.test/${MCP_PATH}', 'HTTPS://Example.test:443/mcp'].entries()) {
+      json('url' + index + '.json', { url });
+      cli('cursor', ['--mcp', './url' + index + '.json']);
+      assert.equal(decode('.cursor/mcp.json').mcpServers['url' + index].url, url);
+    }
+    for (const [host, file] of [['gemini', '.gemini/settings.json'], ['qwen-code', '.qwen/settings.json']]) {
+      mcp(host, { httpUrl: 'https://${MCP_HOST}:${MCP_PORT}/mcp' });
+      assert.equal(decode(file).mcpServers.local.httpUrl, 'https://${MCP_HOST}:${MCP_PORT}/mcp');
+    }
+  },
   'reserved-names'() {
     for (const name of ['__proto__', 'constructor', 'prototype', '<<']) {
       for (const [host, file] of [

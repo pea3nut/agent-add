@@ -7,6 +7,15 @@ export function convertMcpServer(
   name: string,
 ): Record<string, unknown> {
   assertSafeConfigKey(name);
+  const nativeHttp = source.httpUrl !== undefined;
+  if (nativeHttp) {
+    if (source.url !== undefined || source.serverUrl !== undefined)
+      throw new Error(
+        'Use either httpUrl, url or serverUrl, not multiple endpoints',
+      );
+    source = { ...source, url: source.httpUrl };
+    delete source.httpUrl;
+  }
   const format =
     job.host.assets.mcp.mcpFormat ??
     (['opencode', 'kilo-code'].includes(job.host.id)
@@ -20,8 +29,8 @@ export function convertMcpServer(
             : 'standard');
   const command = source.command;
   const args = source.args;
-  const env = source.env ?? source.environment;
-  const url = source.url ?? source.serverUrl;
+  const env = source.env !== undefined ? source.env : source.environment;
+  const url = source.url !== undefined ? source.url : source.serverUrl;
   if (source.env !== undefined && source.environment !== undefined)
     throw new Error('Use either env or environment, not both');
   if (source.url !== undefined && source.serverUrl !== undefined)
@@ -54,11 +63,26 @@ export function convertMcpServer(
     throw new Error('MCP args must be an array of strings');
   if (Array.isArray(command) && args !== undefined)
     throw new Error('Use either a command array or command/args, not both');
-  if (
-    url !== undefined &&
-    (typeof url !== 'string' || !/^https?:\/\//.test(url))
-  )
-    throw new Error('MCP URL must be an HTTP(S) URL');
+  if (url !== undefined) {
+    try {
+      if (
+        typeof url !== 'string' ||
+        !/^https?:\/\/[^/?#\s\\]/i.test(url) ||
+        /[\r\n\t]/.test(url)
+      )
+        throw new Error();
+      const validationUrl = ['gemini', 'qwen-code'].includes(job.host.id)
+        ? url.replace(/\$\{[A-Za-z_][A-Za-z0-9_]*\}/g, '1')
+        : url;
+      const parsed = new URL(validationUrl);
+      if (!['http:', 'https:'].includes(parsed.protocol) || !parsed.hostname)
+        throw new Error();
+    } catch {
+      throw new Error(
+        'MCP URL must be an HTTP(S) URL with a valid hostname and port',
+      );
+    }
+  }
   for (const [label, value] of [
     ['environment', env],
     ['headers', source.headers],
@@ -70,23 +94,37 @@ export function convertMcpServer(
     )
       throw new Error('MCP ' + label + ' must contain string values');
   }
-  const transport = source.type ?? source.transport;
-  const remoteTypes = [
-    'http',
-    'sse',
-    'streamable-http',
-    'streamableHttp',
-    'streamable_http',
-    'remote',
-  ];
+  const normalizeTransport = (value: unknown): unknown =>
+    ['http', 'streamable-http', 'streamableHttp', 'streamable_http'].includes(
+      value as string,
+    )
+      ? 'http'
+      : value === 'local'
+        ? 'stdio'
+        : value;
+  const type = normalizeTransport(source.type);
+  const alias = normalizeTransport(source.transport);
+  if (type !== undefined && alias !== undefined && type !== alias)
+    throw new Error('MCP type and transport must agree');
+  const transport =
+    type !== undefined
+      ? type
+      : alias !== undefined
+        ? alias
+        : nativeHttp
+          ? 'http'
+          : undefined;
+  const remoteTypes = ['http', 'sse', 'remote'];
   if (
     transport !== undefined &&
     (typeof transport !== 'string' ||
-      !(url === undefined ? ['stdio', 'local'] : remoteTypes).includes(
+      !(url === undefined ? ['stdio'] : remoteTypes).includes(
         transport,
       ))
   )
     throw new Error('MCP transport does not match its command or URL');
+  if (nativeHttp && transport === 'sse')
+    throw new Error('httpUrl requires Streamable HTTP, not SSE');
   if (url !== undefined && args !== undefined)
     throw new Error('Remote MCP cannot use stdio args');
   if (command !== undefined && source.headers !== undefined)
@@ -134,10 +172,20 @@ export function convertMcpServer(
               ? {}
               : { headers: source.headers }),
           };
+    if (source.enabled !== undefined && typeof source.enabled !== 'boolean')
+      throw new Error('Goose enabled must be a boolean');
+    if (
+      source.timeout !== undefined &&
+      source.timeout !== null &&
+      (typeof source.timeout !== 'number' ||
+        !Number.isSafeInteger(source.timeout) ||
+        source.timeout < 0)
+    )
+      throw new Error('Goose timeout must be a nonnegative safe integer or null');
     return {
       name,
       enabled: source.enabled ?? true,
-      timeout: source.timeout ?? 300,
+      timeout: source.timeout === undefined ? 300 : source.timeout,
       ...(url === undefined
         ? { type: 'stdio', cmd: command, args: args ?? [], envs: env ?? {} }
         : {
@@ -262,6 +310,15 @@ export function convertMcpServer(
   if (source.environment !== undefined) {
     entry.env = env;
     delete entry.environment;
+  }
+  if (['gemini', 'qwen-code'].includes(job.host.id) && url !== undefined) {
+    delete entry.type;
+    delete entry.transport;
+    delete entry.url;
+    return {
+      ...entry,
+      [transport === 'http' || transport === 'remote' || nativeHttp ? 'httpUrl' : 'url']: url,
+    };
   }
   if (format === 'vscode')
     return {

@@ -7,6 +7,7 @@ import { parseExpressionAt, type ObjectExpression, type Property } from 'acorn';
 import type { AssetCapability } from '../hosts/types.js';
 import { applyEdits, modify, parse, type ParseError } from 'jsonc-parser';
 import { ensureDir } from './fs.js';
+import { deepEqualIgnoringKeyOrder } from './deep-equal.js';
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -101,8 +102,30 @@ export function parseConfig(
     value = parse(content, errors, { allowTrailingComma: true });
     if (errors.length) throw new Error('Invalid JSONC configuration');
   } else value = JSON.parse(content);
+  if (format !== 'yaml') assertUniqueConfigKeys(content);
   if (!isRecord(value)) throw new Error('Configuration must be an object');
   return value;
+}
+
+function assertUniqueConfigKeys(content: string): void {
+  const visit = (node: unknown): void => {
+    if (!isRecord(node)) return;
+    if (node.type === 'ObjectExpression' && Array.isArray(node.properties)) {
+      const keys = new Set<string>();
+      for (const property of node.properties) {
+        if (!isRecord(property) || !isRecord(property.key)) continue;
+        const key = String(property.key.name ?? property.key.value);
+        if (keys.has(key))
+          throw new Error('Duplicate configuration key: ' + JSON.stringify(key));
+        keys.add(key);
+      }
+    }
+    for (const child of Object.values(node)) {
+      if (Array.isArray(child)) child.forEach(visit);
+      else visit(child);
+    }
+  };
+  visit(parseExpressionAt(content, 0, { ecmaVersion: 2022 }));
 }
 
 export async function readTextOrNull(file: string): Promise<string | null> {
@@ -164,6 +187,24 @@ export function setConfigValue(
   format: ConfigFormat,
 ): string {
   keyPath.forEach(assertSafeConfigKey);
+  if (!keyPath.length) throw new Error('Configuration key path must not be empty');
+  parseConfig(content, format);
+  const result = editConfigValue(content, keyPath, value, format);
+  let actual: unknown = parseConfig(result, format);
+  for (const key of keyPath)
+    actual =
+      isRecord(actual) && Object.hasOwn(actual, key) ? actual[key] : undefined;
+  if (!deepEqualIgnoringKeyOrder(actual, value))
+    throw new Error('Configuration edit did not preserve the planned value');
+  return result;
+}
+
+function editConfigValue(
+  content: string,
+  keyPath: string[],
+  value: unknown,
+  format: ConfigFormat,
+): string {
   if (format === 'yaml') {
     parseConfig(content, format);
     const document = yaml.parseDocument(content);

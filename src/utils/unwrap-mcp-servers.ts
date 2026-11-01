@@ -10,7 +10,7 @@ export function unwrapMcpServers(
   const wrapped = Object.hasOwn(parsed, 'mcpServers');
   if (
     !wrapped &&
-    ['command', 'url', 'serverUrl', 'type', 'transport'].some((key) =>
+    ['command', 'url', 'serverUrl', 'httpUrl', 'type', 'transport'].some((key) =>
       Object.hasOwn(parsed, key),
     )
   )
