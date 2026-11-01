@@ -14,13 +14,13 @@ Descriptions below are paraphrases, not verbatim quotations. This audit changes 
 - Relative paths are project-relative unless stated otherwise. `~` means the user's home directory, including on Windows; do not substitute `%APPDATA%` without upstream evidence. Respect documented config-home overrides and workspace trust.
 - A Skill is a **directory bundle** with a `SKILL.md` entry point: preserve supporting scripts/resources, not just the entry file. Same-name discovery precedence is host-specific.
 - Write strategies name installer operations, not upstream formats. JSONC/JSON5, TOML, nested keys, frontmatter and registration requirements must be handled explicitly; changing an extension or copying Markdown alone does not convert a format.
-- This is a documentation audit, **not runtime validation in all hosts**. Unverified protocols remain unverified rather than being inferred from third-party host lists or old issues.
+- This is a documentation audit, **not runtime validation in all hosts**. Unverified protocols remain unverified rather than being inferred from third-party host lists or old issues. A successful HTTP response or redirect is not proof: check the final page's product, client/version scope and actual file contract.
 
 ---
 
 ## Capability Matrix
 
-> ✅ = documented file contract | ↪ = legacy, skill-backed, or requires registration (see details) | — = no standalone file contract verified
+> ✅ = documented file contract | ↪ = legacy, skill-backed, or requires registration (see details) | ? = historical contract not reverified | — = no standalone file contract verified
 >
 > These are upstream capabilities, **not current adapter implementation status**. CLI/IDE scope matters.
 
@@ -34,7 +34,7 @@ Descriptions below are paraphrases, not verbatim quotations. This audit changes 
 | Qwen Code | `qwen-code` | ✅ | ✅ | ✅ | ✅ | ✅ |
 | opencode | `opencode` | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Augment / Auggie | `augment` | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Windsurf | `windsurf` | ✅ | ✅ | ✅ | ✅ | — |
+| Windsurf / legacy Cascade | `windsurf` | ? (historical) | ↪ (legacy) | ↪ (legacy) | ↪ (Cascade only) | — |
 | Roo Code | `roo-code` | ✅ | ✅ | ✅ | ✅ | — |
 | Kiro (CLI V3 / IDE 1.0) | `kiro` | ✅ | ✅ | ✅ | ↪ | ✅ |
 | Codex CLI | `codex` | ✅ (TOML) | ✅ | ✅ | ↪ (deprecated) | ✅ (TOML) |
@@ -58,9 +58,9 @@ These are follow-up implementation requirements, not a claim that the documentat
 | Kimi | Rejects Sub-agent and Command | YAML agent files can be referenced in a parent agent's `subagents` mapping; load that parent with `--agent-file`. This needs registration and may involve a separate system-prompt file. Skill invocation is not a standalone command directory. |
 | OpenClaw | Rejects MCP; installs skills to `.openclaw/skills` relative to cwd | Official MCP config is `~/.openclaw/openclaw.json` → nested `mcp.servers` (JSON5). Skills belong in the configured workspace's `skills/` or managed `~/.openclaw/skills/`; cwd is not automatically the agent workspace. |
 | Kiro | Rejects Command; has no version/resource-registration distinctions | CLI V3 skills/manual steering expose slash invocation. Custom agents need explicit `resources` entries for skills/steering; older CLI 2.x agent schemas differ. |
-| Windsurf | Windows MCP path is under `%APPDATA%` | Official path is home-relative `~/.codeium/windsurf/mcp_config.json`; verify Windows resolution instead of inventing a roaming-profile path. |
-| Claude Desktop | Advertises a Linux MCP config path without a source | The official download page now offers Linux beta, but the cited local-MCP tutorial only specifies macOS/Windows paths. Linux's exact config path remains unverified here: do not confuse that with product unavailability. Skills are uploaded, not auto-discovered from a project directory. |
-| Copilot / Augment | One host ID can be read as covering every client surface | Copilot's `.vscode/mcp.json` is VS Code-specific. Auggie's settings file is not evidence for the Augment IDE extension's on-disk configuration. Keep surfaces explicit. |
+| Windsurf | Uses historical `.codeium/windsurf/mcp_config.json` paths and `%APPDATA%` on Windows | The former MCP source now redirects to Devin Local documentation and does not verify these legacy paths. Obtain version-specific official evidence before changing the Windows target; do not substitute Devin Local's config under the `windsurf` ID. Project rules/skills retain legacy compatibility; workflows are Cascade-only. |
+| Claude Desktop | Rejects Skill | Custom skills require a ZIP upload through the UI, not automatic discovery from a project directory. The adapter's Linux MCP path is confirmed by the official tutorial; it is not an unverified configuration gap. |
+| Copilot / Augment | One host ID can be read as covering every client surface | Copilot's `.vscode/mcp.json` is a VS Code compatibility target, labeled deprecated in the guided flow; portable Copilot harness files use a different schema. Auggie's settings file is not evidence for the Augment IDE extension's on-disk configuration. Keep surfaces explicit. |
 
 ---
 
@@ -98,7 +98,7 @@ Scope: the adapter's MCP target is **VS Code**, not a universal Copilot CLI/clou
 
 | Asset Type | Doc URL | Verified Contract | Installation Target / Constraints |
 |------------|---------|-------------|----------|
-| MCP | https://code.visualstudio.com/docs/copilot/customization/mcp-servers | VS Code workspace `.vscode/mcp.json`; top-level key `servers`, not `mcpServers`; servers must follow VS Code's `type`/transport schema | `.vscode/mcp.json` → key `servers`; Agent Host's native `.mcp.json` / `~/.copilot/mcp-config.json` uses a different contract. Do not mix them |
+| MCP | https://code.visualstudio.com/docs/agent-customization/mcp-servers | VS Code workspace `.vscode/mcp.json` or user-profile `mcp.json`; key `servers`. These remain available for compatibility and are labeled deprecated in the guided flow | Preserve `servers` for the existing VS Code target. Portable project `.mcp.json` / user `~/.copilot/mcp-config.json` use `mcpServers`; interactive-input servers are not forwarded to Copilot harness sessions. Select the destination and harness explicitly; do not merely rename the key |
 | Prompt | https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot | `.github/copilot-instructions.md`; also supports `.github/instructions/*.instructions.md` and `AGENTS.md` | `.github/copilot-instructions.md` (strategy: `append-with-marker`) |
 | Skill | https://docs.github.com/en/copilot/concepts/agents/about-agent-skills | Project `.github/skills/`, `.claude/skills/`, `.agents/skills/`; personal `~/.copilot/skills/`, `~/.agents/skills/` | `.github/skills/<name>/SKILL.md` requires frontmatter (name, description) and the complete directory bundle |
 | Command | https://docs.github.com/en/copilot/tutorials/customization-library/prompt-files/your-first-prompt-file | `.github/prompts/<name>.prompt.md`; YAML frontmatter; invoked with `/<name>` | `.github/prompts/<name>.prompt.md` (strategy: `copy-file`) |
@@ -146,7 +146,7 @@ Homepage: https://opencode.ai/docs
 
 | Asset Type | Doc URL | Verified Contract | Installation Target / Constraints |
 |------------|---------|-------------|----------|
-| MCP | https://opencode.ai/docs/mcp-servers/ | Project `opencode.json` / `opencode.jsonc`; user `~/.config/opencode/opencode.json`; top-level `mcp` | Local servers use `type: "local"`, `command: [exe, ...args]`, and `environment`; remote servers use `type: "remote"` and `url`. Do not copy server objects directly from `mcpServers` |
+| MCP | https://opencode.ai/docs/mcp-servers/ ; https://opencode.ai/docs/config/ | Project `opencode.json` / `opencode.jsonc`; user `~/.config/opencode/opencode.json`; top-level `mcp`. The config reference documents global/project paths and precedence | Local servers use `type: "local"`, `command: [exe, ...args]`, and `environment`; remote servers use `type: "remote"` and `url`. Do not copy server objects directly from `mcpServers` |
 | Prompt | https://opencode.ai/docs/rules | Project-root `AGENTS.md`; global `~/.config/opencode/AGENTS.md`; also supports a `CLAUDE.md` fallback | `AGENTS.md` in project root (strategy: `append-with-marker`) |
 | Skill | https://opencode.ai/docs/skills | Project `.opencode/skills/<name>/SKILL.md`; global `~/.config/opencode/skills/` | `.opencode/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.opencode/skills`) |
 | Command | https://opencode.ai/docs/commands | Project `.opencode/commands/`; global `~/.config/opencode/commands/`; Markdown with YAML frontmatter | `.opencode/commands/<name>.md` (strategy: `copy-file`, installDir: `.opencode/commands`) |
@@ -158,7 +158,7 @@ Homepage: https://docs.augmentcode.com/
 
 | Asset Type | Doc URL | Verified Contract | Installation Target / Constraints |
 |------------|---------|-------------|----------|
-| MCP | https://docs.augmentcode.com/cli/integrations | **Auggie CLI** user `~/.augment/settings.json`; project `.augment/settings.json`; local override `.augment/settings.local.json`; key `mcpServers` | Configuration supports JSONC. For the IDE extension's settings panel / Import from JSON, see https://docs.augmentcode.com/setup-augment/mcp ; do not assume it shares the CLI file |
+| MCP | https://docs.augmentcode.com/cli/integrations ; https://docs.augmentcode.com/cli/settings | **Auggie CLI** user `~/.augment/settings.json`; project `.augment/settings.json`; local override `.augment/settings.local.json`; key `mcpServers` | The settings reference explicitly supports JSONC, including comments and trailing commas. For the IDE extension's settings panel / Import from JSON, see https://docs.augmentcode.com/setup-augment/mcp ; do not assume it shares the CLI file |
 | Prompt | https://docs.augmentcode.com/setup-augment/guidelines | User `~/.augment/rules/`; workspace `.augment/rules/`; also supports `AGENTS.md`/`CLAUDE.md` | `.augment/rules/<name>.md` (strategy: `create-file-in-dir`, installDir: `.augment/rules`) |
 | Skill | https://docs.augmentcode.com/using-augment/skills | Project `.augment/skills/`; user `~/.augment/skills/`; compatible with `.agents/skills/` and `.claude/skills/` | `.augment/skills/<name>/SKILL.md`; copy the directory bundle and respect host discovery precedence |
 | Command | https://docs.augmentcode.com/using-augment/custom-commands | User `~/.augment/commands/`; workspace `.augment/commands/<name>.md` | `.augment/commands/<name>.md` (strategy: `copy-file`, installDir: `.augment/commands`) |
@@ -166,14 +166,16 @@ Homepage: https://docs.augmentcode.com/
 
 ### Windsurf
 
-Homepage: https://docs.windsurf.com/
+Official legacy reference: https://docs.devin.ai/desktop/cascade
+
+Scope: the registered `windsurf` ID refers to legacy Windsurf/Cascade, **not Devin Local**. Former Windsurf documentation URLs now redirect to Devin documentation. Current Devin Desktop no longer starts or reopens Cascade conversations; the workflow contracts below are historical, not new Devin Local capabilities. Current documentation retains some `.windsurf/` project directories for compatibility, but that does not verify every historical user directory or MCP path.
 
 | Asset Type | Doc URL | Verified Contract | Installation Target / Constraints |
 |------------|---------|-------------|----------|
-| MCP | https://docs.windsurf.com/windsurf/cascade/mcp | The official home-relative path is `~/.codeium/windsurf/mcp_config.json`; key `mcpServers` | Target: `~/.codeium/windsurf/mcp_config.json`; resolve against the home directory on Windows rather than inventing an `%APPDATA%` path |
-| Prompt | https://docs.windsurf.com/windsurf/cascade/memories | `.windsurf/rules/*.md`; Markdown with frontmatter | `.windsurf/rules/<name>.md` (strategy: `create-file-in-dir`, installDir: `.windsurf/rules`) |
-| Skill | https://docs.windsurf.com/windsurf/cascade/skills | Project `.windsurf/skills/`; user `~/.codeium/windsurf/skills/`; `SKILL.md` with frontmatter (name, description) | `.windsurf/skills/<name>/SKILL.md`; the user directory is not `~/.windsurf/skills/` |
-| Command | https://docs.windsurf.com/windsurf/cascade/workflows | `.windsurf/workflows/*.md` | `.windsurf/workflows/<name>.md` (strategy: `copy-file`, installDir: `.windsurf/workflows`) |
+| MCP | https://docs.devin.ai/desktop/devin-local/customizations#mcp-servers | Historical Windsurf/Cascade path: `~/.codeium/windsurf/mcp_config.json` → `mcpServers`, **not reverified**. The former MCP source now redirects to this Devin Local page, which does not document that file | No current Windsurf MCP target verified here. Devin Local uses project `.devin/config.json`, local `.devin/config.local.json`, or user `~/.config/devin/config.json`; these are a different host contract, not replacement paths for `windsurf` |
+| Prompt | https://docs.devin.ai/desktop/devin-local/customizations#rules | `.windsurf/rules/*.md` is a legacy compatibility directory; current documentation prefers `.devin/rules/*.md` | `.windsurf/rules/<name>.md` is a legacy target (strategy: `create-file-in-dir`); keep client/version scope explicit rather than presenting it as the preferred current directory |
+| Skill | https://docs.devin.ai/desktop/devin-local/customizations#skills | Project `.windsurf/skills/` is read for legacy compatibility; current Devin Local prefers `.devin/skills/` and user `~/.config/devin/skills/`. Bundles contain `SKILL.md` with name/description frontmatter | `.windsurf/skills/<name>/SKILL.md` is a legacy project target. Historical user `~/.codeium/windsurf/skills/` remains unverified by the current source; do not advertise it as a verified current global target |
+| Command | https://docs.devin.ai/desktop/cascade#workflows | Cascade-only workflows: preferred `.devin/workflows/*.md`, legacy `.windsurf/workflows/*.md` fallback. **Devin Local does not support workflows** | `.windsurf/workflows/<name>.md` is a historical Cascade target, not a Devin Local command directory. Migrate workflows to skills for Devin Local |
 | Sub-agent | — | No standalone sub-agent file installation contract verified | Do not infer automatic discovery in `.windsurf/agents/` from built-in parallelism |
 
 ### Roo Code
@@ -284,7 +286,7 @@ Homepage: https://claude.com/download/
 
 | Asset Type | Doc URL | Verified Contract | Installation Target / Constraints |
 |------------|---------|-------------|----------|
-| MCP | https://modelcontextprotocol.io/docs/develop/connect-local-servers ; https://claude.com/download/ | macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`; Windows: `%APPDATA%\Claude\claude_desktop_config.json`; key `mcpServers` | Linux beta is available, but the cited MCP tutorial does not specify its config path. Locate the actual file via Settings > Developer > Edit Config; an unknown path does not mean the product is unsupported |
+| MCP | https://modelcontextprotocol.io/docs/develop/connect-local-servers ; https://claude.com/download/ | macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`; Windows: `%APPDATA%\Claude\claude_desktop_config.json`; Linux: `~/.config/Claude/claude_desktop_config.json`; key `mcpServers` | The official MCP tutorial specifies all three paths. The download page's FAQ identifies Linux as beta; use Settings > Developer > Edit Config to locate the active file |
 | Prompt | — | No automatically discovered project-rule file verified | UI project instructions are not a project-root file contract |
 | Skill | https://support.claude.com/en/articles/12512180-using-skills-in-claude | Supports custom Skills: package the skill directory as a ZIP and upload through the UI, subject to account capabilities/settings | The product supports skills, but not by copying into a project skill directory; this installer's file-writing model cannot directly claim support |
 | Command | — | No standalone command-file installation contract verified | Do not confuse this with Claude Code's `.claude/commands/` |
@@ -342,9 +344,11 @@ Scope: **Amp CLI** configuration, not hosted MCP definitions stored by ampcode.c
 
 ### Google Antigravity (Candidate)
 
+Scope: MCP file paths below are explicitly documented for **CLI and IDE**. The App has an MCP management UI, but its automatic file-discovery contract is not established here; do not assume all surfaces discover the same files.
+
 | Asset Type | Official Source | Verified Contract / Open Question |
 |------------|-----------------|-----------------------------------|
-| MCP | https://antigravity.google/docs/mcp/ | Project `.agents/mcp_config.json`; user `~/.gemini/config/mcp_config.json`; top-level `mcpServers`; transport-specific fields must follow this product's schema |
+| MCP | https://antigravity.google/docs/mcp/ | **CLI and IDE:** project `.agents/mcp_config.json`; user `~/.gemini/config/mcp_config.json`; top-level `mcpServers`. The CLI and IDE sections each state these paths; App file discovery remains unverified. Transport-specific fields must follow this product's schema |
 | Prompt | https://antigravity.google/docs/rules/ | Project `AGENTS.md` / `GEMINI.md`, or `.agents/rules/*.md`; modular rules require valid YAML frontmatter and trigger metadata, and are ignored without it. Prefer explicitly selecting `AGENTS.md` for a future target rather than modular rules without frontmatter |
 | Skill | https://antigravity.google/docs/skills/ | Project `.agents/skills/<name>/SKILL.md`; global `~/.gemini/config/skills/`; backward-compatible with `.agent/skills/`. Distinguish additional App / IDE / CLI discovery paths |
 | Command | https://antigravity.google/docs/ide/workflows/ | The official notice says legacy Workflows stop working on **2026-10-19** and recommends migration to Agent skills. This audit is after that cutoff; do not list legacy `.agent/workflows/` as a usable target for a new adapter |
