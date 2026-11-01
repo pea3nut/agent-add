@@ -2,6 +2,18 @@ import { describe, it, expect } from 'vitest';
 import { unwrapMcpServers } from '../../../src/utils/unwrap-mcp-servers.js';
 
 describe('unwrapMcpServers', () => {
+  it.each(['command', 'url', 'serverUrl', 'httpUrl', 'type', 'transport'])(
+    'allows a flat server named %s',
+    (name) => {
+      const config = { command: 'node', args: ['server.js'] };
+      expect(unwrapMcpServers({ [name]: config })).toEqual({ name, config });
+    },
+  );
+
+  it('does not unwrap a native httpUrl definition', () => {
+    expect(unwrapMcpServers({ httpUrl: 'https://example.test/mcp' })).toBeNull();
+  });
+
   it('should return null for inner config format (no mcpServers key)', () => {
     const input = { command: 'npx', args: ['@playwright/mcp@latest'] };
     expect(unwrapMcpServers(input)).toBeNull();

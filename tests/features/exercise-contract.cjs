@@ -93,6 +93,12 @@ const cases = {
       }
       assert.equal(decode(file).keep, true);
       assert.deepEqual(decode(file).mcpServers.keep, { command: 'keep' });
+      for (const name of ['command', 'url', 'serverUrl', 'httpUrl', 'type', 'transport']) {
+        const source = { [name]: { httpUrl: endpoint, headers } };
+        assert.match(mcp(host, source), /written/);
+        assert.deepEqual(decode(file).mcpServers[name], { httpUrl: endpoint, headers });
+        assert.match(mcp(host, source), /exists/);
+      }
       for (const input of [
         { httpUrl: endpoint, url: endpoint },
         { httpUrl: endpoint, serverUrl: endpoint },

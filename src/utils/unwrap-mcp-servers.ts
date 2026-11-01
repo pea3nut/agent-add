@@ -8,13 +8,6 @@ export function unwrapMcpServers(
   parsed: Record<string, unknown>,
 ): { name: string; config: Record<string, unknown> } | null {
   const wrapped = Object.hasOwn(parsed, 'mcpServers');
-  if (
-    !wrapped &&
-    ['command', 'url', 'serverUrl', 'httpUrl', 'type', 'transport'].some((key) =>
-      Object.hasOwn(parsed, key),
-    )
-  )
-    return null;
   const mcpServers = wrapped ? parsed['mcpServers'] : parsed;
   if (
     typeof mcpServers !== 'object' ||
