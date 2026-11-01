@@ -1,4 +1,4 @@
-import { isRecord } from '../utils/config.js';
+import { assertSafeConfigKey, isRecord } from '../utils/config.js';
 import type { InstallJob } from './types.js';
 
 export function convertMcpServer(
@@ -6,6 +6,7 @@ export function convertMcpServer(
   source: Record<string, unknown>,
   name: string,
 ): Record<string, unknown> {
+  assertSafeConfigKey(name);
   const format =
     job.host.assets.mcp.mcpFormat ??
     (['opencode', 'kilo-code'].includes(job.host.id)
@@ -270,5 +271,9 @@ export function convertMcpServer(
     };
   if (format === 'cline' && url !== undefined)
     return { ...entry, type: transport === 'sse' ? 'sse' : 'streamableHttp' };
+  if (job.host.id === 'claude-code' && url !== undefined) {
+    delete entry.transport;
+    return { ...entry, type: transport === 'sse' ? 'sse' : 'http' };
+  }
   return entry;
 }

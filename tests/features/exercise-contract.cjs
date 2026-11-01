@@ -63,6 +63,84 @@ const assertSkill = (dir) => {
 };
 
 const cases = {
+  'reserved-names'() {
+    for (const name of ['__proto__', 'constructor', 'prototype', '<<']) {
+      for (const [host, file] of [
+        ['cursor', '.cursor/mcp.json'],
+        ['openclaw', path.join(home, '.openclaw/openclaw.json')],
+        ['goose', path.join(home, '.config/goose/config.yaml')],
+        ['codex', path.join(home, '.codex/config.toml')],
+      ]) {
+        mcp(host, { mcpServers: Object.fromEntries([[name, local]]) }, 1);
+        assert.equal(exists(file), false);
+      }
+    }
+    write('.cursor/mcp.json', '{"keep":true}\n');
+    write('AGENTS.md', 'Personal instructions.\n');
+    json('safe.json', local);
+    json('unsafe.json', {
+      mcpServers: Object.fromEntries([['__proto__', local]]),
+    });
+    write('p.md', 'Must not be installed.');
+    cli(
+      'cursor',
+      ['--mcp', './safe.json', '--mcp', './unsafe.json', '--prompt', './p.md'],
+      1,
+    );
+    assert.equal(read('.cursor/mcp.json'), '{"keep":true}\n');
+    assert.equal(read('AGENTS.md'), 'Personal instructions.\n');
+    assert.equal(exists('.cursor/rules/p.md'), false);
+  },
+  'claude-remote'() {
+    mcp('claude-code', remote);
+    assert.deepEqual(decode('.mcp.json').mcpServers.local, {
+      ...remote,
+      type: 'http',
+    });
+    assert.match(mcp('claude-code', remote), /exists/);
+    json('sse.json', { ...remote, type: 'sse' });
+    cli('claude-code', ['--mcp', './sse.json']);
+    assert.deepEqual(decode('.mcp.json').mcpServers.sse, {
+      ...remote,
+      type: 'sse',
+    });
+    json('alias.json', { ...remote, transport: 'streamable-http' });
+    cli('claude-code', ['--mcp', './alias.json']);
+    assert.deepEqual(decode('.mcp.json').mcpServers.alias, {
+      ...remote,
+      type: 'http',
+    });
+  },
+  'symlink-targets'() {
+    write('shared/AGENTS.md', 'Personal instructions.\n');
+    fs.symlinkSync('shared/AGENTS.md', target('AGENTS.md'));
+    write('p.md', 'Use tests.');
+    cli('cursor', ['--prompt', './p.md']);
+    assert.equal(fs.readlinkSync(target('AGENTS.md')), 'shared/AGENTS.md');
+    assert.equal(read('shared/AGENTS.md'), read('AGENTS.md'));
+    assert.match(
+      read('shared/AGENTS.md'),
+      /Personal instructions\.[\s\S]*Use tests\./,
+    );
+    assert.match(cli('cursor', ['--prompt', './p.md']), /exists/);
+    write('shared/mcp.json', '{"keep":true}\n');
+    fs.mkdirSync(target('.cursor'), { recursive: true });
+    fs.symlinkSync('../shared/mcp.json', target('.cursor/mcp.json'));
+    mcp('cursor', local);
+    assert.equal(
+      fs.readlinkSync(target('.cursor/mcp.json')),
+      '../shared/mcp.json',
+    );
+    assert.deepEqual(decode('shared/mcp.json'), {
+      keep: true,
+      mcpServers: { local },
+    });
+    fs.unlinkSync(target('AGENTS.md'));
+    fs.symlinkSync('missing.md', target('AGENTS.md'));
+    cli('cursor', ['--prompt', './p.md'], 1);
+    assert.equal(fs.readlinkSync(target('AGENTS.md')), 'missing.md');
+    assert.equal(exists('missing.md'), false);
+  },
   zed() {
     const file = path.join(home, '.config/zed/settings.json');
     write(
@@ -300,7 +378,10 @@ const cases = {
     assert.equal(read('.kilo/rules/p.md'), read('p.md'));
     fs.renameSync(target('kilo.jsonc'), target('.kilo/kilo.jsonc'));
     cli('kilo-code', ['--prompt', './p.md']);
-    assert.deepEqual(decode('.kilo/kilo.jsonc').instructions, ['existing.md', '.kilo/rules/p.md']);
+    assert.deepEqual(decode('.kilo/kilo.jsonc').instructions, [
+      'existing.md',
+      '.kilo/rules/p.md',
+    ]);
   },
   'codex-agent'() {
     write(

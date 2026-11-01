@@ -118,6 +118,13 @@ export async function atomicWriteText(
   file: string,
   content: string,
 ): Promise<void> {
+  const link = await fs.promises
+    .lstat(file)
+    .catch((err: NodeJS.ErrnoException) => {
+      if (err.code === 'ENOENT') return undefined;
+      throw err;
+    });
+  if (link?.isSymbolicLink()) file = await fs.promises.realpath(file);
   await ensureDir(path.dirname(file));
   const existing = await fs.promises
     .stat(file)
@@ -142,12 +149,21 @@ export async function atomicWriteText(
   }
 }
 
+export function assertSafeConfigKey(key: string): void {
+  if (
+    !key.trim() ||
+    ['__proto__', 'constructor', 'prototype', '<<'].includes(key)
+  )
+    throw new Error('Unsafe configuration key: ' + JSON.stringify(key));
+}
+
 export function setConfigValue(
   content: string,
   keyPath: string[],
   value: unknown,
   format: ConfigFormat,
 ): string {
+  keyPath.forEach(assertSafeConfigKey);
   if (format === 'yaml') {
     parseConfig(content, format);
     const document = yaml.parseDocument(content);

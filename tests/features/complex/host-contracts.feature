@@ -126,6 +126,24 @@ Feature: Native host contracts and audit regressions
     When Gemini context discovery is exercised: node "$PROJECT_ROOT/tests/features/exercise-contract.cjs" gemini-context "$SETUP_TMPDIR"
     Then the exit code is 0
 
+  @P0
+  Scenario: Reserved MCP server names fail before any configuration or prompt writes
+    Given a temp working directory is created
+    When reserved names are exercised: node "$PROJECT_ROOT/tests/features/exercise-contract.cjs" reserved-names "$SETUP_TMPDIR"
+    Then the exit code is 0
+
+  @P0
+  Scenario: Claude Code remote MCP entries normalize HTTP and retain explicit SSE
+    Given a temp working directory is created
+    When Claude remote transports are exercised: node "$PROJECT_ROOT/tests/features/exercise-contract.cjs" claude-remote "$SETUP_TMPDIR"
+    Then the exit code is 0
+
+  @P1
+  Scenario: Shared prompt and MCP symlinks preserve their referents and report dangling targets
+    Given a temp working directory is created
+    When symlinked targets are exercised: node "$PROJECT_ROOT/tests/features/exercise-contract.cjs" symlink-targets "$SETUP_TMPDIR"
+    Then the exit code is 0
+
   @P1
   Scenario: Invalid JSON, YAML, TOML and nested MCP structures are never overwritten
     Given a temp working directory is created
