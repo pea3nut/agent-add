@@ -72,11 +72,11 @@ Homepage: https://cursor.com/docs
 
 | Asset Type | Doc URL | Verified Contract | Installation Target / Constraints |
 |------------|---------|-------------|----------|
-| MCP | https://cursor.com/docs/context/mcp | 项目级 `.cursor/mcp.json`，全局 `~/.cursor/mcp.json`，key `mcpServers` | `.cursor/mcp.json` → key `mcpServers` (strategy: `inject-json-key`) |
-| Prompt | https://cursor.com/docs/context/rules | `.cursor/rules/*.mdc` 为原生规则；同时支持 `AGENTS.md` 作为跨工具标准 | `AGENTS.md` in project root (strategy: `append-with-marker`) |
-| Skill | https://cursor.com/docs/skills | `.cursor/skills/`、`.agents/skills/`（项目）；对应 home 目录（个人），含 `SKILL.md` | 保留 `.cursor/skills/<name>/SKILL.md` 为 host-specific 目标；支持目录 bundle |
-| Command | https://cursor.com/changelog/1-6 ; https://cursor.com/docs/skills | v1.6 的 `.cursor/commands/<name>.md` 是旧协议；当前文档引导用 `/migrate-to-skills` 迁移命令到 skills | 标为 legacy；新增可复用工作流优先 `.cursor/skills/<name>/SKILL.md`，不要把 skills 页面跳转当作旧命令路径的最新证明 |
-| Sub-agent | https://cursor.com/docs/subagents | `.cursor/agents/` (项目) 或 `~/.cursor/agents/` (用户)，Markdown 格式 | `.cursor/agents/<name>.md` (strategy: `copy-file`) |
+| MCP | https://cursor.com/docs/context/mcp | Project `.cursor/mcp.json`; global `~/.cursor/mcp.json`; key `mcpServers` | `.cursor/mcp.json` → key `mcpServers` (strategy: `inject-json-key`) |
+| Prompt | https://cursor.com/docs/context/rules | Native rules use `.cursor/rules/*.mdc`; `AGENTS.md` is also supported as a cross-tool standard | `AGENTS.md` in project root (strategy: `append-with-marker`) |
+| Skill | https://cursor.com/docs/skills | Project `.cursor/skills/` and `.agents/skills/`; corresponding home directories for personal skills; each bundle contains `SKILL.md` | Keep `.cursor/skills/<name>/SKILL.md` as the host-specific target; copy the directory bundle |
+| Command | https://cursor.com/changelog/1-6 ; https://cursor.com/docs/skills | The v1.6 `.cursor/commands/<name>.md` contract is legacy; current docs recommend `/migrate-to-skills` to migrate commands to skills | Mark as legacy; prefer `.cursor/skills/<name>/SKILL.md` for new reusable workflows. A redirect to the skills page is not current evidence for the old command path |
+| Sub-agent | https://cursor.com/docs/subagents | Project `.cursor/agents/` or user `~/.cursor/agents/`; Markdown format | `.cursor/agents/<name>.md` (strategy: `copy-file`) |
 
 ### Claude Code
 
@@ -84,11 +84,11 @@ Homepage: https://code.claude.com/docs/en
 
 | Asset Type | Doc URL | Verified Contract | Installation Target / Constraints |
 |------------|---------|-------------|----------|
-| MCP | https://code.claude.com/docs/en/mcp | 项目级共享 `.mcp.json`，key `mcpServers`；用户级 `~/.claude.json`；HTTP server 需 `type: "http"` | `.mcp.json` → key `mcpServers`；不能省略远程 transport 类型或覆盖已有用户配置 |
-| Prompt | https://code.claude.com/docs/en/memory | `./CLAUDE.md` 或 `./.claude/CLAUDE.md`；用户级 `~/.claude/CLAUDE.md` | `CLAUDE.md` in project root (strategy: `append-with-marker`) |
-| Skill | https://code.claude.com/docs/en/skills | `.claude/skills/<skill-name>/SKILL.md`（项目）或 `~/.claude/skills/`（个人） | `.claude/skills/<name>/SKILL.md` (strategy: `copy-file`) |
-| Command | https://code.claude.com/docs/en/skills | Commands 已合并入 skills，`.claude/commands/` 路径仍向后兼容 | 旧 `.claude/commands/<name>.md` 可继续使用；新工作流推荐 `.claude/skills/<name>/SKILL.md` |
-| Sub-agent | https://code.claude.com/docs/en/sub-agents | `.claude/agents/`（项目）或 `~/.claude/agents/`（用户），Markdown + YAML frontmatter | `.claude/agents/<name>.md` (strategy: `copy-file`) |
+| MCP | https://code.claude.com/docs/en/mcp | Shared project `.mcp.json`, key `mcpServers`; user `~/.claude.json`; HTTP servers require `type: "http"` | `.mcp.json` → key `mcpServers`; do not omit the remote transport type or overwrite existing user configuration |
+| Prompt | https://code.claude.com/docs/en/memory | `./CLAUDE.md` or `./.claude/CLAUDE.md`; user `~/.claude/CLAUDE.md` | `CLAUDE.md` in project root (strategy: `append-with-marker`) |
+| Skill | https://code.claude.com/docs/en/skills | Project `.claude/skills/<skill-name>/SKILL.md` or personal `~/.claude/skills/` | `.claude/skills/<name>/SKILL.md` (strategy: `copy-file`) |
+| Command | https://code.claude.com/docs/en/skills | Commands have merged into skills; `.claude/commands/` remains backward-compatible | Existing `.claude/commands/<name>.md` files remain usable; prefer `.claude/skills/<name>/SKILL.md` for new workflows |
+| Sub-agent | https://code.claude.com/docs/en/sub-agents | Project `.claude/agents/` or user `~/.claude/agents/`; Markdown with YAML frontmatter | `.claude/agents/<name>.md` (strategy: `copy-file`) |
 
 ### GitHub Copilot
 
@@ -98,11 +98,11 @@ Scope: the adapter's MCP target is **VS Code**, not a universal Copilot CLI/clou
 
 | Asset Type | Doc URL | Verified Contract | Installation Target / Constraints |
 |------------|---------|-------------|----------|
-| MCP | https://code.visualstudio.com/docs/copilot/customization/mcp-servers | VS Code 工作区 `.vscode/mcp.json`，顶层 key `servers`（不是 `mcpServers`）；server 需符合 VS Code 的 `type`/transport schema | `.vscode/mcp.json` → key `servers`；Agent Host 的原生 `.mcp.json` / `~/.copilot/mcp-config.json` 是另一个协议，不混用 |
-| Prompt | https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot | `.github/copilot-instructions.md`；也支持 `.github/instructions/*.instructions.md` 和 `AGENTS.md` | `.github/copilot-instructions.md` (strategy: `append-with-marker`) |
-| Skill | https://docs.github.com/en/copilot/concepts/agents/about-agent-skills | 项目 `.github/skills/`、`.claude/skills/`、`.agents/skills/`；个人 `~/.copilot/skills/`、`~/.agents/skills/` | `.github/skills/<name>/SKILL.md`，需 frontmatter（name, description）和完整目录 bundle |
-| Command | https://docs.github.com/en/copilot/tutorials/customization-library/prompt-files/your-first-prompt-file | `.github/prompts/<name>.prompt.md`，YAML frontmatter + `/<name>` 调用 | `.github/prompts/<name>.prompt.md` (strategy: `copy-file`) |
-| Sub-agent | https://code.visualstudio.com/docs/copilot/customization/custom-agents | VS Code 项目 `.github/agents/`，也支持 `.claude/agents/`；用户 `~/.copilot/agents/`；Markdown + YAML frontmatter | `.github/agents/<name>.agent.md`；遵循 VS Code schema，不直接拿 cloud-agent 的字段约束代替 |
+| MCP | https://code.visualstudio.com/docs/copilot/customization/mcp-servers | VS Code workspace `.vscode/mcp.json`; top-level key `servers`, not `mcpServers`; servers must follow VS Code's `type`/transport schema | `.vscode/mcp.json` → key `servers`; Agent Host's native `.mcp.json` / `~/.copilot/mcp-config.json` uses a different contract. Do not mix them |
+| Prompt | https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot | `.github/copilot-instructions.md`; also supports `.github/instructions/*.instructions.md` and `AGENTS.md` | `.github/copilot-instructions.md` (strategy: `append-with-marker`) |
+| Skill | https://docs.github.com/en/copilot/concepts/agents/about-agent-skills | Project `.github/skills/`, `.claude/skills/`, `.agents/skills/`; personal `~/.copilot/skills/`, `~/.agents/skills/` | `.github/skills/<name>/SKILL.md` requires frontmatter (name, description) and the complete directory bundle |
+| Command | https://docs.github.com/en/copilot/tutorials/customization-library/prompt-files/your-first-prompt-file | `.github/prompts/<name>.prompt.md`; YAML frontmatter; invoked with `/<name>` | `.github/prompts/<name>.prompt.md` (strategy: `copy-file`) |
+| Sub-agent | https://code.visualstudio.com/docs/copilot/customization/custom-agents | VS Code project `.github/agents/`, also `.claude/agents/`; user `~/.copilot/agents/`; Markdown with YAML frontmatter | `.github/agents/<name>.agent.md`; follow the VS Code schema rather than substituting cloud-agent field constraints |
 
 ### Gemini CLI
 
@@ -110,11 +110,11 @@ Homepage: https://geminicli.com/
 
 | Asset Type | Doc URL | Verified Contract | Installation Target / Constraints |
 |------------|---------|-------------|----------|
-| MCP | https://geminicli.com/docs/tools/mcp-server/ | `~/.gemini/settings.json`（用户）或 `.gemini/settings.json`（项目），key `mcpServers` | `.gemini/settings.json` → key `mcpServers`；保留 stdio / SSE / HTTP 各自字段，不能只替换顶层 key |
-| Prompt | https://geminicli.com/docs/cli/gemini-md/ | 默认 `~/.gemini/GEMINI.md`（用户）与项目各层 `GEMINI.md`；可用 `context.fileName` 指定其他名称/名称列表（如 `AGENTS.md`） | 默认目标 `GEMINI.md`；需尊重用户已配置的 context 文件名，不声称始终读取默认文件 |
-| Skill | https://geminicli.com/docs/cli/skills/ | `.gemini/skills/` 或 `.agents/skills/`（项目）；对应 home 目录（用户） | 同一 scope 中 `.agents/skills/` 优先于 `.gemini/skills/`；host-specific 目标仍可用 `.gemini/skills/<name>/SKILL.md` |
-| Command | https://geminicli.com/docs/cli/custom-commands/ | 用户或项目 `.gemini/commands/`；TOML，必填 `prompt`，可选 `description` | `.gemini/commands/<name>.toml`；必须序列化 TOML，不是给 Markdown 改后缀；可用 `/commands reload` 重载 |
-| Sub-agent | https://geminicli.com/docs/core/subagents/ | `.gemini/agents/*.md`（项目）或 `~/.gemini/agents/*.md`（用户），Markdown + YAML frontmatter | `.gemini/agents/<name>.md` (strategy: `copy-file`) |
+| MCP | https://geminicli.com/docs/tools/mcp-server/ | User `~/.gemini/settings.json` or project `.gemini/settings.json`; key `mcpServers` | `.gemini/settings.json` → key `mcpServers`; preserve transport-specific fields for stdio / SSE / HTTP rather than changing only the top-level key |
+| Prompt | https://geminicli.com/docs/cli/gemini-md/ | Defaults to user `~/.gemini/GEMINI.md` and project-hierarchy `GEMINI.md` files; `context.fileName` can specify another name or a list of names, such as `AGENTS.md` | Default target: `GEMINI.md`; respect the user's configured context filenames instead of claiming the default file is always loaded |
+| Skill | https://geminicli.com/docs/cli/skills/ | Project `.gemini/skills/` or `.agents/skills/`; corresponding home directories for user skills | Within the same scope, `.agents/skills/` takes precedence over `.gemini/skills/`; `.gemini/skills/<name>/SKILL.md` remains a valid host-specific target |
+| Command | https://geminicli.com/docs/cli/custom-commands/ | User or project `.gemini/commands/`; TOML with required `prompt` and optional `description` | `.gemini/commands/<name>.toml`; serialize TOML rather than renaming Markdown; reload with `/commands reload` |
+| Sub-agent | https://geminicli.com/docs/core/subagents/ | Project `.gemini/agents/*.md` or user `~/.gemini/agents/*.md`; Markdown with YAML frontmatter | `.gemini/agents/<name>.md` (strategy: `copy-file`) |
 
 ### Kilo Code
 
@@ -122,11 +122,11 @@ Homepage: https://kilo.ai/docs
 
 | Asset Type | Doc URL | Verified Contract | Installation Target / Constraints |
 |------------|---------|-------------|----------|
-| MCP | https://kilo.ai/docs/automate/mcp/using-in-kilo-code | 项目 `kilo.jsonc` / `.kilo/kilo.jsonc`（也支持 `.json`），用户 `~/.config/kilo/kilo.jsonc`；顶层 `mcp` | 本地 `{type: "local", command: [exe, ...args], environment: {...}}`；远程 `{type: "remote", url: ...}`；需 JSONC-aware 合并和 schema 转换 |
-| Prompt | https://kilo.ai/docs/customize/custom-rules | `.kilo/rules/<name>.md` 通过 `kilo.jsonc` 的 `instructions` 文件路径或 glob 引用；旧 `.kilocode/rules/` 自动兼容 | 新安装需写规则文件 **并** 注册 `instructions`；单独创建新目录不够 |
-| Skill | https://kilo.ai/docs/customize/skills | 项目 `.kilo/skills/`；用户 `~/.kilo/skills/`，也读取 `~/.agents/skills/` | `.kilo/skills/<name>/SKILL.md`，YAML frontmatter（name, description）；不沿用未经当前文档确认的旧目录 |
-| Command | https://kilo.ai/docs/customize/workflows | 项目 `.kilo/commands/`；用户 `~/.config/kilo/commands/`；旧 `.kilocode/workflows/` 自动迁移 | `.kilo/commands/<name>.md`；不是 `.kilocode/commands/` |
-| Sub-agent | https://kilo.ai/docs/customize/custom-subagents | 项目 `.kilo/agents/`；用户 `~/.config/kilo/agents/`；Markdown + YAML frontmatter | `.kilo/agents/<name>.md`；也可在 `kilo.jsonc` 的 `agent` 中定义 |
+| MCP | https://kilo.ai/docs/automate/mcp/using-in-kilo-code | Project `kilo.jsonc` / `.kilo/kilo.jsonc` (also supports `.json`); user `~/.config/kilo/kilo.jsonc`; top-level `mcp` | Local: `{type: "local", command: [exe, ...args], environment: {...}}`; remote: `{type: "remote", url: ...}`; requires JSONC-aware merging and schema conversion |
+| Prompt | https://kilo.ai/docs/customize/custom-rules | Reference `.kilo/rules/<name>.md` through file paths or globs in `kilo.jsonc`'s `instructions`; legacy `.kilocode/rules/` is automatically compatible | New installations must write the rule file **and** register it in `instructions`; creating the new directory alone is insufficient |
+| Skill | https://kilo.ai/docs/customize/skills | Project `.kilo/skills/`; user `~/.kilo/skills/`; also reads `~/.agents/skills/` | `.kilo/skills/<name>/SKILL.md`; YAML frontmatter (name, description); do not retain old directories unverified by current docs |
+| Command | https://kilo.ai/docs/customize/workflows | Project `.kilo/commands/`; user `~/.config/kilo/commands/`; legacy `.kilocode/workflows/` is migrated automatically | `.kilo/commands/<name>.md`, not `.kilocode/commands/` |
+| Sub-agent | https://kilo.ai/docs/customize/custom-subagents | Project `.kilo/agents/`; user `~/.config/kilo/agents/`; Markdown with YAML frontmatter | `.kilo/agents/<name>.md`; agents can also be defined under `agent` in `kilo.jsonc` |
 
 ### Qwen Code
 
@@ -134,11 +134,11 @@ Homepage: https://qwenlm.github.io/qwen-code-docs/en/
 
 | Asset Type | Doc URL | Verified Contract | Installation Target / Constraints |
 |------------|---------|-------------|----------|
-| MCP | https://qwenlm.github.io/qwen-code-docs/en/users/features/mcp/ | `.qwen/settings.json`，key `mcpServers` | `.qwen/settings.json` → key `mcpServers` (strategy: `inject-json-key`) |
-| Prompt | https://qwenlm.github.io/qwen-code-docs/en/blog/updates/weekly-update-2026-03-06/ | 官方更新明确项目根 `AGENTS.md` 会自动加载；不要在没有证据时承诺与 `QWEN.md` 的固定冲突优先级 | `AGENTS.md` in project root (strategy: `append-with-marker`) |
-| Skill | https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/ | `.qwen/skills/<skill-name>/SKILL.md`（项目）；`~/.qwen/skills/`（个人） | `.qwen/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.qwen/skills`) |
-| Command | https://qwenlm.github.io/qwen-code-docs/en/users/features/commands/ | Custom Commands 小节：项目 `.qwen/commands/`；用户 `~/.qwen/commands/`；Markdown + 可选 YAML frontmatter，旧 TOML 已弃用 | `.qwen/commands/<name>.md`；project 同名优先；子目录变为冒号 namespace |
-| Sub-agent | https://qwenlm.github.io/qwen-code-docs/en/users/features/sub-agents/ | `.qwen/agents/`（项目）；`~/.qwen/agents/`（用户）；Markdown + YAML frontmatter | `.qwen/agents/<name>.md` (strategy: `copy-file`, installDir: `.qwen/agents`) |
+| MCP | https://qwenlm.github.io/qwen-code-docs/en/users/features/mcp/ | `.qwen/settings.json`; key `mcpServers` | `.qwen/settings.json` → key `mcpServers` (strategy: `inject-json-key`) |
+| Prompt | https://qwenlm.github.io/qwen-code-docs/en/blog/updates/weekly-update-2026-03-06/ | The official update confirms automatic loading of project-root `AGENTS.md`; do not promise a fixed conflict precedence against `QWEN.md` without evidence | `AGENTS.md` in project root (strategy: `append-with-marker`) |
+| Skill | https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/ | Project `.qwen/skills/<skill-name>/SKILL.md`; personal `~/.qwen/skills/` | `.qwen/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.qwen/skills`) |
+| Command | https://qwenlm.github.io/qwen-code-docs/en/users/features/commands/ | Custom Commands section: project `.qwen/commands/`; user `~/.qwen/commands/`; Markdown with optional YAML frontmatter; legacy TOML is deprecated | `.qwen/commands/<name>.md`; project definitions win on name conflicts; subdirectories become colon-separated namespaces |
+| Sub-agent | https://qwenlm.github.io/qwen-code-docs/en/users/features/sub-agents/ | Project `.qwen/agents/`; user `~/.qwen/agents/`; Markdown with YAML frontmatter | `.qwen/agents/<name>.md` (strategy: `copy-file`, installDir: `.qwen/agents`) |
 
 ### opencode
 
@@ -146,11 +146,11 @@ Homepage: https://opencode.ai/docs
 
 | Asset Type | Doc URL | Verified Contract | Installation Target / Constraints |
 |------------|---------|-------------|----------|
-| MCP | https://opencode.ai/docs/mcp-servers/ | 项目 `opencode.json` / `opencode.jsonc`，用户 `~/.config/opencode/opencode.json`；顶层 `mcp` | local server 用 `type: "local"`、`command: [exe, ...args]`、`environment`；remote 用 `type: "remote"`、`url`；不能直接复制 `mcpServers` 的 server 对象 |
-| Prompt | https://opencode.ai/docs/rules | 项目级 `AGENTS.md` 在根目录；全局 `~/.config/opencode/AGENTS.md`；也支持 `CLAUDE.md` fallback | `AGENTS.md` in project root (strategy: `append-with-marker`) |
-| Skill | https://opencode.ai/docs/skills | `.opencode/skills/<name>/SKILL.md`（项目）；全局 `~/.config/opencode/skills/` | `.opencode/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.opencode/skills`) |
-| Command | https://opencode.ai/docs/commands | `.opencode/commands/`（项目）；全局 `~/.config/opencode/commands/`；Markdown + YAML frontmatter | `.opencode/commands/<name>.md` (strategy: `copy-file`, installDir: `.opencode/commands`) |
-| Sub-agent | https://opencode.ai/docs/agents | `.opencode/agents/`（项目）或 `~/.config/opencode/agents/`；Markdown + YAML frontmatter | `.opencode/agents/<name>.md` (strategy: `copy-file`, installDir: `.opencode/agents`) |
+| MCP | https://opencode.ai/docs/mcp-servers/ | Project `opencode.json` / `opencode.jsonc`; user `~/.config/opencode/opencode.json`; top-level `mcp` | Local servers use `type: "local"`, `command: [exe, ...args]`, and `environment`; remote servers use `type: "remote"` and `url`. Do not copy server objects directly from `mcpServers` |
+| Prompt | https://opencode.ai/docs/rules | Project-root `AGENTS.md`; global `~/.config/opencode/AGENTS.md`; also supports a `CLAUDE.md` fallback | `AGENTS.md` in project root (strategy: `append-with-marker`) |
+| Skill | https://opencode.ai/docs/skills | Project `.opencode/skills/<name>/SKILL.md`; global `~/.config/opencode/skills/` | `.opencode/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.opencode/skills`) |
+| Command | https://opencode.ai/docs/commands | Project `.opencode/commands/`; global `~/.config/opencode/commands/`; Markdown with YAML frontmatter | `.opencode/commands/<name>.md` (strategy: `copy-file`, installDir: `.opencode/commands`) |
+| Sub-agent | https://opencode.ai/docs/agents | Project `.opencode/agents/` or global `~/.config/opencode/agents/`; Markdown with YAML frontmatter | `.opencode/agents/<name>.md` (strategy: `copy-file`, installDir: `.opencode/agents`) |
 
 ### Augment
 
@@ -158,11 +158,11 @@ Homepage: https://docs.augmentcode.com/
 
 | Asset Type | Doc URL | Verified Contract | Installation Target / Constraints |
 |------------|---------|-------------|----------|
-| MCP | https://docs.augmentcode.com/cli/integrations | **Auggie CLI** 用户 `~/.augment/settings.json`；项目 `.augment/settings.json`；本地覆盖 `.augment/settings.local.json`；key `mcpServers` | 配置支持 JSONC。IDE 扩展的设置面板/Import from JSON 另见 https://docs.augmentcode.com/setup-augment/mcp ，不假设共用 CLI 文件 |
-| Prompt | https://docs.augmentcode.com/setup-augment/guidelines | 用户级 `~/.augment/rules/`；工作区级 `.augment/rules/`；也支持 `AGENTS.md`/`CLAUDE.md` | `.augment/rules/<name>.md` (strategy: `create-file-in-dir`, installDir: `.augment/rules`) |
-| Skill | https://docs.augmentcode.com/using-augment/skills | 项目 `.augment/skills/`；用户 `~/.augment/skills/`；兼容 `.agents/skills/`、`.claude/skills/` | `.augment/skills/<name>/SKILL.md`；复制目录 bundle，尊重 host discovery 优先级 |
-| Command | https://docs.augmentcode.com/using-augment/custom-commands | 用户级 `~/.augment/commands/`；工作区级 `.augment/commands/<name>.md` | `.augment/commands/<name>.md` (strategy: `copy-file`, installDir: `.augment/commands`) |
-| Sub-agent | https://docs.augmentcode.com/cli/subagents | 用户级 `~/.augment/agents/`；工作区级 `.augment/agents/`；Markdown + YAML frontmatter | `.augment/agents/<name>.md` (strategy: `copy-file`, installDir: `.augment/agents`) |
+| MCP | https://docs.augmentcode.com/cli/integrations | **Auggie CLI** user `~/.augment/settings.json`; project `.augment/settings.json`; local override `.augment/settings.local.json`; key `mcpServers` | Configuration supports JSONC. For the IDE extension's settings panel / Import from JSON, see https://docs.augmentcode.com/setup-augment/mcp ; do not assume it shares the CLI file |
+| Prompt | https://docs.augmentcode.com/setup-augment/guidelines | User `~/.augment/rules/`; workspace `.augment/rules/`; also supports `AGENTS.md`/`CLAUDE.md` | `.augment/rules/<name>.md` (strategy: `create-file-in-dir`, installDir: `.augment/rules`) |
+| Skill | https://docs.augmentcode.com/using-augment/skills | Project `.augment/skills/`; user `~/.augment/skills/`; compatible with `.agents/skills/` and `.claude/skills/` | `.augment/skills/<name>/SKILL.md`; copy the directory bundle and respect host discovery precedence |
+| Command | https://docs.augmentcode.com/using-augment/custom-commands | User `~/.augment/commands/`; workspace `.augment/commands/<name>.md` | `.augment/commands/<name>.md` (strategy: `copy-file`, installDir: `.augment/commands`) |
+| Sub-agent | https://docs.augmentcode.com/cli/subagents | User `~/.augment/agents/`; workspace `.augment/agents/`; Markdown with YAML frontmatter | `.augment/agents/<name>.md` (strategy: `copy-file`, installDir: `.augment/agents`) |
 
 ### Windsurf
 
@@ -170,11 +170,11 @@ Homepage: https://docs.windsurf.com/
 
 | Asset Type | Doc URL | Verified Contract | Installation Target / Constraints |
 |------------|---------|-------------|----------|
-| MCP | https://docs.windsurf.com/windsurf/cascade/mcp | 官方给出 home-relative `~/.codeium/windsurf/mcp_config.json`，key `mcpServers` | 目标 `~/.codeium/windsurf/mcp_config.json`；Windows 按 home 解析，不臆造 `%APPDATA%` 路径 |
-| Prompt | https://docs.windsurf.com/windsurf/cascade/memories | `.windsurf/rules/*.md`，Markdown + frontmatter | `.windsurf/rules/<name>.md` (strategy: `create-file-in-dir`, installDir: `.windsurf/rules`) |
-| Skill | https://docs.windsurf.com/windsurf/cascade/skills | 项目 `.windsurf/skills/`；用户 `~/.codeium/windsurf/skills/`；`SKILL.md` + frontmatter（name, description） | `.windsurf/skills/<name>/SKILL.md`；用户目录不是 `~/.windsurf/skills/` |
+| MCP | https://docs.windsurf.com/windsurf/cascade/mcp | The official home-relative path is `~/.codeium/windsurf/mcp_config.json`; key `mcpServers` | Target: `~/.codeium/windsurf/mcp_config.json`; resolve against the home directory on Windows rather than inventing an `%APPDATA%` path |
+| Prompt | https://docs.windsurf.com/windsurf/cascade/memories | `.windsurf/rules/*.md`; Markdown with frontmatter | `.windsurf/rules/<name>.md` (strategy: `create-file-in-dir`, installDir: `.windsurf/rules`) |
+| Skill | https://docs.windsurf.com/windsurf/cascade/skills | Project `.windsurf/skills/`; user `~/.codeium/windsurf/skills/`; `SKILL.md` with frontmatter (name, description) | `.windsurf/skills/<name>/SKILL.md`; the user directory is not `~/.windsurf/skills/` |
 | Command | https://docs.windsurf.com/windsurf/cascade/workflows | `.windsurf/workflows/*.md` | `.windsurf/workflows/<name>.md` (strategy: `copy-file`, installDir: `.windsurf/workflows`) |
-| Sub-agent | — | 未核实独立 sub-agent 文件安装协议 | 不把内置并行能力推断成 `.windsurf/agents/` 自动发现 |
+| Sub-agent | — | No standalone sub-agent file installation contract verified | Do not infer automatic discovery in `.windsurf/agents/` from built-in parallelism |
 
 ### Roo Code
 
@@ -182,11 +182,11 @@ Homepage: https://docs.roocode.com/
 
 | Asset Type | Doc URL | Verified Contract | Installation Target / Constraints |
 |------------|---------|-------------|----------|
-| MCP | https://docs.roocode.com/features/mcp/using-mcp-in-roo | 项目级 `.roo/mcp.json`，key `mcpServers` | `.roo/mcp.json` → key `mcpServers` (strategy: `inject-json-key`) |
-| Prompt | https://docs.roocode.com/features/custom-instructions | `.roo/rules/` 目录递归加载，按文件名排序；也支持 `.roo/rules-{modeSlug}/` | `.roo/rules/<name>.md` (strategy: `create-file-in-dir`, installDir: `.roo/rules`) |
-| Skill | https://docs.roocode.com/features/skills | 项目 `.roo/skills/`、用户 `~/.roo/skills/`，也读取 `.agents/skills/`；支持 mode-specific `.roo/skills-{modeSlug}/` | `.roo/skills/<name>/SKILL.md`，frontmatter 须含 name 和 description；完整复制目录 bundle |
-| Command | https://docs.roocode.com/features/slash-commands | `.roo/commands/`，文件名即命令名（如 `review.md` → `/review`） | `.roo/commands/<name>.md` (strategy: `copy-file`, installDir: `.roo/commands`) |
-| Sub-agent | https://docs.roocode.com/features/custom-modes | 自定义 modes 存在于 `.roomodes` / `custom_modes.yaml`，不是可直接复制的独立 sub-agent Markdown 协议 | 本次不把 mode 配置等同于 Sub-agent asset；不要创建未经证实的 `.roo/agents/` |
+| MCP | https://docs.roocode.com/features/mcp/using-mcp-in-roo | Project `.roo/mcp.json`; key `mcpServers` | `.roo/mcp.json` → key `mcpServers` (strategy: `inject-json-key`) |
+| Prompt | https://docs.roocode.com/features/custom-instructions | `.roo/rules/` is loaded recursively in filename order; also supports `.roo/rules-{modeSlug}/` | `.roo/rules/<name>.md` (strategy: `create-file-in-dir`, installDir: `.roo/rules`) |
+| Skill | https://docs.roocode.com/features/skills | Project `.roo/skills/`; user `~/.roo/skills/`; also reads `.agents/skills/`; supports mode-specific `.roo/skills-{modeSlug}/` | `.roo/skills/<name>/SKILL.md` requires name and description in frontmatter; copy the complete directory bundle |
+| Command | https://docs.roocode.com/features/slash-commands | `.roo/commands/`; filenames define command names, e.g. `review.md` → `/review` | `.roo/commands/<name>.md` (strategy: `copy-file`, installDir: `.roo/commands`) |
+| Sub-agent | https://docs.roocode.com/features/custom-modes | Custom modes use `.roomodes` / `custom_modes.yaml`, not standalone drop-in sub-agent Markdown files | This audit does not equate mode configuration with a Sub-agent asset; do not create an unverified `.roo/agents/` directory |
 
 ### Kiro
 
@@ -196,11 +196,11 @@ Scope: current docs cover **IDE 1.0 / CLI V3**. CLI 2.x JSON agent settings have
 
 | Asset Type | Doc URL | Verified Contract | Installation Target / Constraints |
 |------------|---------|-------------|----------|
-| MCP | https://kiro.dev/docs/mcp/configuration/ | 工作区 `.kiro/settings/mcp.json`，用户级 `~/.kiro/settings/mcp.json`，key `mcpServers` | `.kiro/settings/mcp.json` → key `mcpServers` (strategy: `inject-json-key`) |
-| Prompt | https://kiro.dev/docs/steering/ | 项目 `.kiro/steering/`，用户 `~/.kiro/steering/`；也加载 `AGENTS.md`；支持 inclusion frontmatter | `.kiro/steering/<name>.md`；自定义 agent 需用 `resources` 显式包含，如 `file://.kiro/steering/**/*.md` |
-| Skill | https://kiro.dev/docs/skills/ | `.kiro/skills/<name>/SKILL.md` 或 `~/.kiro/skills/` | 默认 agent 自动发现；自定义 agent 需 `resources` 中的 `skill://` URI，不是复制后必然可用 |
-| Command | https://kiro.dev/docs/skills/ ; https://kiro.dev/docs/steering/ | Skills 和 manual/auto steering 可作为 slash commands 调用 | 复用 Skill/Prompt 协议；未确认独立 `.kiro/commands/` 目录 |
-| Sub-agent | https://kiro.dev/docs/custom-agents/configuration-reference/ ; https://kiro.dev/docs/custom-agents/subagents/ | 工作区 `.kiro/agents/` 或用户 `~/.kiro/agents/`；当前格式支持 Markdown frontmatter + prompt body | `.kiro/agents/<name>.md`；记录版本和 `resources`/`includeMcpJson` 行为，旧 JSON 用 `/upgrade-agent` 迁移 |
+| MCP | https://kiro.dev/docs/mcp/configuration/ | Workspace `.kiro/settings/mcp.json`; user `~/.kiro/settings/mcp.json`; key `mcpServers` | `.kiro/settings/mcp.json` → key `mcpServers` (strategy: `inject-json-key`) |
+| Prompt | https://kiro.dev/docs/steering/ | Project `.kiro/steering/`; user `~/.kiro/steering/`; also loads `AGENTS.md`; supports inclusion frontmatter | `.kiro/steering/<name>.md`; custom agents must explicitly include steering in `resources`, e.g. `file://.kiro/steering/**/*.md` |
+| Skill | https://kiro.dev/docs/skills/ | `.kiro/skills/<name>/SKILL.md` or `~/.kiro/skills/` | The default agent discovers skills automatically; custom agents need `skill://` URIs in `resources`. Copying files alone does not guarantee availability |
+| Command | https://kiro.dev/docs/skills/ ; https://kiro.dev/docs/steering/ | Skills and manual/auto steering can be invoked as slash commands | Reuse the Skill/Prompt contracts; no independent `.kiro/commands/` directory verified |
+| Sub-agent | https://kiro.dev/docs/custom-agents/configuration-reference/ ; https://kiro.dev/docs/custom-agents/subagents/ | Workspace `.kiro/agents/` or user `~/.kiro/agents/`; the current format supports Markdown frontmatter and a prompt body | `.kiro/agents/<name>.md`; document version and `resources`/`includeMcpJson` behavior; migrate legacy JSON with `/upgrade-agent` |
 
 ### Codex CLI
 
@@ -208,11 +208,11 @@ Homepage: https://github.com/openai/codex
 
 | Asset Type | Doc URL | Verified Contract | Installation Target / Constraints |
 |------------|---------|-------------|----------|
-| MCP | https://developers.openai.com/codex/mcp | 全局 `~/.codex/config.toml`，项目级 `.codex/config.toml`；TOML table `[mcp_servers.<server-name>]` | macOS/Linux: `~/.codex/config.toml` (TOML table format: `[mcp_servers.<name>]`); Windows: `%USERPROFILE%\.codex\config.toml` |
-| Prompt | https://developers.openai.com/codex/guides/agents-md | `AGENTS.md` 在仓库根目录及子目录；全局 `~/.codex/AGENTS.md` | `AGENTS.md` in project root (strategy: `append-with-marker`) |
-| Skill | https://developers.openai.com/codex/skills | 项目从 cwd 到仓库根逐级查找 `.agents/skills/`；用户 `$HOME/.agents/skills/`，另有 admin `/etc/codex/skills/` | `.agents/skills/<name>/SKILL.md`；旧 `.codex/skills/` 不再作为当前官方推荐路径；含 name/description frontmatter |
-| Command | https://developers.openai.com/codex/custom-prompts | 已弃用的 custom prompts 位于 `~/.codex/prompts/*.md`，不通过仓库共享；官方推荐 skills | 保留 legacy 信息，不写成“从不支持文件命令”，也不新增项目级 `.codex/commands/` |
-| Sub-agent | https://developers.openai.com/codex/subagents | 独立 TOML 文件，`~/.codex/agents/`（个人）或 `.codex/agents/`（项目），须含 name/description/developer_instructions | `.codex/agents/<name>.toml` (strategy: `copy-file`, installDir: `.codex/agents`) |
+| MCP | https://developers.openai.com/codex/mcp | Global `~/.codex/config.toml`; project `.codex/config.toml`; TOML tables `[mcp_servers.<server-name>]` | macOS/Linux: `~/.codex/config.toml` (TOML table format: `[mcp_servers.<name>]`); Windows: `%USERPROFILE%\.codex\config.toml` |
+| Prompt | https://developers.openai.com/codex/guides/agents-md | `AGENTS.md` at the repository root and in subdirectories; global `~/.codex/AGENTS.md` | `AGENTS.md` in project root (strategy: `append-with-marker`) |
+| Skill | https://developers.openai.com/codex/skills | Searches `.agents/skills/` at each project level from cwd to the repository root; user `$HOME/.agents/skills/`; admin `/etc/codex/skills/` | `.agents/skills/<name>/SKILL.md`; `.codex/skills/` is no longer the current officially recommended path; include name/description frontmatter |
+| Command | https://developers.openai.com/codex/custom-prompts | Deprecated custom prompts use `~/.codex/prompts/*.md` and are not shared through repositories; official guidance recommends skills | Retain the legacy information rather than claiming file commands were never supported; do not introduce project-level `.codex/commands/` |
+| Sub-agent | https://developers.openai.com/codex/subagents | Standalone TOML files in personal `~/.codex/agents/` or project `.codex/agents/`; require name/description/developer_instructions | `.codex/agents/<name>.toml` (strategy: `copy-file`, installDir: `.codex/agents`) |
 
 ### Tabnine CLI
 
@@ -222,11 +222,11 @@ Scope: the MCP and guidelines sources describe **Tabnine IDE Agent**; the comman
 
 | Asset Type | Doc URL | Verified Contract | Installation Target / Constraints |
 |------------|---------|-------------|----------|
-| MCP | https://docs.tabnine.com/main/getting-started/tabnine-agent/mcp-intro-and-setup | `.tabnine/mcp_servers.json`（项目级或 home），key `mcpServers` | `.tabnine/mcp_servers.json` → key `mcpServers` (strategy: `inject-json-key`) |
-| Prompt | https://docs.tabnine.com/main/getting-started/tabnine-agent/guidelines | `$PROJECT/.tabnine/guidelines/` 或 `~/.tabnine/guidelines/`，Markdown 格式 | `.tabnine/guidelines/<name>.md` (strategy: `create-file-in-dir`, installDir: `.tabnine/guidelines`) |
-| Skill | — | 本次未找到足以确认 CLI skill 自动发现目录的官方协议 | 不根据第三方列表声明支持或断言产品绝无 skills |
-| Command | https://docs.tabnine.com/main/getting-started/tabnine-cli/features/commands | 用户 `~/.tabnine/agent/commands/`；项目 `.tabnine/agent/commands/`；**TOML**，`prompt` + 可选 `description` | `.tabnine/agent/commands/<name>.toml`；嵌套目录形成 `/namespace:command`；旧文档链接已失效 |
-| Sub-agent | — | 未核实独立 CLI sub-agent 文件协议 | 不推断 `.tabnine/agents/` |
+| MCP | https://docs.tabnine.com/main/getting-started/tabnine-agent/mcp-intro-and-setup | `.tabnine/mcp_servers.json` under the project or home directory; key `mcpServers` | `.tabnine/mcp_servers.json` → key `mcpServers` (strategy: `inject-json-key`) |
+| Prompt | https://docs.tabnine.com/main/getting-started/tabnine-agent/guidelines | `$PROJECT/.tabnine/guidelines/` or `~/.tabnine/guidelines/`; Markdown format | `.tabnine/guidelines/<name>.md` (strategy: `create-file-in-dir`, installDir: `.tabnine/guidelines`) |
+| Skill | — | No official contract sufficient to confirm automatic CLI skill-directory discovery found in this audit | Do not rely on third-party lists to claim support or assert that the product has no skills at all |
+| Command | https://docs.tabnine.com/main/getting-started/tabnine-cli/features/commands | User `~/.tabnine/agent/commands/`; project `.tabnine/agent/commands/`; **TOML** with `prompt` and optional `description` | `.tabnine/agent/commands/<name>.toml`; nested directories produce `/namespace:command`; the old documentation link no longer works |
+| Sub-agent | — | No standalone CLI sub-agent file contract verified | Do not infer a `.tabnine/agents/` directory |
 
 ### Kimi Code
 
@@ -234,11 +234,11 @@ Homepage: https://moonshotai.github.io/kimi-cli/
 
 | Asset Type | Doc URL | Verified Contract | Installation Target / Constraints |
 |------------|---------|-------------|----------|
-| MCP | https://moonshotai.github.io/kimi-cli/en/customization/mcp.html | `~/.kimi/mcp.json`，key `mcpServers`，格式兼容其他 MCP 客户端 | macOS/Linux: `~/.kimi/mcp.json` → key `mcpServers`; Windows: `%USERPROFILE%\.kimi\mcp.json` → key `mcpServers` |
-| Prompt | https://moonshotai.github.io/kimi-cli/en/customization/agents.html | `${KIMI_AGENTS_MD}` 变量合并项目根到工作目录的 `AGENTS.md`（含 `.kimi/AGENTS.md`） | `AGENTS.md` in project root (strategy: `append-with-marker`) |
-| Skill | https://moonshotai.github.io/kimi-cli/en/customization/skills.html | 项目/用户 `.kimi/skills/`、`.agents/skills/`；兼容 `.claude/skills/`、`.codex/skills/` 等；同名优先级见官方文档 | `.kimi/skills/<name>/SKILL.md` + YAML frontmatter；兼容路径只证明 Kimi 的 discovery，不证明 Codex 仍推荐旧路径 |
-| Command | https://moonshotai.github.io/kimi-cli/en/customization/skills.html | 官方描述通过 slash command 加载 skill；不是独立 commands 文件目录 | 复用 Skill 协议，不凭空创建 `.kimi/commands/` |
-| Sub-agent | https://moonshotai.github.io/kimi-cli/en/customization/agents.html | YAML `version: 1` / `agent`；父 agent 的 `subagents.<name>` 含 `path`、`description`，指向子 agent YAML；可用 `system_prompt_path` 引用 Markdown | 需安装 YAML + prompt 依赖并注册父 agent，用 `kimi --agent-file <parent.yaml>` 加载；未确认 `.kimi/agents/` 自动发现，不能只 copy 一个 `.md` |
+| MCP | https://moonshotai.github.io/kimi-cli/en/customization/mcp.html | `~/.kimi/mcp.json`; key `mcpServers`; format compatible with other MCP clients | macOS/Linux: `~/.kimi/mcp.json` → key `mcpServers`; Windows: `%USERPROFILE%\.kimi\mcp.json` → key `mcpServers` |
+| Prompt | https://moonshotai.github.io/kimi-cli/en/customization/agents.html | The `${KIMI_AGENTS_MD}` variable merges `AGENTS.md` files from the project root to the working directory, including `.kimi/AGENTS.md` | `AGENTS.md` in project root (strategy: `append-with-marker`) |
+| Skill | https://moonshotai.github.io/kimi-cli/en/customization/skills.html | Project/user `.kimi/skills/` and `.agents/skills/`; compatible with `.claude/skills/`, `.codex/skills/`, and other paths; see official docs for name-conflict precedence | `.kimi/skills/<name>/SKILL.md` with YAML frontmatter; compatibility paths establish Kimi discovery, not a continued Codex recommendation for the old path |
+| Command | https://moonshotai.github.io/kimi-cli/en/customization/skills.html | Official docs describe loading skills through slash commands, not an independent command-file directory | Reuse the Skill contract; do not invent `.kimi/commands/` |
+| Sub-agent | https://moonshotai.github.io/kimi-cli/en/customization/agents.html | YAML `version: 1` / `agent`; a parent agent's `subagents.<name>` entries contain `path` and `description`, referencing child-agent YAML; `system_prompt_path` can reference Markdown | Install YAML and prompt dependencies, register them in the parent, and load it with `kimi --agent-file <parent.yaml>`; automatic discovery in `.kimi/agents/` is unverified. Copying one `.md` is insufficient |
 
 ### Trae
 
@@ -246,11 +246,11 @@ Homepage: https://docs.trae.ai/
 
 | Asset Type | Doc URL | Verified Contract | Installation Target / Constraints |
 |------------|---------|-------------|----------|
-| MCP | https://docs.trae.ai/ide/add-mcp-servers | 项目 `.trae/mcp.json`，key `mcpServers`；须在 Settings > MCP 启用 **Project MCP** | `.trae/mcp.json` → key `mcpServers`；单独写文件不绕过用户信任/启用步骤 |
-| Prompt | https://docs.trae.ai/ide/rules | `.trae/rules/` 目录，每条规则为 `.md` 文件 + YAML frontmatter（alwaysApply, description, globs）；也兼容 AGENTS.md | `.trae/rules/<name>.md` (strategy: `create-file-in-dir`, installDir: `.trae/rules`) |
-| Skill | https://docs.trae.ai/ide/skills | `.trae/skills/{skill_name}/SKILL.md`（项目），`~/.trae/skills`（全局）；YAML frontmatter（name, description） | `.trae/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.trae/skills`) |
-| Command | — | 未核实独立自定义 slash-command 文件协议 | 不把内置 slash 菜单等同于文件自动发现 |
-| Sub-agent | — | 本次未核实可安装的独立 sub-agent 文件协议 | UI 中的自定义 agent 不足以证明存在 `.trae/agents/` 协议 |
+| MCP | https://docs.trae.ai/ide/add-mcp-servers | Project `.trae/mcp.json`; key `mcpServers`; requires enabling **Project MCP** in Settings > MCP | `.trae/mcp.json` → key `mcpServers`; writing a file does not bypass user trust or enablement steps |
+| Prompt | https://docs.trae.ai/ide/rules | `.trae/rules/`; each rule is a `.md` file with YAML frontmatter (alwaysApply, description, globs); also compatible with AGENTS.md | `.trae/rules/<name>.md` (strategy: `create-file-in-dir`, installDir: `.trae/rules`) |
+| Skill | https://docs.trae.ai/ide/skills | Project `.trae/skills/{skill_name}/SKILL.md`; global `~/.trae/skills`; YAML frontmatter (name, description) | `.trae/skills/<name>/SKILL.md` (strategy: `copy-file`, installDir: `.trae/skills`) |
+| Command | — | No standalone custom slash-command file contract verified | Do not equate built-in slash menus with automatic file discovery |
+| Sub-agent | — | No installable standalone sub-agent file contract verified in this audit | Custom agents in the UI do not establish a `.trae/agents/` contract |
 
 ### OpenClaw
 
@@ -260,11 +260,11 @@ Scope: paths are relative to the **configured agent workspace**, by default `~/.
 
 | Asset Type | Doc URL | Verified Contract | Installation Target / Constraints |
 |------------|---------|-------------|----------|
-| MCP | https://docs.openclaw.ai/gateway/config-extensions ; https://docs.openclaw.ai/gateway/configuration | 原生 managed MCP 定义位于 JSON5 `~/.openclaw/openclaw.json` 的 `mcp.servers`，供 embedded OpenClaw 和其他 runtime adapters 使用 | 支持 stdio/remote server；需 JSON5-aware **嵌套对象合并**。不是 `mcpServers`，也不是把 OpenClaw 自身暴露成 MCP server 的 `mcp serve` 功能 |
-| Prompt | https://docs.openclaw.ai/concepts/agent-workspace | `<workspace>/AGENTS.md` 是 agent 工作区的行为指令 | 默认 `~/.openclaw/workspace/AGENTS.md`；先解析 workspace，不能盲写 cwd 的 `AGENTS.md` |
-| Skill | https://docs.openclaw.ai/tools/skills | `<workspace>/skills/`；managed `~/.openclaw/skills/`；也读取 workspace `.agents/skills/` 和用户 `~/.agents/skills/`（受 state 配置限制） | `<workspace>/skills/<name>/SKILL.md`；默认 `~/.openclaw/workspace/skills/<name>/SKILL.md`；不是 `<cwd>/.openclaw/skills/` |
-| Command | https://docs.openclaw.ai/tools/skills ; https://docs.openclaw.ai/tools/slash-commands | Skill 的名称可暴露为 slash command | 复用 Skill 安装；不推断 `.openclaw/commands/` |
-| Sub-agent | — | 多 agent/runtime 配置不等于独立 sub-agent 文件自动发现 | 本次未确认可以 drop-in 安装的独立文件目录，保留未核实状态 |
+| MCP | https://docs.openclaw.ai/gateway/config-extensions ; https://docs.openclaw.ai/gateway/configuration | Native managed MCP definitions live in JSON5 `~/.openclaw/openclaw.json` under `mcp.servers`, for embedded OpenClaw and other runtime adapters | Supports stdio/remote servers; requires JSON5-aware **nested-object merging**. This is neither `mcpServers` nor the `mcp serve` feature that exposes OpenClaw itself as an MCP server |
+| Prompt | https://docs.openclaw.ai/concepts/agent-workspace | `<workspace>/AGENTS.md` provides behavioral instructions for the agent workspace | Defaults to `~/.openclaw/workspace/AGENTS.md`; resolve the workspace first instead of blindly writing cwd's `AGENTS.md` |
+| Skill | https://docs.openclaw.ai/tools/skills | `<workspace>/skills/`; managed `~/.openclaw/skills/`; also reads workspace `.agents/skills/` and user `~/.agents/skills/`, subject to state configuration | `<workspace>/skills/<name>/SKILL.md`; defaults to `~/.openclaw/workspace/skills/<name>/SKILL.md`, not `<cwd>/.openclaw/skills/` |
+| Command | https://docs.openclaw.ai/tools/skills ; https://docs.openclaw.ai/tools/slash-commands | Skill names can be exposed as slash commands | Reuse Skill installation; do not infer `.openclaw/commands/` |
+| Sub-agent | — | Multi-agent/runtime configuration does not establish automatic discovery of standalone sub-agent files | No drop-in installation directory for standalone files verified in this audit; retain the unverified status |
 
 ### Mistral Vibe
 
@@ -272,11 +272,11 @@ Homepage: https://docs.mistral.ai/vibe/code/cli/
 
 | Asset Type | Doc URL | Verified Contract | Installation Target / Constraints |
 |------------|---------|-------------|----------|
-| MCP | https://docs.mistral.ai/vibe/code/cli/configuration ; https://docs.mistral.ai/vibe/code/cli/configuration-reference | `.vibe/config.toml` 或 `~/.vibe/config.toml`；`[[mcp_servers]]` 数组；每项需 `name`、`transport`，其余字段取决于 transport | `.vibe/config.toml`；保留 TOML array-of-tables，不可与 Codex 的 `[mcp_servers.<name>]` 混用 |
-| Prompt | https://docs.mistral.ai/vibe/code/cli/agents | 用户 `~/.vibe/AGENTS.md`；可信工作区中 cwd 到 trusted root 的各层 `AGENTS.md` | `AGENTS.md` in project root；尊重 trusted-folder 边界 |
-| Skill | https://docs.mistral.ai/vibe/code/cli/skills | 项目 `.vibe/skills/` / `.agents/skills/`；用户 `~/.vibe/skills/` / `~/.agents/skills/` | `.vibe/skills/<name>/SKILL.md`，YAML frontmatter；项目 discovery 需要 trust |
-| Command | https://docs.mistral.ai/vibe/code/cli/skills | Skill 默认 `user-invocable: true`，以 `/skill-name` 调用；支持 `disable-model-invocation` | 复用 Skill 目录，不创建未经文档确认的 `.vibe/commands/` |
-| Sub-agent | https://docs.mistral.ai/vibe/code/cli/agents | 项目 `.vibe/agents/<name>.toml` 或用户 `~/.vibe/agents/<name>.toml`；`agent_type = "subagent"`、`description`；`system_prompt_id` 可引用 `.vibe/prompts/<id>.md` | 需生成 TOML 并处理 prompt 依赖；普通 `agent_type = "agent"` 不是 delegation-only subagent |
+| MCP | https://docs.mistral.ai/vibe/code/cli/configuration ; https://docs.mistral.ai/vibe/code/cli/configuration-reference | `.vibe/config.toml` or `~/.vibe/config.toml`; `[[mcp_servers]]` array; each entry requires `name` and `transport`, with other fields depending on transport | `.vibe/config.toml`; preserve TOML arrays of tables, distinct from Codex's `[mcp_servers.<name>]` |
+| Prompt | https://docs.mistral.ai/vibe/code/cli/agents | User `~/.vibe/AGENTS.md`; every `AGENTS.md` between cwd and the trusted root in a trusted workspace | `AGENTS.md` in project root; respect trusted-folder boundaries |
+| Skill | https://docs.mistral.ai/vibe/code/cli/skills | Project `.vibe/skills/` / `.agents/skills/`; user `~/.vibe/skills/` / `~/.agents/skills/` | `.vibe/skills/<name>/SKILL.md` with YAML frontmatter; project discovery requires trust |
+| Command | https://docs.mistral.ai/vibe/code/cli/skills | Skills default to `user-invocable: true` and are invoked with `/skill-name`; supports `disable-model-invocation` | Reuse the Skill directory; do not create an undocumented `.vibe/commands/` directory |
+| Sub-agent | https://docs.mistral.ai/vibe/code/cli/agents | Project `.vibe/agents/<name>.toml` or user `~/.vibe/agents/<name>.toml`; `agent_type = "subagent"` and `description`; `system_prompt_id` can reference `.vibe/prompts/<id>.md` | Generate TOML and handle prompt dependencies; a regular `agent_type = "agent"` definition is not a delegation-only subagent |
 
 ### Claude Desktop
 
@@ -284,11 +284,11 @@ Homepage: https://claude.com/download/
 
 | Asset Type | Doc URL | Verified Contract | Installation Target / Constraints |
 |------------|---------|-------------|----------|
-| MCP | https://modelcontextprotocol.io/docs/develop/connect-local-servers ; https://claude.com/download/ | macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`；Windows: `%APPDATA%\Claude\claude_desktop_config.json`；key `mcpServers` | Linux beta 已发布，但所引 MCP 教程未明确 Linux 路径；可通过 Settings > Developer > Edit Config 定位实际文件，不能把未知路径当作产品不支持 |
-| Prompt | — | 未核实自动发现的项目规则文件 | UI project instructions 不等于项目根目录文件协议 |
-| Skill | https://support.claude.com/en/articles/12512180-using-skills-in-claude | 支持自定义 Skill：打包 skill 目录为 ZIP，通过 UI 上传（受账户能力/设置限制） | 产品支持 skills，但不是 copy 到项目 skill 目录；本 installer 的文件写入模型不能直接声称支持 |
-| Command | — | 未核实独立命令文件安装协议 | 不与 Claude Code 的 `.claude/commands/` 混淆 |
-| Sub-agent | — | 未核实独立 sub-agent 文件安装协议 | 不与 Claude Code 的 `.claude/agents/` 混淆 |
+| MCP | https://modelcontextprotocol.io/docs/develop/connect-local-servers ; https://claude.com/download/ | macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`; Windows: `%APPDATA%\Claude\claude_desktop_config.json`; key `mcpServers` | Linux beta is available, but the cited MCP tutorial does not specify its config path. Locate the actual file via Settings > Developer > Edit Config; an unknown path does not mean the product is unsupported |
+| Prompt | — | No automatically discovered project-rule file verified | UI project instructions are not a project-root file contract |
+| Skill | https://support.claude.com/en/articles/12512180-using-skills-in-claude | Supports custom Skills: package the skill directory as a ZIP and upload through the UI, subject to account capabilities/settings | The product supports skills, but not by copying into a project skill directory; this installer's file-writing model cannot directly claim support |
+| Command | — | No standalone command-file installation contract verified | Do not confuse this with Claude Code's `.claude/commands/` |
+| Sub-agent | — | No standalone sub-agent file installation contract verified | Do not confuse this with Claude Code's `.claude/agents/` |
 
 ---
 
@@ -310,11 +310,11 @@ These are **proposed future adapters**, not additions to the current registry. I
 
 | Asset Type | Official Source | Verified Contract / Proposed Target |
 |------------|-----------------|-------------------------------------|
-| MCP | https://docs.factory.ai/harness/mcp | 项目 `.factory/mcp.json`、用户 `~/.factory/mcp.json`；顶层 `mcpServers`；项目同名配置优先；保留 transport-specific type/command/url 字段 |
-| Prompt | https://docs.factory.ai/harness/agents-md | `AGENTS.md`，项目及子树作用域；未来可用 project-root `AGENTS.md` + marker append，不能覆盖已有团队说明 |
-| Skill | https://docs.factory.ai/harness/skills | 项目 `.factory/skills/<name>/SKILL.md`、用户 `~/.factory/skills/`；目录 bundle + YAML frontmatter（name, description） |
-| Command | https://docs.factory.ai/harness/custom-slash-commands | 项目 `.factory/commands/<name>.md`、用户 `~/.factory/commands/`；也支持可执行脚本（未来 adapter 必须处理权限/平台差异，不能仅改后缀） |
-| Sub-agent | https://docs.factory.ai/harness/subagents | 项目 `.factory/droids/<name>.md`、用户 `~/.factory/droids/`；Markdown + YAML frontmatter；project 同名优先；只扫描第一层，不能用 `.factory/agents/` 替代 |
+| MCP | https://docs.factory.ai/harness/mcp | Project `.factory/mcp.json`; user `~/.factory/mcp.json`; top-level `mcpServers`; project definitions win on name conflicts; preserve transport-specific type/command/url fields |
+| Prompt | https://docs.factory.ai/harness/agents-md | `AGENTS.md` with project and subtree scope; a future target can use project-root `AGENTS.md` with marker-based appending, without overwriting existing team instructions |
+| Skill | https://docs.factory.ai/harness/skills | Project `.factory/skills/<name>/SKILL.md`; user `~/.factory/skills/`; directory bundle with YAML frontmatter (name, description) |
+| Command | https://docs.factory.ai/harness/custom-slash-commands | Project `.factory/commands/<name>.md`; user `~/.factory/commands/`; executable scripts are also supported. A future adapter must handle permissions/platform differences rather than merely change extensions |
+| Sub-agent | https://docs.factory.ai/harness/subagents | Project `.factory/droids/<name>.md`; user `~/.factory/droids/`; Markdown with YAML frontmatter; project definitions win on name conflicts; only the top level is scanned. Do not substitute `.factory/agents/` |
 
 ### Cline (Candidate)
 
@@ -322,11 +322,11 @@ Scope: the current [configuration layout](https://docs.cline.bot/getting-started
 
 | Asset Type | Official Source | Verified Contract / Open Question |
 |------------|-----------------|-----------------------------------|
-| MCP | https://docs.cline.bot/mcp/mcp-overview | CLI `~/.cline/data/settings/cline_mcp_settings.json`（可由 `CLINE_MCP_SETTINGS_PATH` 覆盖），key `mcpServers`；IDE 使用 Configure MCP Servers 打开的实际文件；HTTP 需 `type: "streamableHttp"`，不是照抄其他 client 的 transport 名 |
-| Prompt | https://docs.cline.bot/customization/cline-rules | `.cline/rules/` 或 `.clinerules/`；用户 `~/.cline/rules/`；另支持 project `AGENTS.md`；新 host-specific 目标可用 `.cline/rules/<name>.md` |
-| Skill | https://docs.cline.bot/customization/skills | `.cline/skills/<name>/SKILL.md`、`~/.cline/skills/`；兼容 `.clinerules/skills/`、`.agents/skills/`；当前文档说明 global 同名 skill 优先于 project，不能套用其他 host 的优先级 |
-| Command | https://docs.cline.bot/core-workflows/using-commands ; https://docs.cline.bot/getting-started/config | 可通过 slash command 调用启用的 skill。另已确认 `.cline/workflows/`、`~/.cline/workflows/` 目录，但独立 workflow schema 需补证；暂用 Skill 协议，不推断 command 文件格式 |
-| Sub-agent | https://docs.cline.bot/features/subagents ; https://docs.cline.bot/getting-started/config | CLI/Desktop 支持 subagents（IDE extensions 不支持）；配置布局列出 `.cline/agents/`，但未在所引页面定义 entry format / 必填字段；在精确协议得到验证前不推断为 `.md` drop-in |
+| MCP | https://docs.cline.bot/mcp/mcp-overview | CLI `~/.cline/data/settings/cline_mcp_settings.json`, overridable with `CLINE_MCP_SETTINGS_PATH`; key `mcpServers`. In the IDE, use the actual file opened by Configure MCP Servers. HTTP requires `type: "streamableHttp"`, not another client's transport name |
+| Prompt | https://docs.cline.bot/customization/cline-rules | `.cline/rules/` or `.clinerules/`; user `~/.cline/rules/`; also supports project `AGENTS.md`. A new host-specific target could use `.cline/rules/<name>.md` |
+| Skill | https://docs.cline.bot/customization/skills | `.cline/skills/<name>/SKILL.md` and `~/.cline/skills/`; compatible with `.clinerules/skills/` and `.agents/skills/`. Current docs state that global skills win over project skills on name conflicts; do not apply another host's precedence |
+| Command | https://docs.cline.bot/core-workflows/using-commands ; https://docs.cline.bot/getting-started/config | Enabled skills can be invoked with slash commands. `.cline/workflows/` and `~/.cline/workflows/` directories are also confirmed, but the standalone workflow schema needs further evidence. Use the Skill contract for now rather than infer a command-file format |
+| Sub-agent | https://docs.cline.bot/features/subagents ; https://docs.cline.bot/getting-started/config | CLI/Desktop support subagents; IDE extensions do not. The configuration layout lists `.cline/agents/`, but the cited pages do not define the entry format or required fields. Do not infer `.md` drop-in support before verifying the exact contract |
 
 ### Amp (Candidate)
 
@@ -334,31 +334,31 @@ Scope: **Amp CLI** configuration, not hosted MCP definitions stored by ampcode.c
 
 | Asset Type | Official Source | Verified Contract / Open Question |
 |------------|-----------------|-----------------------------------|
-| MCP | https://ampcode.com/docs/cli/settings ; https://ampcode.com/docs/customize/mcp | 项目 `.amp/settings.json` / `.jsonc`，用户 `~/.config/amp/settings.json` / `.jsonc`；**字面量 key** `"amp.mcpServers"`，不是嵌套 `amp` 对象；支持 command/args/env 或 url/headers |
-| Prompt | https://ampcode.com/docs/customize/agents-md | cwd、父目录、子树的 `AGENTS.md`；个人 `~/.config/amp/AGENTS.md` / `~/.config/AGENTS.md`；未来目标 project-root `AGENTS.md` |
-| Skill | https://ampcode.com/docs/customize/skills | 项目 `.agents/skills/`；个人首选 `~/.config/agents/skills/`，也读取 `~/.agents/skills/`、`~/.config/amp/skills/`；禁用全局兼容目录的设置会影响 discovery |
-| Command | — | 未核实独立 command 文件自动发现协议；不猜测 `.amp/commands/` |
-| Sub-agent | — | 内置委派能力不是独立 asset 文件协议；未核实 custom sub-agent 的安装格式 |
+| MCP | https://ampcode.com/docs/cli/settings ; https://ampcode.com/docs/customize/mcp | Project `.amp/settings.json` / `.jsonc`; user `~/.config/amp/settings.json` / `.jsonc`; **literal key** `"amp.mcpServers"`, not a nested `amp` object; supports command/args/env or url/headers |
+| Prompt | https://ampcode.com/docs/customize/agents-md | `AGENTS.md` in cwd, parent directories, and subtrees; personal `~/.config/amp/AGENTS.md` / `~/.config/AGENTS.md`; future target: project-root `AGENTS.md` |
+| Skill | https://ampcode.com/docs/customize/skills | Project `.agents/skills/`; personal preferred path `~/.config/agents/skills/`; also reads `~/.agents/skills/` and `~/.config/amp/skills/`. Settings that disable global compatibility directories affect discovery |
+| Command | — | No standalone command-file discovery contract verified; do not guess `.amp/commands/` |
+| Sub-agent | — | Built-in delegation does not establish a standalone asset-file contract; custom sub-agent installation format remains unverified |
 
 ### Google Antigravity (Candidate)
 
 | Asset Type | Official Source | Verified Contract / Open Question |
 |------------|-----------------|-----------------------------------|
-| MCP | https://antigravity.google/docs/mcp/ | 项目 `.agents/mcp_config.json`，用户 `~/.gemini/config/mcp_config.json`；顶层 `mcpServers`；不同 transport 字段需遵循该产品 schema |
-| Prompt | https://antigravity.google/docs/rules/ | 项目 `AGENTS.md` / `GEMINI.md`，或 `.agents/rules/*.md`；模块化规则需合法 YAML frontmatter + trigger，缺失会被忽略；未来优先选定 `AGENTS.md`，不用无 frontmatter 的模块化规则 |
-| Skill | https://antigravity.google/docs/skills/ | 项目 `.agents/skills/<name>/SKILL.md`；全局 `~/.gemini/config/skills/`；旧 `.agent/skills/` 向后兼容；区分 App / IDE / CLI 额外 discovery 路径 |
-| Command | https://antigravity.google/docs/ide/workflows/ | 官方公告旧 Workflows 于 **2026-10-19** 停用，建议迁移 Agent skills；本次核查日期晚于停用日，不把旧 `.agent/workflows/` 写成新 adapter 的可用目标 |
-| Sub-agent | — | 未核实独立 sub-agent 文件安装协议，不把多 agent UI 工作流当作磁盘格式 |
+| MCP | https://antigravity.google/docs/mcp/ | Project `.agents/mcp_config.json`; user `~/.gemini/config/mcp_config.json`; top-level `mcpServers`; transport-specific fields must follow this product's schema |
+| Prompt | https://antigravity.google/docs/rules/ | Project `AGENTS.md` / `GEMINI.md`, or `.agents/rules/*.md`; modular rules require valid YAML frontmatter and trigger metadata, and are ignored without it. Prefer explicitly selecting `AGENTS.md` for a future target rather than modular rules without frontmatter |
+| Skill | https://antigravity.google/docs/skills/ | Project `.agents/skills/<name>/SKILL.md`; global `~/.gemini/config/skills/`; backward-compatible with `.agent/skills/`. Distinguish additional App / IDE / CLI discovery paths |
+| Command | https://antigravity.google/docs/ide/workflows/ | The official notice says legacy Workflows stop working on **2026-10-19** and recommends migration to Agent skills. This audit is after that cutoff; do not list legacy `.agent/workflows/` as a usable target for a new adapter |
+| Sub-agent | — | No standalone sub-agent file installation contract verified; multi-agent UI workflows are not an on-disk format |
 
 ### Continue (Candidate)
 
 | Asset Type | Official Source | Verified Contract / Open Question |
 |------------|-----------------|-----------------------------------|
-| MCP | https://docs.continue.dev/customize/deep-dives/mcp | 项目 `.continue/mcpServers/` 可放独立 YAML block（需 name/version/schema），也可放兼容 JSON MCP config（key `mcpServers`）；主 `config.yaml` 的 `mcpServers` 是列表，不是同一种 JSON map |
-| Prompt | https://docs.continue.dev/customize/deep-dives/rules | `.continue/rules/<name>.md`，推荐 Markdown + YAML frontmatter；也支持 config YAML rules；明确选择格式后再实现 |
-| Skill | — | 本次未核实 Continue client 的 `SKILL.md` 自动发现协议；Continue 发布供其他 agent 使用的 skills 不足以证明 client 自己读取它们 |
-| Command | https://docs.continue.dev/customize/deep-dives/prompts | Markdown `invokable: true` 暴露为 slash prompt；也可在 `config.yaml` 的 `prompts` 引用 Hub block；需进一步固定本地发现/注册方式，不能推断 `.continue/commands/` |
-| Sub-agent | — | 未核实独立 custom sub-agent 文件安装协议；checks 通过外部 coding agent 的 skill 运行，不等于 Continue host 的 Sub-agent asset |
+| MCP | https://docs.continue.dev/customize/deep-dives/mcp | Project `.continue/mcpServers/` accepts standalone YAML blocks (requiring name/version/schema) or compatible JSON MCP configs (key `mcpServers`); the main `config.yaml` uses an `mcpServers` list, not the same JSON map |
+| Prompt | https://docs.continue.dev/customize/deep-dives/rules | `.continue/rules/<name>.md`; Markdown with YAML frontmatter is recommended; config YAML rules are also supported. Select the format explicitly before implementing |
+| Skill | — | This audit has not verified a Continue-client automatic-discovery contract for `SKILL.md`; publishing skills for other agents does not establish that Continue itself reads them |
+| Command | https://docs.continue.dev/customize/deep-dives/prompts | Markdown with `invokable: true` exposes a slash prompt; `prompts` in `config.yaml` can also reference Hub blocks. The local discovery/registration mechanism needs further clarification; do not infer `.continue/commands/` |
+| Sub-agent | — | No standalone custom sub-agent file installation contract verified; checks run through an external coding agent's skill do not establish a Sub-agent asset contract for the Continue host |
 
 Other clients (for example Goose, Zed, OpenHands and Pi) are **not declared unsupported** by their omission. Add a candidate only after verifying its exact file protocol, client surface and scope from official sources.
 
