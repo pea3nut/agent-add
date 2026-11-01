@@ -1,39 +1,17 @@
 import fs from 'fs';
-import path from 'path';
-import os from 'os';
-import { readJSONOrNull, atomicWriteJSON, ensureDir } from '../utils/fs.js';
+import {
+  atomicWriteText,
+  isRecord,
+  parseConfig,
+  readTextOrNull,
+  resolveConfigPath,
+  setConfigValue,
+  type ConfigFormat,
+} from '../utils/config.js';
+import { convertMcpServer } from './mcp-format.js';
 import { unwrapMcpServers } from '../utils/unwrap-mcp-servers.js';
 import { deepEqualIgnoringKeyOrder } from '../utils/deep-equal.js';
 import type { AssetHandler, InstallJob, InstallResult } from './types.js';
-
-function getHomedir(): string {
-  return process.env['AGENT_ADD_HOME'] ?? os.homedir();
-}
-
-function resolveConfigFilePath(
-  configFile: string | Record<string, string>,
-): string | null {
-  if (typeof configFile === 'string') {
-    return path.resolve(process.cwd(), configFile);
-  }
-  const platform = process.platform as string;
-  const rawPath = (configFile as Record<string, string>)[platform] ?? (configFile as Record<string, string>)['linux'];
-  if (!rawPath) return null;
-  if (rawPath.startsWith('~/')) {
-    return path.join(getHomedir(), rawPath.slice(2));
-  }
-  if (process.platform === 'win32' && rawPath.startsWith('%APPDATA%')) {
-    const agentHome = process.env['AGENT_ADD_HOME'];
-    const appData = agentHome
-      ? path.join(agentHome, 'AppData', 'Roaming')
-      : (process.env['APPDATA'] ?? path.join(os.homedir(), 'AppData', 'Roaming'));
-    return path.join(appData, rawPath.slice('%APPDATA%'.length));
-  }
-  if (process.platform === 'win32' && rawPath.startsWith('%USERPROFILE%')) {
-    return path.join(getHomedir(), rawPath.slice('%USERPROFILE%'.length));
-  }
-  return rawPath;
-}
 
 async function handleTomlMcp(
   job: InstallJob,
@@ -44,14 +22,7 @@ async function handleTomlMcp(
   const { parse, stringify } = await import('smol-toml');
   const { host } = job;
 
-  await ensureDir(path.dirname(configFilePath));
-
-  let tomlContent = '';
-  try {
-    tomlContent = await fs.promises.readFile(configFilePath, 'utf-8');
-  } catch {
-    // file doesn't exist yet
-  }
+  const tomlContent = await readTextOrNull(configFilePath);
 
   let parsed: Record<string, unknown>;
   try {
@@ -66,13 +37,11 @@ async function handleTomlMcp(
 
   if (host.id === 'vibe') {
     // Vibe uses [[mcp_servers]] array format
-    const mcpServers = (parsed['mcp_servers'] as Array<Record<string, unknown>>) ?? [];
-    const entry: Record<string, unknown> = {
-      name: assetName,
-      transport: 'stdio',
-      command: (newServerConfig['command'] as string) ?? '',
-    };
-    if (newServerConfig['args']) entry['args'] = newServerConfig['args'];
+    const mcpServers =
+      (parsed['mcp_servers'] as Array<Record<string, unknown>>) ?? [];
+    if (!Array.isArray(mcpServers) || mcpServers.some((s) => !isRecord(s)))
+      throw new Error('Vibe mcp_servers must be an array of tables');
+    const entry = newServerConfig;
 
     const existingIdx = mcpServers.findIndex((s) => s['name'] === assetName);
     if (existingIdx !== -1) {
@@ -90,17 +59,14 @@ async function handleTomlMcp(
     parsed['mcp_servers'] = mcpServers;
   } else {
     // Default TOML format: [mcp_servers.<name>] table (e.g. Codex)
-    if (!parsed['mcp_servers']) {
+    if (parsed['mcp_servers'] === undefined) {
       parsed['mcp_servers'] = {};
     }
     const mcpServers = parsed['mcp_servers'] as Record<string, unknown>;
-    const entry: Record<string, unknown> = {
-      command: (newServerConfig['command'] as string) ?? '',
-    };
-    if (newServerConfig['args']) entry['args'] = newServerConfig['args'];
-    if (newServerConfig['env']) entry['env'] = newServerConfig['env'];
+    if (!isRecord(mcpServers)) throw new Error('mcp_servers must be a table');
+    const entry = newServerConfig;
 
-    if (assetName in mcpServers) {
+    if (Object.hasOwn(mcpServers, assetName)) {
       if (deepEqualIgnoringKeyOrder(mcpServers[assetName], entry)) {
         return { job, status: 'exists', targetPath: configFilePath };
       }
@@ -111,13 +77,25 @@ async function handleTomlMcp(
         reason: `${configFilePath} already has a '${assetName}' key with different content`,
       };
     }
-    mcpServers[assetName] = entry;
+    Object.defineProperty(mcpServers, assetName, {
+      value: entry,
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    });
   }
 
-  const newToml = stringify(parsed);
-  const tmpFile = configFilePath + '.tmp';
-  await fs.promises.writeFile(tmpFile, newToml, 'utf-8');
-  await fs.promises.rename(tmpFile, configFilePath);
+  const addition = stringify({
+    mcp_servers:
+      host.id === 'vibe' ? [newServerConfig] : { [assetName]: newServerConfig },
+  });
+  let newToml = (tomlContent ?? '').trimEnd() + '\n\n' + addition;
+  try {
+    parse(newToml);
+  } catch {
+    newToml = stringify(parsed);
+  }
+  await atomicWriteText(configFilePath, newToml);
 
   return { job, status: 'written', targetPath: configFilePath };
 }
@@ -128,20 +106,26 @@ export const mcpHandler: AssetHandler = {
     let assetName = job.assetName;
     const mcpCapability = host.assets['mcp'];
 
-    const resolvedPath = resolveConfigFilePath(mcpCapability.configFile!);
-    if (!resolvedPath) {
+    let configFilePath: string;
+    try {
+      configFilePath = await resolveConfigPath(mcpCapability);
+    } catch (err) {
       return {
         job,
         status: 'error',
-        reason: 'Host MCP configFile is not configured for this platform',
+        reason: (err as Error).message,
       };
     }
-    const configFilePath = resolvedPath;
 
     let newServerConfig: Record<string, unknown>;
     try {
-      const rawContent = await fs.promises.readFile(resolvedSource.localPath, 'utf-8');
+      const rawContent = await fs.promises.readFile(
+        resolvedSource.localPath,
+        'utf-8',
+      );
       newServerConfig = JSON.parse(rawContent) as Record<string, unknown>;
+      if (!isRecord(newServerConfig))
+        throw new Error('MCP source must be a JSON object');
 
       // Unwrap nested mcpServers format if present
       const unwrapped = unwrapMcpServers(newServerConfig);
@@ -149,6 +133,7 @@ export const mcpHandler: AssetHandler = {
         newServerConfig = unwrapped.config;
         assetName = unwrapped.name;
       }
+      newServerConfig = convertMcpServer(job, newServerConfig, assetName);
     } catch (err) {
       return {
         job,
@@ -159,14 +144,41 @@ export const mcpHandler: AssetHandler = {
 
     // Dispatch to TOML handler when config file has .toml extension
     if (configFilePath.endsWith('.toml')) {
-      return handleTomlMcp(job, configFilePath, assetName, newServerConfig);
+      try {
+        return await handleTomlMcp(
+          job,
+          configFilePath,
+          assetName,
+          newServerConfig,
+        );
+      } catch (err) {
+        return {
+          job,
+          status: 'error',
+          targetPath: configFilePath,
+          reason: (err as Error).message,
+        };
+      }
     }
 
-    const configKey = mcpCapability.configKey ?? 'mcpServers';
+    const keyPath = mcpCapability.configKeyPath ?? [
+      mcpCapability.configKey ?? 'mcpServers',
+    ];
+    const format: ConfigFormat =
+      mcpCapability.configFormat === 'yaml'
+        ? 'yaml'
+        : mcpCapability.configFormat === 'json5'
+          ? 'json5'
+          : mcpCapability.configFormat === 'jsonc' ||
+              configFilePath.endsWith('.jsonc')
+            ? 'jsonc'
+            : 'json';
+    let existingContent = '{}\n';
 
     let existingConfig: Record<string, unknown>;
     try {
-      existingConfig = (await readJSONOrNull<Record<string, unknown>>(configFilePath)) ?? {};
+      existingContent = (await readTextOrNull(configFilePath)) ?? '{}\n';
+      existingConfig = parseConfig(existingContent, format);
     } catch (err) {
       return {
         job,
@@ -174,12 +186,21 @@ export const mcpHandler: AssetHandler = {
         reason: `Failed to parse existing config file as JSON: ${configFilePath}\n  Cause: ${(err as Error).message}`,
       };
     }
-    const mcpServers = (existingConfig[configKey] as Record<string, unknown>) ?? {};
+    let mcpServers = existingConfig;
+    for (const key of keyPath) {
+      const next = Object.hasOwn(mcpServers, key) ? mcpServers[key] : {};
+      if (!isRecord(next))
+        return {
+          job,
+          status: 'error',
+          targetPath: configFilePath,
+          reason: `Configuration section '${key}' must be an object`,
+        };
+      mcpServers = next;
+    }
 
-    if (assetName in mcpServers) {
-      const existing = JSON.stringify(mcpServers[assetName]);
-      const incoming = JSON.stringify(newServerConfig);
-      if (existing === incoming) {
+    if (Object.hasOwn(mcpServers, assetName)) {
+      if (deepEqualIgnoringKeyOrder(mcpServers[assetName], newServerConfig)) {
         return { job, status: 'exists', targetPath: configFilePath };
       }
       return {
@@ -190,16 +211,24 @@ export const mcpHandler: AssetHandler = {
       };
     }
 
-    const updatedConfig = {
-      ...existingConfig,
-      [configKey]: {
-        ...mcpServers,
-        [assetName]: newServerConfig,
-      },
-    };
-
-    await ensureDir(path.dirname(configFilePath));
-    await atomicWriteJSON(configFilePath, updatedConfig);
+    try {
+      await atomicWriteText(
+        configFilePath,
+        setConfigValue(
+          existingContent,
+          [...keyPath, assetName],
+          newServerConfig,
+          format,
+        ),
+      );
+    } catch (err) {
+      return {
+        job,
+        status: 'error',
+        targetPath: configFilePath,
+        reason: (err as Error).message,
+      };
+    }
 
     return { job, status: 'written', targetPath: configFilePath };
   },

@@ -38,6 +38,10 @@ jobs:
       - name: Run contract tests (against built CLI)
         run: npm run test:contract
 
+      - name: Run file-contract scenarios
+        if: matrix.node-version == '24.x'
+        run: npm run test:scenario
+
       - name: Pack published CLI
         if: matrix.node-version == '24.x'
         run: npm pack --ignore-scripts --pack-destination "$RUNNER_TEMP"

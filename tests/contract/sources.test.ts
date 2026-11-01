@@ -92,14 +92,14 @@ describe('temp-dir cleanup on failure (real subprocess)', () => {
     expect(leftoverHttpDirs()).toEqual([]);
   });
 
-  it('removes the HTTP download dir when an asset handler throws while writing', async () => {
-    // CLAUDE.md is a directory, so the prompt handler's write throws EISDIR.
+  it('removes the HTTP download dir when a prompt handler reports a filesystem error', async () => {
+    // A directory cannot be read or replaced as a prompt file.
     fs.mkdirSync(path.join(projectDir, 'CLAUDE.md'));
 
     const result = await runCli(['--prompt', `${baseUrl}/prompts/review.md`, '--host', 'claude-code'], projectDir, tmpEnv);
 
-    expect(result.exitCode).toBe(2);
-    expect(result.stderr).toMatch(/EISDIR/);
+    expect(result.exitCode).toBe(1);
+    expect(result.stdout).toMatch(/EISDIR/);
     expect(leftoverHttpDirs()).toEqual([]);
   });
 });

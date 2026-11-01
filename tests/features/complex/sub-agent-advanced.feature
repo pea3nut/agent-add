@@ -29,7 +29,7 @@ Feature: Sub-agent frontmatter processing and conflict detection
   Scenario: Sub-agent conflict detection when existing file has different content
     Given a temp working directory is created
     And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
-    And a different sub-agent already exists: mkdir -p "$SETUP_TMPDIR/.cursor/agents" && printf '---\ndescription: A different agent\n---\n\nDifferent content here.\n' > "$SETUP_TMPDIR/.cursor/agents/my-agent.md"
+    And a different sub-agent already exists: mkdir -p "$SETUP_TMPDIR/.cursor/agents" && printf -- '---\ndescription: A different agent\n---\n\nDifferent content here.\n' > "$SETUP_TMPDIR/.cursor/agents/my-agent.md"
     And the sub-agent fixture is copied: cp "$PROJECT_ROOT/tests/fixtures/sub-agent/my-agent.md" "$SETUP_TMPDIR/my-agent.md"
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --sub-agent ./my-agent.md > "$SETUP_TMPDIR/out.txt" 2>&1; echo $? > "$SETUP_TMPDIR/exitcode.txt"; true
     Then the exit code is non-zero: test "$(cat "$SETUP_TMPDIR/exitcode.txt")" -ne 0

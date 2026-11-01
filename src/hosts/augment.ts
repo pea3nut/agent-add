@@ -21,6 +21,7 @@ export class AugmentAdapter implements HostAdapter {
         win32: '%USERPROFILE%\\.augment\\settings.json',
       },
       configKey: 'mcpServers',
+      configFormat: 'jsonc',
       writeStrategy: 'inject-json-key',
     },
     prompt: {

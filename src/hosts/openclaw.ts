@@ -8,12 +8,19 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class OpenclawAdapter implements HostAdapter {
   readonly id = 'openclaw';
   readonly displayName = 'OpenClaw';
-  readonly docs = 'https://openclawlab.com/en/docs/tools/skills-config/';
+  readonly docs = 'https://docs.openclaw.ai/tools/mcp';
   readonly detection = {
     paths: ['~/.openclaw/', '.openclaw/'],
   };
   readonly assets: Record<AssetType, AssetCapability> = {
-    mcp: NOT_SUPPORTED('OpenClaw does not natively support MCP server configuration (native MCP support was marked NOT_PLANNED by maintainers).'),
+    mcp: {
+      supported: true,
+      configFile: '~/.openclaw/openclaw.json',
+      configPathEnv: 'OPENCLAW_CONFIG_PATH',
+      configKeyPath: ['mcp', 'servers'],
+      configFormat: 'json5',
+      writeStrategy: 'inject-json-key',
+    },
     prompt: {
       supported: true,
       targetFile: 'AGENTS.md',
@@ -21,11 +28,15 @@ export class OpenclawAdapter implements HostAdapter {
     },
     skill: {
       supported: true,
-      installDir: '.openclaw/skills',
+      installDir: '~/.openclaw/workspace/skills',
       entryFile: 'SKILL.md',
       writeStrategy: 'copy-file',
     },
-    command: NOT_SUPPORTED('OpenClaw does not support custom slash commands via files.'),
-    subAgent: NOT_SUPPORTED('OpenClaw does not support sub-agent configuration files.'),
+    command: NOT_SUPPORTED(
+      'OpenClaw does not support custom slash commands via files.',
+    ),
+    subAgent: NOT_SUPPORTED(
+      'OpenClaw does not support sub-agent configuration files.',
+    ),
   };
 }

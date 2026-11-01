@@ -11,6 +11,20 @@ export interface AssetCapability {
   reason?: string;
   configFile?: string | Record<string, string>;
   configKey?: string;
+  configKeyPath?: string[];
+  configFormat?: 'json' | 'jsonc' | 'json5' | 'toml' | 'yaml';
+  configFileAlternatives?: string[];
+  mcpFormat?:
+    | 'standard'
+    | 'opencode'
+    | 'vscode'
+    | 'codex'
+    | 'vibe'
+    | 'cline'
+    | 'goose'
+    | 'zed';
+  configPathEnv?: string;
+  registration?: 'instructions' | 'read';
   installDir?: string;
   entryFile?: string;
   fileExtension?: string;

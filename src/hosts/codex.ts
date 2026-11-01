@@ -30,11 +30,13 @@ export class CodexAdapter implements HostAdapter {
     },
     skill: {
       supported: true,
-      installDir: '.codex/skills/',
+      installDir: '.agents/skills/',
       entryFile: 'SKILL.md',
       writeStrategy: 'copy-file',
     },
-    command: NOT_SUPPORTED('Codex CLI does not support custom slash commands via files.'),
+    command: NOT_SUPPORTED(
+      'Codex CLI does not support custom slash commands via files.',
+    ),
     subAgent: {
       supported: true,
       installDir: '.codex/agents/',

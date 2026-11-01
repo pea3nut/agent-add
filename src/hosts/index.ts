@@ -17,6 +17,12 @@ import { TraeAdapter } from './trae.js';
 import { OpenclawAdapter } from './openclaw.js';
 import { CodexAdapter } from './codex.js';
 import { VibeAdapter } from './vibe.js';
+import { ZedAdapter } from './zed.js';
+import { ClineAdapter } from './cline.js';
+import { ContinueAdapter } from './continue.js';
+import { AiderAdapter } from './aider.js';
+import { GooseAdapter } from './goose.js';
+import { AmpAdapter } from './amp.js';
 
 const hostRegistry: Map<string, HostAdapter> = new Map<string, HostAdapter>([
   ['cursor', new CursorAdapter()],
@@ -37,6 +43,12 @@ const hostRegistry: Map<string, HostAdapter> = new Map<string, HostAdapter>([
   ['openclaw', new OpenclawAdapter()],
   ['codex', new CodexAdapter()],
   ['vibe', new VibeAdapter()],
+  ['zed', new ZedAdapter()],
+  ['cline', new ClineAdapter()],
+  ['continue', new ContinueAdapter()],
+  ['aider', new AiderAdapter()],
+  ['goose', new GooseAdapter()],
+  ['amp', new AmpAdapter()],
 ]);
 
 export function getHost(id: string): HostAdapter | undefined {

@@ -8,7 +8,8 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class GitHubCopilotAdapter implements HostAdapter {
   readonly id = 'github-copilot';
   readonly displayName = 'GitHub Copilot';
-  readonly docs = 'https://docs.github.com/en/copilot/tutorials/enhance-agent-mode-with-mcp';
+  readonly docs =
+    'https://docs.github.com/en/copilot/tutorials/enhance-agent-mode-with-mcp';
   readonly detection = {
     paths: ['.github/', '.vscode/'],
   };
@@ -17,6 +18,8 @@ export class GitHubCopilotAdapter implements HostAdapter {
       supported: true,
       configFile: '.vscode/mcp.json',
       configKey: 'servers',
+      configFormat: 'jsonc',
+      mcpFormat: 'vscode',
       writeStrategy: 'inject-json-key',
     },
     prompt: {

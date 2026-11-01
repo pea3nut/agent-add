@@ -5,16 +5,16 @@ It records upstream file contracts, not a guarantee that the current CLI impleme
 Adapters in `src/hosts/<id>.ts` should converge on these contracts; known gaps are listed below.
 
 **Last verified: 2026-11-01 (UTC).** Sources are official product documentation unless explicitly labeled otherwise.
-Descriptions below are paraphrases, not verbatim quotations. This audit changes documentation only.
+Descriptions below are paraphrases, not verbatim quotations. Contracts were documented before the corresponding adapter changes.
 
 ### Scope and interpretation
 
-- The first matrix covers the **18 registered adapters**. [New host candidates](#new-host-candidates-not-implemented) are separate: their proposed IDs are **not** accepted by `--host` yet.
+- The first matrix covers the **24 registered adapters**. [New host candidates](#new-host-candidates-not-implemented) are separate: their proposed IDs are **not** accepted by `--host` yet.
 - A capability means an installable **file contract**, not merely a similarly named UI feature or a built-in command. Skills that expose slash commands are not a second, independent command-file format.
 - Relative paths are project-relative unless stated otherwise. `~` means the user's home directory, including on Windows; do not substitute `%APPDATA%` without upstream evidence. Respect documented config-home overrides and workspace trust.
 - A Skill is a **directory bundle** with a `SKILL.md` entry point: preserve supporting scripts/resources, not just the entry file. Same-name discovery precedence is host-specific.
 - Write strategies name installer operations, not upstream formats. JSONC/JSON5, TOML, nested keys, frontmatter and registration requirements must be handled explicitly; changing an extension or copying Markdown alone does not convert a format.
-- This is a documentation audit, **not runtime validation in all hosts**. Unverified protocols remain unverified rather than being inferred from third-party host lists or old issues. A successful HTTP response or redirect is not proof: check the final page's product, client/version scope and actual file contract.
+- This reference and the executable file-contract scenarios are **not runtime validation in all native hosts**. Unverified protocols remain unverified rather than being inferred from third-party host lists or old issues. A successful HTTP response or redirect is not proof: check the final page's product, client/version scope and actual file contract.
 
 ---
 
@@ -44,23 +44,33 @@ Descriptions below are paraphrases, not verbatim quotations. This audit changes 
 | OpenClaw | `openclaw` | ✅ (JSON5) | ✅ | ✅ | ↪ | — |
 | Mistral Vibe | `vibe` | ✅ (TOML) | ✅ | ✅ | ↪ | ✅ (TOML) |
 | Claude Desktop | `claude-desktop` | ✅ | — | ↪ (UI upload) | — | — |
+| Zed Agent | `zed` | ✅ (JSONC) | ✅ | ✅ | ↪ (skills) | — |
+| Cline (CLI MCP target) | `cline` | ✅ | ✅ | ✅ | ↪ (skills) | — |
+| Continue | `continue` | ✅ | ✅ | ? | ↪ | — |
+| Aider | `aider` | — | ↪ (read registration) | — | — | — |
+| goose | `goose` | ✅ (YAML) | ✅ | ✅ | ↪ (skills) | — |
+| Amp CLI | `amp` | ✅ (JSONC) | ✅ | ✅ | — | — |
 
-## Known Adapter Gaps (Not Fixed in This Audit)
+## Implementation Status and Remaining Boundaries
 
-These are follow-up implementation requirements, not a claim that the documentation-only change enables them.
+The CLI now registers the six hosts in Issue #7. Supported file contracts are
+validated through the built CLI in `tests/features/complex/host-contracts.feature`;
+this does not claim native application or live MCP-server validation.
 
-| Host | Current adapter / installer behavior | Verified target or constraint |
-|------|--------------------------------------|-------------------------------|
-| Kilo Code | Uses `.kilocode/mcp.json`, `mcpServers`, and `.kilocode/` asset directories | New config is `kilo.jsonc` → `mcp`; local MCP uses a command **array** and `environment`. Use `.kilo/skills`, `.kilo/commands`, `.kilo/agents`; register rule paths in `instructions`. Legacy rule compatibility does not prove legacy MCP/agent paths still work. |
-| Codex | Installs skills to `.codex/skills` | Use the documented `.agents/skills` project directory; user skills are `~/.agents/skills`. Do not present the old path as the current official contract. |
-| Tabnine | Command extension is `.md` | CLI custom commands are **TOML** with `prompt` and optional `description`; copying/renaming Markdown is insufficient. MCP/guideline sources below describe IDE Agent, not proof of identical CLI discovery. |
-| Mistral Vibe | Rejects Sub-agent and Command | Subagents have `.vibe/agents/<name>.toml` with `agent_type = "subagent"`; slash commands are skills, not a new commands directory. |
-| Kimi | Rejects Sub-agent and Command | YAML agent files can be referenced in a parent agent's `subagents` mapping; load that parent with `--agent-file`. This needs registration and may involve a separate system-prompt file. Skill invocation is not a standalone command directory. |
-| OpenClaw | Rejects MCP; installs skills to `.openclaw/skills` relative to cwd | Official MCP config is `~/.openclaw/openclaw.json` → nested `mcp.servers` (JSON5). Skills belong in the configured workspace's `skills/` or managed `~/.openclaw/skills/`; cwd is not automatically the agent workspace. |
-| Kiro | Rejects Command; has no version/resource-registration distinctions | CLI V3 skills/manual steering expose slash invocation. Custom agents need explicit `resources` entries for skills/steering; older CLI 2.x agent schemas differ. |
-| Windsurf | Uses historical `.codeium/windsurf/mcp_config.json` paths and `%APPDATA%` on Windows | The former MCP source now redirects to Devin Local documentation and does not verify these legacy paths. Obtain version-specific official evidence before changing the Windows target; do not substitute Devin Local's config under the `windsurf` ID. Project rules/skills retain legacy compatibility; workflows are Cascade-only. |
-| Claude Desktop | Rejects Skill | Custom skills require a ZIP upload through the UI, not automatic discovery from a project directory. The adapter's Linux MCP path is confirmed by the official tutorial; it is not an unverified configuration gap. |
-| Copilot / Augment | One host ID can be read as covering every client surface | Copilot's `.vscode/mcp.json` is a VS Code compatibility target, labeled deprecated in the guided flow; portable Copilot harness files use a different schema. Auggie's settings file is not evidence for the Augment IDE extension's on-disk configuration. Keep surfaces explicit. |
+| Area | Implemented behavior | Boundary |
+|------|----------------------|----------|
+| MCP conversion | opencode/Kilo native local/remote schema; Codex HTTP and stdio TOML; Vibe stdio with environment; VS Code `servers`; Cline streamable HTTP; Goose YAML extensions; Zed `context_servers`; Amp literal `amp.mcpServers`; OpenClaw JSON5 `mcp.servers` | Unsupported fields/transports fail explicitly. Remote Vibe transport is not implemented. Existing JSONC/JSON5/YAML comments and unrelated settings are preserved. Native TOML table additions preserve existing text; inline TOML representations may require serialization and normalize comments/formatting. |
+| Prompt registration | Kilo writes a rule and registers `instructions`; Aider writes `CONVENTIONS.md` and merges YAML `read` | No interactive UI registration is attempted. A registration error is checked before writing prompt content; multi-file writes are not a filesystem transaction. |
+| Prompt selection | Zed respects first-match precedence; OpenClaw selects its configured default workspace; Gemini respects project `context.fileName`; Goose respects `CONTEXT_FILE_NAMES` | CLI-selected project targets, not automatic migration of every user/client configuration. |
+| Native assets | Codex and Vibe subagents use valid TOML; Gemini and Tabnine commands use TOML; Codex skills use `.agents/skills`; skill directories retain supporting resources | Codex unsupported metadata and Vibe reserved `main` are rejected rather than silently discarded. |
+| Audit regressions F01–F08 | Native serialization, BOM/CRLF frontmatter, host override precedence, semantic MCP comparison, changed standalone-rule conflicts, same-batch non-Skill name-collision preflight | Different marker-delimited prompt content is updated. Different standalone content conflicts. Incoming non-Skill name collisions block the batch before writes; existing destination conflicts are not a transactional batch rollback. Skills retain entry-file-based existence behavior. |
+| Kimi | Subagents remain explicitly unsupported by this installer | Upstream YAML files require parent registration and `--agent-file` selection; this is not lack of product support. |
+| Kiro | Current Markdown custom agents, steering and skills | Older CLI 2.x schemas are not migrated. Custom-agent `resources`/skill registration remains the user's responsibility; default-agent discovery does not imply custom-agent availability. |
+| Windsurf | Historical adapter retained without changing its paths | Current redirects do not reverify historical MCP/Windows paths. Legacy rules/skills and Cascade workflows are not Devin Local. |
+| Claude Desktop | File-based MCP only | Skill ZIP upload requires the UI; it is not directory discovery. |
+| Copilot / Augment | VS Code compatibility MCP / Auggie CLI JSONC settings | These IDs do not establish portable Copilot harness or Augment IDE-extension configuration behavior. |
+| New host limits | Zed/Cline/Goose/Amp support MCP, Prompt and Skill; Continue supports MCP and Prompt; Aider supports registered Prompt | No new independent Command/Sub-agent format is invented. Continue uses `.continue/mcpServers/agent-add.json`; Goose new extensions default to `enabled: true` and `timeout: 300`. |
+
 
 ---
 
@@ -294,17 +304,82 @@ Homepage: https://claude.com/download/
 
 ---
 
+### Cline
+
+Scope: the current [configuration layout](https://docs.cline.bot/getting-started/config) consolidates global/project directories. MCP still needs a CLI vs IDE distinction.
+
+| Asset Type | Official Source | Verified Contract / Open Question |
+|------------|-----------------|-----------------------------------|
+| MCP | https://docs.cline.bot/mcp/mcp-overview | CLI `~/.cline/data/settings/cline_mcp_settings.json`, overridable with `CLINE_MCP_SETTINGS_PATH`; key `mcpServers`. In the IDE, use the actual file opened by Configure MCP Servers. HTTP requires `type: "streamableHttp"`, not another client's transport name |
+| Prompt | https://docs.cline.bot/customization/cline-rules | `.cline/rules/` or `.clinerules/`; user `~/.cline/rules/`; also supports project `AGENTS.md`. A new host-specific target could use `.cline/rules/<name>.md` |
+| Skill | https://docs.cline.bot/customization/skills | `.cline/skills/<name>/SKILL.md` and `~/.cline/skills/`; compatible with `.clinerules/skills/` and `.agents/skills/`. Current docs state that global skills win over project skills on name conflicts; do not apply another host's precedence |
+| Command | https://docs.cline.bot/core-workflows/using-commands ; https://docs.cline.bot/getting-started/config | Enabled skills can be invoked with slash commands. `.cline/workflows/` and `~/.cline/workflows/` directories are also confirmed, but the standalone workflow schema needs further evidence. Use the Skill contract for now rather than infer a command-file format |
+| Sub-agent | https://docs.cline.bot/features/subagents ; https://docs.cline.bot/getting-started/config | CLI/Desktop support subagents; IDE extensions do not. The configuration layout lists `.cline/agents/`, but the cited pages do not define the entry format or required fields. Do not infer `.md` drop-in support before verifying the exact contract |
+
+### Amp
+
+Scope: **Amp CLI** configuration, not hosted MCP definitions stored by ampcode.com or arbitrary editor settings.
+
+| Asset Type | Official Source | Verified Contract / Open Question |
+|------------|-----------------|-----------------------------------|
+| MCP | https://ampcode.com/docs/cli/settings ; https://ampcode.com/docs/customize/mcp | Project `.amp/settings.json` / `.jsonc`; user `~/.config/amp/settings.json` / `.jsonc`; **literal key** `"amp.mcpServers"`, not a nested `amp` object; supports command/args/env or url/headers |
+| Prompt | https://ampcode.com/docs/customize/agents-md | `AGENTS.md` in cwd, parent directories, and subtrees; personal `~/.config/amp/AGENTS.md` / `~/.config/AGENTS.md`; future target: project-root `AGENTS.md` |
+| Skill | https://ampcode.com/docs/customize/skills | Project `.agents/skills/`; personal preferred path `~/.config/agents/skills/`; also reads `~/.agents/skills/` and `~/.config/amp/skills/`. Settings that disable global compatibility directories affect discovery |
+| Command | — | No standalone command-file discovery contract verified; do not guess `.amp/commands/` |
+| Sub-agent | — | Built-in delegation does not establish a standalone asset-file contract; custom sub-agent installation format remains unverified |
+
+### Continue
+
+| Asset Type | Official Source | Verified Contract / Open Question |
+|------------|-----------------|-----------------------------------|
+| MCP | https://docs.continue.dev/customize/deep-dives/mcp | Project `.continue/mcpServers/` accepts standalone YAML blocks (requiring name/version/schema) or compatible JSON MCP configs (key `mcpServers`); the main `config.yaml` uses an `mcpServers` list, not the same JSON map |
+| Prompt | https://docs.continue.dev/customize/deep-dives/rules | `.continue/rules/<name>.md`; Markdown with YAML frontmatter is recommended; config YAML rules are also supported. The adapter selects Markdown rules |
+| Skill | — | This audit has not verified a Continue-client automatic-discovery contract for `SKILL.md`; publishing skills for other agents does not establish that Continue itself reads them |
+| Command | https://docs.continue.dev/customize/deep-dives/prompts | Markdown with `invokable: true` exposes a slash prompt; `prompts` in `config.yaml` can also reference Hub blocks. The local discovery/registration mechanism needs further clarification; do not infer `.continue/commands/` |
+| Sub-agent | — | No standalone custom sub-agent file installation contract verified; checks run through an external coding agent's skill do not establish a Sub-agent asset contract for the Continue host |
+
+### Zed Agent
+
+Scope: the native **Zed Agent**, not every external ACP agent or terminal thread opened inside Zed. Sources: https://zed.dev/docs/ai/mcp.md ; https://zed.dev/docs/ai/instructions.md ; https://zed.dev/docs/ai/skills.md ; https://zed.dev/docs/reference/all-settings.md .
+
+| Asset Type | Verified Contract / Installation Target |
+|------------|-------------------------------------|
+| MCP | User `~/.config/zed/settings.json` uses JSONC and the `context_servers` map. Local entries have a string `command`, `args`, and `env`; remote entries have `url` and optional `headers`. Merge into settings without replacing unrelated settings or comments; do not use the obsolete nested `command.path` representation. Confirm the platform config directory before enabling another OS target. |
+| Prompt | Project instructions use the **first matching** file in this order: `.rules`, `.cursorrules`, `.windsurfrules`, `.clinerules`, `.github/copilot-instructions.md`, `AGENT.md`, `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`. Append to the effective file; use `AGENTS.md` when none exists. Personal instructions are `~/.config/zed/AGENTS.md` (`%APPDATA%\\Zed\\AGENTS.md` on Windows). Writing a lower-priority file does not guarantee loading. |
+| Skill | Project `.agents/skills/<name>/SKILL.md`; user `~/.agents/skills/`. Preserve the full directory bundle. Frontmatter requires a lowercase, hyphenated name (1–64 characters, no consecutive/leading/trailing hyphens) and a description. |
+| Command | Skills can be invoked by slash command; there is no separately verified drop-in command-file format. Reuse Skill installation. |
+| Sub-agent | External agents, profiles and delegation do not establish a standalone Sub-agent asset format. No automatic file target verified here. |
+
+### Aider
+
+Official sources: https://aider.chat/docs/usage/conventions.html ; https://aider.chat/docs/config/aider_conf.html .
+
+| Asset Type | Verified Contract / Installation Target |
+|------------|-------------------------------------|
+| Prompt | The official example uses project-root `CONVENTIONS.md`, loaded read-only through `read` in `.aider.conf.yml`. `read` may be a scalar filename or an array. Append marker-delimited instructions to `CONVENTIONS.md` **and** register it, preserving existing read files, YAML comments and unrelated options. A copied Markdown file alone is not an always-loaded configuration. |
+| MCP / Skill / Command / Sub-agent | No native standalone installation protocol verified in these sources. Aider's built-in `/read` command, third-party MCP wrappers, and arbitrary files added to a chat are not independent installable asset types. Reject these operations with an explicit reason rather than inventing directories. |
+
+### goose
+
+Scope: current goose CLI/Desktop file contracts. The original `block/goose` repository now redirects to `aaif-goose/goose`; the official site is https://goose-docs.ai/ . Sources: https://goose-docs.ai/docs/guides/config-files/ ; https://github.com/aaif-goose/goose/blob/main/documentation/docs/guides/context-engineering/using-goosehints.md ; https://github.com/aaif-goose/goose/blob/main/documentation/docs/guides/context-engineering/using-skills.md .
+
+| Asset Type | Verified Contract / Installation Target |
+|------------|-------------------------------------|
+| MCP | YAML `~/.config/goose/config.yaml` on macOS/Linux; `%APPDATA%\\Block\\goose\\config\\config.yaml` on Windows. Merge under the `extensions` **map**, not an array. Local entries use `type: stdio`, `name`, `enabled: true`, `cmd`, `args`, and `envs`; remote entries use `type: streamable_http`, `uri`, and optional `headers`. Preserve existing extensions/provider settings and YAML comments. SSE is no longer supported; reject it instead of relabeling it as HTTP. |
+| Prompt | Default context filenames are `AGENTS.md` and `.goosehints`; project ancestors and global context are also loaded. `CONTEXT_FILE_NAMES` can override the names with a JSON array. Use project `AGENTS.md` by default and respect this override; files remain Markdown instruction content. |
+| Skill | Project `.agents/skills/<name>/SKILL.md`; user `~/.agents/skills/`. Name/description frontmatter and supporting resources are required. The built-in Skills platform extension is enabled by default; a user-disabled extension is not bypassed by writing files. |
+| Command | Skills are loadable through `/skills`; recipes/custom slash commands are separate mechanisms. No independent Markdown command target selected by this adapter. |
+| Sub-agent | Custom agents and recipes need their own format/registration verification; do not infer a `.goose/agents/` drop-in directory from delegation support. |
+
+
 ## New Host Candidates (Not Implemented)
 
-These are **proposed future adapters**, not additions to the current registry. IDs below are provisional. Prioritize Factory Droid (five explicit file contracts), then Cline, Amp and Antigravity; Continue still needs protocol clarification for some assets. This is not an exhaustive list of AI products.
+These are **proposed future adapters**, not additions to the current registry. IDs below are provisional. Factory Droid and Google Antigravity remain candidates; the six Issue #7 hosts are registered above. This is not an exhaustive list of AI products.
 
 | Candidate | Proposed ID | MCP | Prompt | Skill | Command | Sub-agent |
 |-----------|-------------|-----|--------|-------|---------|-----------|
 | Factory Droid | `droid` | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Cline | `cline` | ✅ | ✅ | ✅ | ↪ | ? |
-| Amp (CLI) | `amp` | ✅ | ✅ | ✅ | — | — |
 | Google Antigravity | `antigravity` | ✅ | ✅ | ✅ | ↪ (migration) | — |
-| Continue | `continue` | ✅ | ✅ | ? | ↪ | ? |
 
 `?` means the precise installable protocol is not yet verified. Do not implement those cells by guessing a conventional directory.
 
@@ -318,29 +393,7 @@ These are **proposed future adapters**, not additions to the current registry. I
 | Command | https://docs.factory.ai/harness/custom-slash-commands | Project `.factory/commands/<name>.md`; user `~/.factory/commands/`; executable scripts are also supported. A future adapter must handle permissions/platform differences rather than merely change extensions |
 | Sub-agent | https://docs.factory.ai/harness/subagents | Project `.factory/droids/<name>.md`; user `~/.factory/droids/`; Markdown with YAML frontmatter; project definitions win on name conflicts; only the top level is scanned. Do not substitute `.factory/agents/` |
 
-### Cline (Candidate)
 
-Scope: the current [configuration layout](https://docs.cline.bot/getting-started/config) consolidates global/project directories. MCP still needs a CLI vs IDE distinction.
-
-| Asset Type | Official Source | Verified Contract / Open Question |
-|------------|-----------------|-----------------------------------|
-| MCP | https://docs.cline.bot/mcp/mcp-overview | CLI `~/.cline/data/settings/cline_mcp_settings.json`, overridable with `CLINE_MCP_SETTINGS_PATH`; key `mcpServers`. In the IDE, use the actual file opened by Configure MCP Servers. HTTP requires `type: "streamableHttp"`, not another client's transport name |
-| Prompt | https://docs.cline.bot/customization/cline-rules | `.cline/rules/` or `.clinerules/`; user `~/.cline/rules/`; also supports project `AGENTS.md`. A new host-specific target could use `.cline/rules/<name>.md` |
-| Skill | https://docs.cline.bot/customization/skills | `.cline/skills/<name>/SKILL.md` and `~/.cline/skills/`; compatible with `.clinerules/skills/` and `.agents/skills/`. Current docs state that global skills win over project skills on name conflicts; do not apply another host's precedence |
-| Command | https://docs.cline.bot/core-workflows/using-commands ; https://docs.cline.bot/getting-started/config | Enabled skills can be invoked with slash commands. `.cline/workflows/` and `~/.cline/workflows/` directories are also confirmed, but the standalone workflow schema needs further evidence. Use the Skill contract for now rather than infer a command-file format |
-| Sub-agent | https://docs.cline.bot/features/subagents ; https://docs.cline.bot/getting-started/config | CLI/Desktop support subagents; IDE extensions do not. The configuration layout lists `.cline/agents/`, but the cited pages do not define the entry format or required fields. Do not infer `.md` drop-in support before verifying the exact contract |
-
-### Amp (Candidate)
-
-Scope: **Amp CLI** configuration, not hosted MCP definitions stored by ampcode.com or arbitrary editor settings.
-
-| Asset Type | Official Source | Verified Contract / Open Question |
-|------------|-----------------|-----------------------------------|
-| MCP | https://ampcode.com/docs/cli/settings ; https://ampcode.com/docs/customize/mcp | Project `.amp/settings.json` / `.jsonc`; user `~/.config/amp/settings.json` / `.jsonc`; **literal key** `"amp.mcpServers"`, not a nested `amp` object; supports command/args/env or url/headers |
-| Prompt | https://ampcode.com/docs/customize/agents-md | `AGENTS.md` in cwd, parent directories, and subtrees; personal `~/.config/amp/AGENTS.md` / `~/.config/AGENTS.md`; future target: project-root `AGENTS.md` |
-| Skill | https://ampcode.com/docs/customize/skills | Project `.agents/skills/`; personal preferred path `~/.config/agents/skills/`; also reads `~/.agents/skills/` and `~/.config/amp/skills/`. Settings that disable global compatibility directories affect discovery |
-| Command | — | No standalone command-file discovery contract verified; do not guess `.amp/commands/` |
-| Sub-agent | — | Built-in delegation does not establish a standalone asset-file contract; custom sub-agent installation format remains unverified |
 
 ### Google Antigravity (Candidate)
 
@@ -354,17 +407,11 @@ Scope: MCP file paths below are explicitly documented for **CLI and IDE**. The A
 | Command | https://antigravity.google/docs/ide/workflows/ | The official notice says legacy Workflows stop working on **2026-10-19** and recommends migration to Agent skills. This audit is after that cutoff; do not list legacy `.agent/workflows/` as a usable target for a new adapter |
 | Sub-agent | — | No standalone sub-agent file installation contract verified; multi-agent UI workflows are not an on-disk format |
 
-### Continue (Candidate)
 
-| Asset Type | Official Source | Verified Contract / Open Question |
-|------------|-----------------|-----------------------------------|
-| MCP | https://docs.continue.dev/customize/deep-dives/mcp | Project `.continue/mcpServers/` accepts standalone YAML blocks (requiring name/version/schema) or compatible JSON MCP configs (key `mcpServers`); the main `config.yaml` uses an `mcpServers` list, not the same JSON map |
-| Prompt | https://docs.continue.dev/customize/deep-dives/rules | `.continue/rules/<name>.md`; Markdown with YAML frontmatter is recommended; config YAML rules are also supported. Select the format explicitly before implementing |
-| Skill | — | This audit has not verified a Continue-client automatic-discovery contract for `SKILL.md`; publishing skills for other agents does not establish that Continue itself reads them |
-| Command | https://docs.continue.dev/customize/deep-dives/prompts | Markdown with `invokable: true` exposes a slash prompt; `prompts` in `config.yaml` can also reference Hub blocks. The local discovery/registration mechanism needs further clarification; do not infer `.continue/commands/` |
-| Sub-agent | — | No standalone custom sub-agent file installation contract verified; checks run through an external coding agent's skill do not establish a Sub-agent asset contract for the Continue host |
 
-Other clients (for example Goose, Zed, OpenHands and Pi) are **not declared unsupported** by their omission. Add a candidate only after verifying its exact file protocol, client surface and scope from official sources.
+
+
+Other clients (for example OpenHands and Pi) are **not declared unsupported** by their omission. Add a candidate only after verifying its exact file protocol, client surface and scope from official sources.
 
 ---
 
@@ -374,5 +421,5 @@ Other clients (for example Goose, Zed, OpenHands and Pi) are **not declared unsu
 2. In a separate implementation change, create `src/hosts/<id>.ts` implementing `HostAdapter` from `types.ts`, then register it in `src/hosts/index.ts`.
 3. Ensure each supported asset type has a valid `writeStrategy` **and format handling**: convert MCP schemas, preserve JSONC/JSON5/TOML, copy full skill bundles, generate frontmatter and register dependent files where required. A config key alone is not a transport schema.
 4. Do not force skills-as-commands, custom modes, uploaded ZIPs or parent-registered agents into independent Markdown asset directories. If the model cannot represent a contract yet, use `NOT_SUPPORTED(reason)` with a precise explanation and document the gap.
-5. Add `tests/unit/hosts/<id>.test.ts` for adapter metadata and supported capabilities, then verify actual discovery/behavior before moving a candidate into the registered matrix. Cover client/version and OS differences; detection paths are hints, not proof of an installed client or supported capability.
+5. Add file-contract acceptance scenarios under `tests/features/host/` or `tests/features/complex/`, parse generated artifacts, and run them through the built CLI. Reserve unit tests for isolated utilities and metadata smoke checks. Cover client/version and OS differences; detection paths are hints, not proof of an installed client or supported capability.
 6. Keep source links, verification date and known adapter gaps current. Never promote third-party path guesses or historical "not planned" issues above current official documentation.

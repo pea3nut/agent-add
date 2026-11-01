@@ -8,7 +8,8 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class KimiAdapter implements HostAdapter {
   readonly id = 'kimi';
   readonly displayName = 'Kimi Code';
-  readonly docs = 'https://moonshotai.github.io/kimi-cli/en/customization/mcp.html';
+  readonly docs =
+    'https://moonshotai.github.io/kimi-cli/en/customization/mcp.html';
   readonly detection = {
     paths: ['~/.kimi/'],
   };
@@ -34,7 +35,11 @@ export class KimiAdapter implements HostAdapter {
       entryFile: 'SKILL.md',
       writeStrategy: 'copy-file',
     },
-    command: NOT_SUPPORTED('Kimi Code does not support custom slash commands via files.'),
-    subAgent: NOT_SUPPORTED('Kimi Code does not support sub-agent configuration files.'),
+    command: NOT_SUPPORTED(
+      'Kimi Code does not support custom slash commands via files.',
+    ),
+    subAgent: NOT_SUPPORTED(
+      'Kimi subagents require YAML definitions, parent registration and --agent-file selection; automatic installation is not implemented.',
+    ),
   };
 }

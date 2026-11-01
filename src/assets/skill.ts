@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { ensureDir } from '../utils/fs.js';
+import { resolveHostPath } from '../utils/config.js';
+import { openclawWorkspace } from '../utils/host-paths.js';
 import type { AssetHandler, InstallJob, InstallResult } from './types.js';
 
 async function copyDirRecursive(src: string, dest: string): Promise<void> {
@@ -22,7 +24,11 @@ export const skillHandler: AssetHandler = {
     const { host, assetName, resolvedSource } = job;
     const skillCapability = host.assets['skill'];
     const installDir = skillCapability.installDir as string;
-    const targetDir = path.resolve(process.cwd(), installDir, assetName);
+    const directory =
+      host.id === 'openclaw'
+        ? path.join(await openclawWorkspace(job), 'skills')
+        : resolveHostPath(installDir);
+    const targetDir = path.join(directory, assetName);
     const entryFile = path.join(targetDir, 'SKILL.md');
 
     try {

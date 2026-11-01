@@ -29,6 +29,14 @@ Run each CLI step with: `node "$PROJECT_ROOT/bin/agent-add.js"`
 
 The binary must be built before running scenarios (`npm run build`).
 
+Run the executable Bash scenarios with `npm run test:scenario` after building.
+Use `npm run test:scenario -- --network` to include external-network scenarios.
+Unimplemented steps fail the run; each scenario has an isolated home and is
+cleaned up afterward. The runner updates the badge from actual results. Set
+`SCENARIO_REPORT` to an absolute path to retain a detailed JSON report.
+Per-asset installation failures (including filesystem errors) exit with 1;
+usage, unsupported explicit flags and source-resolution failures exit with 2.
+
 For Claude Desktop scenarios, set the `AGENT_ADD_HOME` environment variable to the
 temp working directory to redirect `os.homedir()` expansions away from the real user home.
 Example: `AGENT_ADD_HOME="$SETUP_TMPDIR" node "$PROJECT_ROOT/bin/agent-add.js" --host claude-desktop ...`
