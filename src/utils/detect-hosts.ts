@@ -12,8 +12,7 @@ function expandDetectionPath(p: string): string {
     return path.join(os.homedir(), p.slice(2));
   }
   if (process.platform === 'win32' && p.startsWith('%APPDATA%')) {
-    const appData =
-      process.env['APPDATA'] ?? path.join(os.homedir(), 'AppData', 'Roaming');
+    const appData = process.env['APPDATA'] ?? path.join(os.homedir(), 'AppData', 'Roaming');
     return path.join(appData, p.slice('%APPDATA%'.length));
   }
   return p;

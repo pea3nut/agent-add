@@ -49,3 +49,11 @@ Feature: Multi-asset combined installation
     Then the exit code is 0
     And both MCPs are installed: grep -q '"playwright"' "$SETUP_TMPDIR/.cursor/mcp.json" && grep -q '"filesystem"' "$SETUP_TMPDIR/.cursor/mcp.json"
     And both prompts are installed: grep -q 'agent-add:my-prompt' "$SETUP_TMPDIR/AGENTS.md" && grep -q 'agent-add:second-prompt' "$SETUP_TMPDIR/AGENTS.md"
+
+  @P0
+  Scenario: Newly supported hosts install only documented assets and preserve complete skill bundles
+    Given isolated Zed, Cline, Continue, Aider, Goose and Amp projects with the existing asset fixtures
+    When each host receives its supported MCP, prompt and skill assets
+    Then generated files follow the host reference and each supported skill preserves SKILL.md and its supporting resources
+    And Aider registers CONVENTIONS.md in read rather than claiming native MCP or skill support
+    And unsupported command, sub-agent and other explicit asset flags fail without creating guessed targets

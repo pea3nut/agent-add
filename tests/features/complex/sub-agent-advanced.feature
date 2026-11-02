@@ -34,3 +34,17 @@ Feature: Sub-agent frontmatter processing and conflict detection
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --sub-agent ./my-agent.md > "$SETUP_TMPDIR/out.txt" 2>&1; echo $? > "$SETUP_TMPDIR/exitcode.txt"; true
     Then the exit code is non-zero: test "$(cat "$SETUP_TMPDIR/exitcode.txt")" -ne 0
     And the output contains conflict: grep -qi "conflict" "$SETUP_TMPDIR/out.txt"
+
+  @P0
+  Scenario: Codex and Vibe sub-agents use native TOML and registered prompt dependencies
+    Given isolated Codex and Vibe projects with the existing sub-agent fixture and host-specific metadata
+    When the sub-agent is installed and reinstalled on each host
+    Then Codex generates valid TOML with name, description and developer_instructions rather than renamed Markdown
+    And Vibe writes agent_type subagent and a prompt dependency whose contents preserve the Markdown body
+    And reinstalling identical sources reports exists without changing either generated file
+
+  @P0
+  Scenario: Host metadata overrides generic frontmatter independently of ordering and line endings
+    Given equivalent sub-agent sources with generic and host-specific fields in both orders, including BOM and CRLF variants
+    When the sources are installed on their selected hosts
+    Then host overrides win, generic descriptions remain, other hosts' overrides disappear and the Markdown body is preserved

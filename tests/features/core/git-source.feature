@@ -16,13 +16,11 @@ Feature: Git source @ref syntax
   Scenario: Install MCP from HTTPS git URL with @branch and #subpath on non-default branch
     Given a temp working directory is created
     And the cursor host directory is created: mkdir -p "$SETUP_TMPDIR/.cursor"
-    And a local repository has a different default branch: node "$PROJECT_ROOT/tests/features/create-git-fixture.cjs" "$SETUP_TMPDIR" && export GIT_CONFIG_GLOBAL="$SETUP_TMPDIR/gitconfig" GIT_CONFIG_NOSYSTEM=1 GIT_TERMINAL_PROMPT=0
+    And an isolated local Git repository has main as its default branch and feature/test containing .mcp.json with the mcp-docs server, using a temporary Git URL rewrite for https://github.com/agent-add-test/fixture.git without changing the real user configuration
     When the user installs MCP from a non-default branch: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --mcp "https://github.com/agent-add-test/fixture.git@feature/test#.mcp.json" --host cursor > "$SETUP_TMPDIR/out.txt" 2>&1; echo $? > "$SETUP_TMPDIR/exitcode.txt"; true
     Then the exit code is 0: grep -q "^0$" "$SETUP_TMPDIR/exitcode.txt"
     And the MCP config file exists: test -f "$SETUP_TMPDIR/.cursor/mcp.json"
     And the MCP key uses unwrapped server name: grep -q '"mcp-docs"' "$SETUP_TMPDIR/.cursor/mcp.json"
-
-
   @P1 @network
   Scenario: Install MCP from HTTPS git URL with @tag and #subpath
     Given a temp working directory is created
