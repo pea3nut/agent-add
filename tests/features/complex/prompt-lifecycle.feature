@@ -64,7 +64,7 @@ Feature: Prompt lifecycle and write strategies
 
   @P1
   Scenario: Aider and Kilo register prompt files without losing existing configuration
-    Given existing Aider YAML read values in scalar and list form and Kilo JSONC instructions
+    Given empty, comment-only and populated Aider YAML configurations with scalar or list read values, and Kilo JSONC instructions
     When a prompt is installed and reinstalled on each host
     Then the native registration includes its path exactly once and preserves existing entries and comments
-    And invalid registration values fail without leaving a new prompt file behind
+    And invalid root objects or registration values fail without leaving a new prompt file behind

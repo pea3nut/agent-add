@@ -68,7 +68,9 @@ async function prepareRegistration(
   const existing = (await readTextOrNull(file)) ?? '{}\n';
   const document = capability.registration === 'read' ? yaml.parseDocument(existing) : null;
   if (document?.errors.length) throw new Error(document.errors[0]!.message);
-  const config: unknown = document ? document.toJS() : parseConfig(existing, 'jsonc');
+  const config: unknown = document
+    ? document.contents === null ? {} : document.toJS()
+    : parseConfig(existing, 'jsonc');
   if (!isRecord(config)) throw new Error('Configuration must be an object');
   const key = capability.registration;
   const value = config[key];
