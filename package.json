@@ -44,9 +44,7 @@
   "devDependencies": {
     "@inquirer/select": "4.3.4",
     "@types/node": "^25.5.0",
-    "acorn": "8.16.0",
     "commander": "13.1.0",
-    "json5": "2.2.3",
     "jsonc-parser": "3.3.1",
     "smol-toml": "^1.9.1",
     "tsup": "^8.5.1",

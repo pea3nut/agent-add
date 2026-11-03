@@ -15,7 +15,6 @@ export class AiderAdapter implements HostAdapter {
       supported: true,
       targetFile: 'CONVENTIONS.md',
       configFile: '.aider.conf.yml',
-      configFormat: 'yaml',
       registration: 'read',
       writeStrategy: 'append-with-marker',
     },

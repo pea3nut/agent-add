@@ -4,7 +4,7 @@ export class AmpAdapter implements HostAdapter {
   readonly id = 'amp';
   readonly displayName = 'Amp CLI';
   readonly docs = 'https://ampcode.com/docs/cli/settings';
-  readonly detection = { paths: ['.amp/', '~/.config/amp/'] };
+  readonly detection = { paths: ['.amp/'] };
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
       supported: true,

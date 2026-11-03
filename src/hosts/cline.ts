@@ -4,15 +4,11 @@ export class ClineAdapter implements HostAdapter {
   readonly id = 'cline';
   readonly displayName = 'Cline CLI';
   readonly docs = 'https://docs.cline.bot/mcp/configuring-mcp-servers';
-  readonly detection = { paths: ['.cline/', '~/.cline/'] };
+  readonly detection = { paths: ['.cline/'] };
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
-      supported: true,
-      configFile: '~/.cline/data/settings/cline_mcp_settings.json',
-      configPathEnv: 'CLINE_MCP_SETTINGS_PATH',
-      configKey: 'mcpServers',
-      mcpFormat: 'cline',
-      writeStrategy: 'inject-json-key',
+      supported: false,
+      reason: 'No verified project-level MCP configuration target is supported.',
     },
     prompt: {
       supported: true,

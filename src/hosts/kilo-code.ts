@@ -23,7 +23,6 @@ export class KiloCodeAdapter implements HostAdapter {
       ],
       configKey: 'mcp',
       configFormat: 'jsonc',
-      mcpFormat: 'opencode',
       writeStrategy: 'inject-json-key',
     },
     prompt: {

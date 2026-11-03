@@ -5,20 +5,12 @@ export class GooseAdapter implements HostAdapter {
   readonly displayName = 'goose';
   readonly docs = 'https://goose-docs.ai/docs/guides/config-files/';
   readonly detection = {
-    paths: ['.goosehints', '.goose/', '~/.config/goose/'],
+    paths: ['.goosehints', '.goose/'],
   };
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
-      supported: true,
-      configFile: {
-        darwin: '~/.config/goose/config.yaml',
-        linux: '~/.config/goose/config.yaml',
-        win32: '%APPDATA%/Block/goose/config/config.yaml',
-      },
-      configKey: 'extensions',
-      configFormat: 'yaml',
-      mcpFormat: 'goose',
-      writeStrategy: 'inject-json-key',
+      supported: false,
+      reason: 'No verified project-level MCP configuration target is supported.',
     },
     prompt: {
       supported: true,

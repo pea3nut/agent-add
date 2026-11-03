@@ -9,21 +9,10 @@ export type WriteStrategy =
 export interface AssetCapability {
   supported: boolean;
   reason?: string;
-  configFile?: string | Record<string, string>;
+  configFile?: string;
   configKey?: string;
-  configKeyPath?: string[];
-  configFormat?: 'json' | 'jsonc' | 'json5' | 'toml' | 'yaml';
+  configFormat?: 'json' | 'jsonc';
   configFileAlternatives?: string[];
-  mcpFormat?:
-    | 'standard'
-    | 'opencode'
-    | 'vscode'
-    | 'codex'
-    | 'vibe'
-    | 'cline'
-    | 'goose'
-    | 'zed';
-  configPathEnv?: string;
   registration?: 'instructions' | 'read';
   installDir?: string;
   entryFile?: string;
@@ -35,7 +24,7 @@ export interface AssetCapability {
 }
 
 export interface HostDetection {
-  paths: string[] | Record<string, string>;
+  paths: string[];
 }
 
 export interface HostAdapter {

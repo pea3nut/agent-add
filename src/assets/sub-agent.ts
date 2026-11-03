@@ -5,7 +5,6 @@ import { stringify } from 'smol-toml';
 import {
   atomicWriteText,
   readTextOrNull,
-  resolveHostPath,
 } from '../utils/config.js';
 import { applyHostHints, splitFrontmatter } from '../utils/frontmatter.js';
 import type { AssetHandler, InstallJob, InstallResult } from './types.js';
@@ -105,7 +104,7 @@ export const subAgentHandler: AssetHandler = {
     const installDir = subAgentCapability.installDir as string;
     const ext = subAgentCapability.fileExtension ?? '.md';
     const targetPath = path.join(
-      resolveHostPath(installDir),
+      path.resolve(installDir),
       `${assetName}${ext}`,
     );
 

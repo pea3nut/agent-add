@@ -11,18 +11,12 @@ export class KimiAdapter implements HostAdapter {
   readonly docs =
     'https://moonshotai.github.io/kimi-cli/en/customization/mcp.html';
   readonly detection = {
-    paths: ['~/.kimi/'],
+    paths: ['.kimi/'],
   };
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
-      supported: true,
-      configFile: {
-        darwin: '~/.kimi/mcp.json',
-        linux: '~/.kimi/mcp.json',
-        win32: '%USERPROFILE%\\.kimi\\mcp.json',
-      },
-      configKey: 'mcpServers',
-      writeStrategy: 'inject-json-key',
+      supported: false,
+      reason: 'No verified project-level MCP configuration target is supported.',
     },
     prompt: {
       supported: true,

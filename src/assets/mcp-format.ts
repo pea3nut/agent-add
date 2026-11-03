@@ -16,17 +16,9 @@ export function convertMcpServer(
     source = { ...source, url: source.httpUrl };
     delete source.httpUrl;
   }
-  const format =
-    job.host.assets.mcp.mcpFormat ??
-    (['opencode', 'kilo-code'].includes(job.host.id)
-      ? 'opencode'
-      : job.host.id === 'github-copilot'
-        ? 'vscode'
-        : job.host.id === 'codex'
-          ? 'codex'
-          : job.host.id === 'vibe'
-            ? 'vibe'
-            : 'standard');
+  const format = ['opencode', 'kilo-code'].includes(job.host.id)
+    ? 'opencode'
+    : job.host.id === 'github-copilot' ? 'vscode' : job.host.id;
   const command = source.command;
   const args = source.args;
   const env = source.env !== undefined ? source.env : source.environment;
@@ -132,71 +124,11 @@ export function convertMcpServer(
   if (
     url !== undefined &&
     transport === 'sse' &&
-    ['codex', 'opencode', 'goose', 'zed'].includes(format)
+    ['codex', 'opencode'].includes(format)
   )
     throw new Error(
       job.host.id + ' does not support converting legacy SSE transport',
     );
-  if (format === 'goose' || format === 'zed') {
-    const allowed = new Set([
-      'command',
-      'args',
-      'env',
-      'environment',
-      'url',
-      'serverUrl',
-      'headers',
-      'type',
-      'transport',
-      ...(format === 'goose' ? ['enabled', 'timeout'] : []),
-    ]);
-    for (const key of Object.keys(source))
-      if (!allowed.has(key))
-        throw new Error(job.host.id + ' cannot represent MCP field ' + key);
-    if (Array.isArray(command))
-      throw new Error(job.host.id + ' requires command to be a string');
-    if (url !== undefined && env !== undefined)
-      throw new Error(
-        'Remote MCP does not support process environment variables',
-      );
-    if (format === 'zed')
-      return url === undefined
-        ? {
-            command,
-            ...(args === undefined ? {} : { args }),
-            ...(env === undefined ? {} : { env }),
-          }
-        : {
-            url,
-            ...(source.headers === undefined
-              ? {}
-              : { headers: source.headers }),
-          };
-    if (source.enabled !== undefined && typeof source.enabled !== 'boolean')
-      throw new Error('Goose enabled must be a boolean');
-    if (
-      source.timeout !== undefined &&
-      source.timeout !== null &&
-      (typeof source.timeout !== 'number' ||
-        !Number.isSafeInteger(source.timeout) ||
-        source.timeout < 0)
-    )
-      throw new Error('Goose timeout must be a nonnegative safe integer or null');
-    return {
-      name,
-      enabled: source.enabled ?? true,
-      timeout: source.timeout === undefined ? 300 : source.timeout,
-      ...(url === undefined
-        ? { type: 'stdio', cmd: command, args: args ?? [], envs: env ?? {} }
-        : {
-            type: 'streamable_http',
-            uri: url,
-            ...(source.headers === undefined
-              ? {}
-              : { headers: source.headers }),
-          }),
-    };
-  }
   if (format === 'opencode') {
     const allowed = new Set([
       'type',
@@ -326,8 +258,6 @@ export function convertMcpServer(
       type:
         url !== undefined ? (transport === 'sse' ? 'sse' : 'http') : 'stdio',
     };
-  if (format === 'cline' && url !== undefined)
-    return { ...entry, type: transport === 'sse' ? 'sse' : 'streamableHttp' };
   if (job.host.id === 'claude-code' && url !== undefined) {
     delete entry.transport;
     return { ...entry, type: transport === 'sse' ? 'sse' : 'http' };

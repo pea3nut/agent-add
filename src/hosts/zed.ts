@@ -4,19 +4,11 @@ export class ZedAdapter implements HostAdapter {
   readonly id = 'zed';
   readonly displayName = 'Zed Agent';
   readonly docs = 'https://zed.dev/docs/ai/mcp';
-  readonly detection = { paths: ['.zed/', '~/.config/zed/'] };
+  readonly detection = { paths: ['.zed/'] };
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
-      supported: true,
-      configFile: {
-        darwin: '~/.config/zed/settings.json',
-        linux: '~/.config/zed/settings.json',
-        win32: '%APPDATA%/Zed/settings.json',
-      },
-      configFormat: 'jsonc',
-      configKey: 'context_servers',
-      mcpFormat: 'zed',
-      writeStrategy: 'inject-json-key',
+      supported: false,
+      reason: 'No verified project-level MCP configuration target is supported.',
     },
     prompt: {
       supported: true,

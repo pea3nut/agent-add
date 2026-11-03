@@ -161,18 +161,11 @@ export const mcpHandler: AssetHandler = {
       }
     }
 
-    const keyPath = mcpCapability.configKeyPath ?? [
-      mcpCapability.configKey ?? 'mcpServers',
-    ];
+    const keyPath = [mcpCapability.configKey ?? 'mcpServers'];
     const format: ConfigFormat =
-      mcpCapability.configFormat === 'yaml'
-        ? 'yaml'
-        : mcpCapability.configFormat === 'json5'
-          ? 'json5'
-          : mcpCapability.configFormat === 'jsonc' ||
-              configFilePath.endsWith('.jsonc')
-            ? 'jsonc'
-            : 'json';
+      mcpCapability.configFormat === 'jsonc' || configFilePath.endsWith('.jsonc')
+        ? 'jsonc'
+        : 'json';
     let existingContent = '{}\n';
 
     let existingConfig: Record<string, unknown>;

@@ -10,16 +10,12 @@ export class CodexAdapter implements HostAdapter {
   readonly displayName = 'Codex CLI';
   readonly docs = 'https://github.com/openai/codex';
   readonly detection = {
-    paths: ['~/.codex/'],
+    paths: ['.codex/'],
   };
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
       supported: true,
-      configFile: {
-        darwin: '~/.codex/config.toml',
-        linux: '~/.codex/config.toml',
-        win32: '%USERPROFILE%\\.codex\\config.toml',
-      },
+      configFile: '.codex/config.toml',
       configKey: 'mcp_servers',
       writeStrategy: 'inject-json-key',
     },

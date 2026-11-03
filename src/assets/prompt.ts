@@ -1,15 +1,14 @@
 import fs from 'fs';
 import path from 'path';
+import yaml from 'yaml';
 import {
   atomicWriteText,
+  isRecord,
   parseConfig,
   readTextOrNull,
   resolveConfigPath,
-  resolveHostPath,
   setConfigValue,
-  type ConfigFormat,
 } from '../utils/config.js';
-import { promptTarget } from '../utils/host-paths.js';
 import type { AssetHandler, InstallJob, InstallResult } from './types.js';
 
 export function mergePrompt(
@@ -66,10 +65,11 @@ async function prepareRegistration(
       ? job.host.assets.mcp
       : capability;
   const file = await resolveConfigPath(configCapability);
-  const format: ConfigFormat =
-    configCapability.configFormat === 'yaml' ? 'yaml' : 'jsonc';
   const existing = (await readTextOrNull(file)) ?? '{}\n';
-  const config = parseConfig(existing, format);
+  const document = capability.registration === 'read' ? yaml.parseDocument(existing) : null;
+  if (document?.errors.length) throw new Error(document.errors[0]!.message);
+  const config: unknown = document ? document.toJS() : parseConfig(existing, 'jsonc');
+  if (!isRecord(config)) throw new Error('Configuration must be an object');
   const key = capability.registration;
   const value = config[key];
   const items =
@@ -80,12 +80,62 @@ async function prepareRegistration(
     .relative(process.cwd(), target)
     .split(path.sep)
     .join('/');
-  if (items.some((v) => resolveHostPath(v) === target))
+  if (items.some((v) => path.resolve(v) === target))
     return null;
-  return {
-    file,
-    content: setConfigValue(existing, [key], [...items, relative], format),
-  };
+  if (document) {
+    const current = document.get(key, true);
+    if (yaml.isSeq(current)) current.add(relative);
+    else {
+      const sequence = document.createNode([...items, relative]);
+      if (yaml.isScalar(current) && typeof current.value === 'string') sequence.items[0] = current;
+      document.set(key, sequence);
+    }
+    return { file, content: document.toString() };
+  }
+  return { file, content: setConfigValue(existing, [key], [...items, relative], 'jsonc') };
+}
+
+async function promptTarget(job: InstallJob): Promise<string> {
+  if (job.host.id === 'zed') {
+    const candidates = [
+      '.rules',
+      '.cursorrules',
+      '.windsurfrules',
+      '.clinerules',
+      '.github/copilot-instructions.md',
+      'AGENT.md',
+      'AGENTS.md',
+      'CLAUDE.md',
+      'GEMINI.md',
+    ];
+    for (const candidate of candidates)
+      if ((await readTextOrNull(path.resolve(candidate))) !== null)
+        return path.resolve(candidate);
+  }
+  if (job.host.id === 'gemini') {
+    const content = await readTextOrNull(
+      path.resolve('.gemini/settings.json'),
+    );
+    const config = content === null ? {} : parseConfig(content, 'jsonc');
+    const context = config.context;
+    const name = isRecord(context) ? context.fileName : undefined;
+    if (name !== undefined) {
+      const names = Array.isArray(name) ? name : [name];
+      if (
+        !names.length ||
+        names.some((v) => typeof v !== 'string' || !v.trim())
+      )
+        throw new Error(
+          'Gemini context.fileName must be a nonempty filename or filename array',
+        );
+      const target = path.resolve(names[0] as string);
+      const relative = path.relative(process.cwd(), target);
+      if (relative === '..' || relative.startsWith('..' + path.sep) || path.isAbsolute(relative))
+        throw new Error('Gemini context.fileName must stay inside the project');
+      return target;
+    }
+  }
+  return path.resolve(job.host.assets.prompt.targetFile!);
 }
 
 export const promptHandler: AssetHandler = {
@@ -96,7 +146,7 @@ export const promptHandler: AssetHandler = {
       targetPath =
         capability.writeStrategy === 'create-file-in-dir'
           ? path.join(
-              resolveHostPath(capability.installDir!),
+              path.resolve(capability.installDir!),
               job.assetName + '.md',
             )
           : await promptTarget(job);

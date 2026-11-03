@@ -8,7 +8,7 @@ Feature: Pack mixed skip/install and capability validation
     Given a temp working directory is created
     And all fixtures are copied: cp -r "$PROJECT_ROOT/tests/fixtures" "$SETUP_TMPDIR/fixtures"
     And the codex config directory exists: mkdir -p "$SETUP_TMPDIR/.codex"
-    When the user runs: cd "$SETUP_TMPDIR" && AGENT_ADD_HOME="$SETUP_TMPDIR" node "$PROJECT_ROOT/bin/agent-add.js" --host codex --pack ./fixtures/pack/codex-manifest.json > "$SETUP_TMPDIR/out.txt" 2>&1
+    When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host codex --pack ./fixtures/pack/codex-manifest.json > "$SETUP_TMPDIR/out.txt" 2>&1
     Then the TOML config exists: test -f "$SETUP_TMPDIR/.codex/config.toml"
     And the MCP is installed in TOML: grep -q 'playwright' "$SETUP_TMPDIR/.codex/config.toml"
     And the prompt is installed: grep -q 'agent-add:my-prompt' "$SETUP_TMPDIR/AGENTS.md"

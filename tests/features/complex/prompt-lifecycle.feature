@@ -48,11 +48,11 @@ Feature: Prompt lifecycle and write strategies
     And the file content is correct: grep -q 'bullet points' "$SETUP_TMPDIR/.roo/rules/my-prompt.md"
 
   @P0
-  Scenario: Prompt and skill targets follow the host's configured discovery rules
-    Given isolated Zed, Gemini, Goose and OpenClaw projects with existing discovery settings
-    When prompts are installed with multiple Zed instruction candidates, Gemini context.fileName, Goose CONTEXT_FILE_NAMES and a selected OpenClaw agent workspace
-    Then each prompt updates the documented selected file rather than an unused default
-    And OpenClaw preserves its JSON5 settings and installs skills relative to the configured workspace
+  Scenario: Project prompts follow the host's configured discovery rules
+    Given isolated Zed, Gemini and Goose projects with project instruction files
+    When prompts are installed with multiple Zed instruction candidates and a project Gemini context.fileName
+    Then Zed updates only the first matching instruction file, Gemini uses its configured project filename, and Goose writes project AGENTS.md
+    And Gemini rejects filenames outside the project without changing the external file
 
   @P0
   Scenario: Prompt conflicts are reported before ambiguous markers or colliding batch names can overwrite content

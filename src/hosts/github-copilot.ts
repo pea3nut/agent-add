@@ -19,7 +19,6 @@ export class GitHubCopilotAdapter implements HostAdapter {
       configFile: '.vscode/mcp.json',
       configKey: 'servers',
       configFormat: 'jsonc',
-      mcpFormat: 'vscode',
       writeStrategy: 'inject-json-key',
     },
     prompt: {

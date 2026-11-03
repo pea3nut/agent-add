@@ -4,7 +4,7 @@ export class ContinueAdapter implements HostAdapter {
   readonly id = 'continue';
   readonly displayName = 'Continue';
   readonly docs = 'https://docs.continue.dev/customize/deep-dives/mcp';
-  readonly detection = { paths: ['.continue/', '~/.continue/'] };
+  readonly detection = { paths: ['.continue/'] };
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
       supported: true,

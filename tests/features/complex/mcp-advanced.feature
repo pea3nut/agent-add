@@ -42,7 +42,7 @@ Feature: MCP advanced installation scenarios
     Given a temp working directory is created
     And the MCP fixture is copied: cp "$PROJECT_ROOT/tests/fixtures/mcp/playwright.json" "$SETUP_TMPDIR/playwright.json"
     And the codex config directory exists: mkdir -p "$SETUP_TMPDIR/.codex"
-    When the user runs: cd "$SETUP_TMPDIR" && AGENT_ADD_HOME="$SETUP_TMPDIR" node "$PROJECT_ROOT/bin/agent-add.js" --host codex --mcp ./playwright.json
+    When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host codex --mcp ./playwright.json
     Then the exit code is 0
     And the TOML config exists: test -f "$SETUP_TMPDIR/.codex/config.toml"
     And the decoded mcp_servers.playwright matches the fixture's command and args
@@ -54,7 +54,7 @@ Feature: MCP advanced installation scenarios
     Given a temp working directory is created
     And the MCP fixture is copied: cp "$PROJECT_ROOT/tests/fixtures/mcp/playwright-with-env.json" "$SETUP_TMPDIR/playwright-with-env.json"
     And the codex config directory exists: mkdir -p "$SETUP_TMPDIR/.codex"
-    When the user runs: cd "$SETUP_TMPDIR" && AGENT_ADD_HOME="$SETUP_TMPDIR" node "$PROJECT_ROOT/bin/agent-add.js" --host codex --mcp ./playwright-with-env.json
+    When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host codex --mcp ./playwright-with-env.json
     Then the exit code is 0
     And the TOML config exists: test -f "$SETUP_TMPDIR/.codex/config.toml"
     And the decoded TOML environment exactly matches the fixture's string values
@@ -84,22 +84,22 @@ Feature: MCP advanced installation scenarios
   @P0
   Scenario: Reject malformed TOML ending in an array comment without hanging
     Given a temp working directory is created
-    And an isolated home is configured: export HOME="$SETUP_TMPDIR/home" AGENT_ADD_HOME="$SETUP_TMPDIR/home" && mkdir -p "$HOME/.codex"
+    And a project config directory exists: mkdir -p "$SETUP_TMPDIR/.codex"
     And the MCP fixture is copied: cp "$PROJECT_ROOT/tests/fixtures/mcp/playwright.json" "$SETUP_TMPDIR/playwright.json"
-    And the existing TOML ends in a comment without a newline: printf '%s' 'a=[1 #' > "$HOME/.codex/config.toml"
-    And the original config is saved: cp "$HOME/.codex/config.toml" "$SETUP_TMPDIR/before.toml"
+    And the existing TOML ends in a comment without a newline: printf '%s' 'a=[1 #' > "$SETUP_TMPDIR/.codex/config.toml"
+    And the original config is saved: cp "$SETUP_TMPDIR/.codex/config.toml" "$SETUP_TMPDIR/before.toml"
     When the user runs with a five-second process timeout: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host codex --mcp ./playwright.json > "$SETUP_TMPDIR/out.txt" 2>&1; echo $? > "$SETUP_TMPDIR/exitcode.txt"; true
     Then the CLI finishes within five seconds rather than timing out
     And the recorded CLI exit code is 1: test "$(cat "$SETUP_TMPDIR/exitcode.txt")" -eq 1
     And the output reports a TOML parsing error: grep -q 'Failed to parse TOML config file' "$SETUP_TMPDIR/out.txt"
-    And the existing config is byte-for-byte unchanged: cmp "$HOME/.codex/config.toml" "$SETUP_TMPDIR/before.toml"
+    And the existing config is byte-for-byte unchanged: cmp "$SETUP_TMPDIR/.codex/config.toml" "$SETUP_TMPDIR/before.toml"
 
   @P0
   Scenario: Native MCP adapters preserve portable source semantics and existing settings
-    Given isolated homes with existing settings and portable stdio and HTTP fixtures
-    When the fixtures are installed on Zed, Cline, Continue, Goose, Amp, opencode and Kilo
+    Given isolated projects with existing settings and portable stdio and HTTP fixtures
+    When the fixtures are installed on Codex, Augment, Continue, Amp, opencode and Kilo
     Then decoded settings match each host's documented native schema, retaining commands, arguments, environments, URLs and headers where supported
-    And Cline honors CLINE_MCP_SETTINGS_PATH, Amp preserves its literal amp.mcpServers key and JSONC comments, and existing unrelated entries remain unchanged
+    And Amp preserves its literal amp.mcpServers key and JSONC comments, and existing unrelated entries remain unchanged
     And reinstalling identical entries reports exists without modifying configuration
 
   @P0
@@ -113,20 +113,12 @@ Feature: MCP advanced installation scenarios
 
   @P0
   Scenario: Configuration edits compare semantics and reject ambiguous or malformed input
-    Given existing JSON, JSONC, JSON5, YAML and TOML configurations with unrelated entries and comments
+    Given existing JSON, JSONC and TOML configurations with unrelated entries and comments
     When an MCP is reinstalled with reordered object keys or reordered argument arrays
     Then object-key order reports exists while changed array order reports conflict
-    And duplicate decoded keys in JSON, JSONC and JSON5, including nested objects and arrays, fail without modifying any target
+    And duplicate decoded keys in JSON and JSONC, including nested objects and arrays, fail without modifying any target
     And repeated keys in separate objects remain valid
     And malformed syntax, non-object roots and invalid nested MCP containers are rejected without writes
-
-  @P0
-  Scenario: Goose validates optional native fields without changing their meaning
-    Given isolated Goose configurations and HTTP and stdio MCP sources
-    When enabled and timeout are omitted or explicitly set to false, zero, null or valid nonnegative safe integers
-    Then decoded YAML preserves explicit values and otherwise defaults enabled to true and timeout to 300
-    And non-boolean enabled, invalid timeout types, negative or fractional timeouts and unsafe integers fail without changing configuration
-    And SSE sources fail rather than being relabeled as streamable HTTP
 
   @P0
   Scenario: Malformed remote URLs fail before any host configuration is written

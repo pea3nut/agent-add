@@ -5,22 +5,12 @@ export class ClaudeDesktopAdapter implements HostAdapter {
   readonly displayName = 'Claude Desktop';
   readonly docs = 'https://modelcontextprotocol.io/quickstart/user';
   readonly detection = {
-    paths: {
-      darwin: '~/Library/Application Support/Claude/',
-      win32: '%APPDATA%\\Claude\\',
-      linux: '~/.config/Claude/',
-    },
+    paths: [],
   };
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
-      supported: true,
-      configFile: {
-        darwin: '~/Library/Application Support/Claude/claude_desktop_config.json',
-        win32: '%APPDATA%\\Claude\\claude_desktop_config.json',
-        linux: '~/.config/Claude/claude_desktop_config.json',
-      },
-      configKey: 'mcpServers',
-      writeStrategy: 'inject-json-key',
+      supported: false,
+      reason: 'No verified project-level MCP configuration target is supported.',
     },
     skill: {
       supported: false,
