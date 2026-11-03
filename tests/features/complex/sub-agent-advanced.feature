@@ -45,7 +45,7 @@ Feature: Sub-agent frontmatter processing and conflict detection
 
   @P0
   Scenario: Host metadata overrides generic frontmatter independently of ordering and line endings
-    Given equivalent sub-agent sources with generic and host-specific fields in both orders, including BOM, CRLF, trailing delimiter whitespace and multiline YAML variants
+    Given equivalent sub-agent sources with generic and host-specific fields in both orders, including BOM, CRLF, trailing delimiter whitespace and quoted multiline YAML containing --- prefixed text
     When the sources are installed on their selected hosts
     Then host overrides win, generic descriptions remain, other hosts' overrides disappear and the Markdown body is preserved
 
