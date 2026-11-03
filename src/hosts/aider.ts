@@ -3,7 +3,6 @@ import type { HostAdapter, AssetCapability, AssetType } from './types.js';
 export class AiderAdapter implements HostAdapter {
   readonly id = 'aider';
   readonly displayName = 'Aider';
-  readonly docs = 'https://aider.chat/docs/usage/conventions.html';
   readonly detection = { paths: ['.aider.conf.yml'] };
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {

@@ -8,8 +8,6 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class TabnineAdapter implements HostAdapter {
   readonly id = 'tabnine';
   readonly displayName = 'Tabnine CLI';
-  readonly docs =
-    'https://docs.tabnine.com/main/getting-started/tabnine-agent/guidelines';
   readonly detection = {
     paths: ['.tabnine/'],
   };

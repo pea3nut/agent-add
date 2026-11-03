@@ -8,7 +8,6 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class QwenCodeAdapter implements HostAdapter {
   readonly id = 'qwen-code';
   readonly displayName = 'Qwen Code';
-  readonly docs = 'https://qwenlm.github.io/qwen-code-docs/en/users/features/mcp/';
   readonly detection = {
     paths: ['.qwen/'],
   };

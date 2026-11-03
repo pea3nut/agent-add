@@ -8,7 +8,6 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class WindsurfAdapter implements HostAdapter {
   readonly id = 'windsurf';
   readonly displayName = 'Windsurf';
-  readonly docs = 'https://docs.windsurf.com/windsurf/cascade/mcp';
   readonly detection = {
     paths: ['.windsurf/'],
   };

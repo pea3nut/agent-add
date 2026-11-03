@@ -8,8 +8,6 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class VibeAdapter implements HostAdapter {
   readonly id = 'vibe';
   readonly displayName = 'Mistral Vibe';
-  readonly docs =
-    'https://docs.mistral.ai/mistral-vibe/introduction/configuration';
   readonly detection = {
     paths: ['.vibe/'],
   };

@@ -3,7 +3,6 @@ import type { HostAdapter, AssetCapability, AssetType } from './types.js';
 export class ClaudeDesktopAdapter implements HostAdapter {
   readonly id = 'claude-desktop';
   readonly displayName = 'Claude Desktop';
-  readonly docs = 'https://modelcontextprotocol.io/quickstart/user';
   readonly detection = {
     paths: [],
   };

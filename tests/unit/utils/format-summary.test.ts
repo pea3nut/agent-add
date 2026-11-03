@@ -7,7 +7,6 @@ import type { InstallJob, InstallResult } from '../../../src/assets/types.js';
 const mockHost: HostConfig = {
   id: 'cursor',
   displayName: 'Cursor',
-  docs: 'https://example.com',
   detection: { paths: ['.cursor'] },
   assets: {
     mcp: { supported: true },

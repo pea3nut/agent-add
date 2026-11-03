@@ -8,7 +8,6 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class KiloCodeAdapter implements HostAdapter {
   readonly id = 'kilo-code';
   readonly displayName = 'Kilo Code';
-  readonly docs = 'https://kilo.ai/docs/automate/mcp/using-in-kilo-code';
   readonly detection = {
     paths: ['.kilo/', 'kilo.jsonc', 'kilo.json', '.kilocode/'],
   };

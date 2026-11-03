@@ -3,7 +3,6 @@ import type { HostAdapter, AssetCapability, AssetType } from './types.js';
 export class GooseAdapter implements HostAdapter {
   readonly id = 'goose';
   readonly displayName = 'goose';
-  readonly docs = 'https://goose-docs.ai/docs/guides/config-files/';
   readonly detection = {
     paths: ['.goosehints', '.goose/'],
   };

@@ -8,7 +8,6 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class OpenclawAdapter implements HostAdapter {
   readonly id = 'openclaw';
   readonly displayName = 'OpenClaw';
-  readonly docs = 'https://docs.openclaw.ai/tools/mcp';
   readonly detection = {
     paths: ['.openclaw/'],
   };

@@ -8,7 +8,6 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class AugmentAdapter implements HostAdapter {
   readonly id = 'augment';
   readonly displayName = 'Augment';
-  readonly docs = 'https://docs.augmentcode.com/setup-augment/mcp';
   readonly detection = {
     paths: ['.augment/'],
   };

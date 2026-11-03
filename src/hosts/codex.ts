@@ -8,7 +8,6 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class CodexAdapter implements HostAdapter {
   readonly id = 'codex';
   readonly displayName = 'Codex CLI';
-  readonly docs = 'https://github.com/openai/codex';
   readonly detection = {
     paths: ['.codex/'],
   };

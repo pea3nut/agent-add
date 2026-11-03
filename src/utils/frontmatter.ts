@@ -1,3 +1,4 @@
+import matter from 'gray-matter';
 import yaml from 'yaml';
 import { isRecord } from './config.js';
 
@@ -7,18 +8,21 @@ export function splitFrontmatter(content: string): {
   hasFrontmatter: boolean;
 } {
   const normalized = content.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n');
-  const match = normalized.match(
-    /^---[\t ]*\n([\s\S]*?\n)?---[\t ]*(?:\n|$)([\s\S]*)$/,
-  );
-  if (!match) {
-    if (/^---[\t ]*(?:\n|$)/.test(normalized))
-      throw new Error('Unterminated YAML frontmatter');
+  if (!/^---[\t ]*(?:\n|$)/.test(normalized)) {
     return { metadata: {}, body: normalized, hasFrontmatter: false };
   }
-  const parsed: unknown = yaml.parse(match[1] ?? '');
+  const file = matter(normalized, { engines: { yaml: yaml.parse } });
+  const end = 3 + file.matter.length;
+  const closing = normalized.slice(end).match(/^\n---[\t ]*(?:\n|$)/);
+  if (!closing) throw new Error('Unterminated YAML frontmatter');
+  const parsed: unknown = file.data;
   if (parsed !== null && !isRecord(parsed))
     throw new Error('Frontmatter must be a YAML mapping');
-  return { metadata: parsed ?? {}, body: match[2]!, hasFrontmatter: true };
+  return {
+    metadata: parsed ?? {},
+    body: normalized.slice(end + closing[0].length),
+    hasFrontmatter: true,
+  };
 }
 
 export function applyHostHints(

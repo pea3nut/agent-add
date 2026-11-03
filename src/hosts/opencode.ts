@@ -8,7 +8,6 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class OpencodeAdapter implements HostAdapter {
   readonly id = 'opencode';
   readonly displayName = 'opencode';
-  readonly docs = 'https://opencode.ai/docs';
   readonly detection = {
     paths: ['opencode.json', 'opencode.jsonc', '.opencode/'],
   };

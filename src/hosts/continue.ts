@@ -3,7 +3,6 @@ import type { HostAdapter, AssetCapability, AssetType } from './types.js';
 export class ContinueAdapter implements HostAdapter {
   readonly id = 'continue';
   readonly displayName = 'Continue';
-  readonly docs = 'https://docs.continue.dev/customize/deep-dives/mcp';
   readonly detection = { paths: ['.continue/'] };
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {

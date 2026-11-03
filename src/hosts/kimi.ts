@@ -8,8 +8,6 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class KimiAdapter implements HostAdapter {
   readonly id = 'kimi';
   readonly displayName = 'Kimi Code';
-  readonly docs =
-    'https://moonshotai.github.io/kimi-cli/en/customization/mcp.html';
   readonly detection = {
     paths: ['.kimi/'],
   };

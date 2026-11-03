@@ -30,7 +30,6 @@ export interface HostDetection {
 export interface HostAdapter {
   readonly id: string;
   readonly displayName: string;
-  readonly docs: string;
   readonly detection: HostDetection;
   readonly assets: Record<AssetType, AssetCapability>;
 }

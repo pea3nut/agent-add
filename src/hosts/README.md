@@ -3,6 +3,7 @@
 This file is the **single source of truth for target host adapter configurations** in `agent-add`.
 It records upstream file contracts, not a guarantee that the current CLI implements every entry.
 Adapters in `src/hosts/<id>.ts` should converge on these contracts; known gaps are listed below.
+Official documentation links are maintained here, not duplicated in adapter metadata.
 
 **Last verified: 2026-11-01 (UTC).** Sources are official product documentation unless explicitly labeled otherwise.
 Descriptions below are paraphrases, not verbatim quotations. Contracts were documented before the corresponding adapter changes.

@@ -3,7 +3,6 @@ import type { HostAdapter, AssetCapability, AssetType } from './types.js';
 export class ZedAdapter implements HostAdapter {
   readonly id = 'zed';
   readonly displayName = 'Zed Agent';
-  readonly docs = 'https://zed.dev/docs/ai/mcp';
   readonly detection = { paths: ['.zed/'] };
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
