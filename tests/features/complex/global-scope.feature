@@ -4,7 +4,7 @@ Feature: User installation scope and project isolation
     Given the project root is detected: export PROJECT_ROOT=$(git rev-parse --show-toplevel)
     And a temp working directory is created
     And the user home is isolated: export HOME="$SETUP_TMPDIR/home"; mkdir -p "$HOME" "$SETUP_TMPDIR/project"
-    And native configuration overrides are cleared: unset CLAUDE_CONFIG_DIR GEMINI_CLI_HOME CODEX_HOME VIBE_HOME CLINE_DIR CLINE_DATA_DIR CLINE_MCP_SETTINGS_PATH OPENCLAW_STATE_DIR OPENCLAW_PROFILE OPENCLAW_HOME OPENCODE_CONFIG OPENCODE_CONFIG_DIR OPENCODE_CONFIG_CONTENT XDG_CONFIG_HOME COPILOT_HOME KIMI_SHARE_DIR
+    And native configuration overrides are cleared: unset CLAUDE_CONFIG_DIR GEMINI_CLI_HOME QWEN_HOME CODEX_HOME VIBE_HOME CLINE_DIR CLINE_DATA_DIR CLINE_MCP_SETTINGS_PATH OPENCLAW_STATE_DIR OPENCLAW_PROFILE OPENCLAW_HOME OPENCODE_CONFIG OPENCODE_CONFIG_DIR OPENCODE_CONFIG_CONTENT XDG_CONFIG_HOME COPILOT_HOME KIMI_SHARE_DIR
     And fixtures are copied: cp -r "$PROJECT_ROOT/tests/fixtures" "$SETUP_TMPDIR/fixtures"
 
   @P0
@@ -63,6 +63,37 @@ Feature: User installation scope and project isolation
     Given a user context attempts to escape: mkdir -p "$HOME/.gemini"; printf '{"context":{"fileName":"../../project/ESCAPE.md"}}' > "$HOME/.gemini/settings.json"
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --global --host gemini --prompt ./fixtures/prompt/my-prompt.md > out.txt 2>&1; code=$?; test "$code" -eq 1
     Then the error reports the boundary and creates no escaped file: grep -F 'must stay inside the user configuration root' out.txt && test ! -e "$SETUP_TMPDIR/project/ESCAPE.md"
+
+  @P0
+  Scenario: Qwen home relocates every selected user asset without touching project settings
+    Given Qwen uses an absolute root containing spaces: export QWEN_HOME="$SETUP_TMPDIR/custom qwen"; mkdir -p "$QWEN_HOME" "$SETUP_TMPDIR/.qwen"; printf '// keep user comment\n{"theme":"dark"}\n' > "$QWEN_HOME/settings.json"; printf '{"theme":"project"}\n' > "$SETUP_TMPDIR/.qwen/settings.json"; cp "$SETUP_TMPDIR/.qwen/settings.json" "$SETUP_TMPDIR/project-before.json"
+    And a pack uses cwd-relative sources: printf '{"name":"test/qwen-root","assets":[{"type":"mcp","source":"./fixtures/mcp/playwright.json"},{"type":"skill","source":"./fixtures/skill/my-skill"}]}' > "$SETUP_TMPDIR/pack.json"
+    When the user installs the pack and extra flags: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --global --host qwen-code --pack ./pack.json --command ./fixtures/command/my-command.md --sub-agent ./fixtures/sub-agent/my-agent.md > out.txt
+    Then MCP settings decode to the source and retain unrelated user state: node -e 'const require2=require("node:module").createRequire(process.env.PROJECT_ROOT+"/package.json"),{parse}=require2("jsonc-parser"),fs=require("node:fs"),a=require("node:assert/strict"),text=fs.readFileSync(process.env.QWEN_HOME+"/settings.json","utf8"),c=parse(text);a.equal(c.theme,"dark");a.ok(text.includes("// keep user comment"));a.deepEqual(c.mcpServers.playwright,JSON.parse(fs.readFileSync("fixtures/mcp/playwright.json")));'
+    And skill resources and command content are preserved: diff -r fixtures/skill/my-skill "$QWEN_HOME/skills/my-skill" && cmp fixtures/command/my-command.md "$QWEN_HOME/commands/my-command.md"
+    And the installed sub-agent preserves native metadata and body: node -e 'const require2=require("node:module").createRequire(process.env.PROJECT_ROOT+"/package.json"),matter=require2("gray-matter"),fs=require("node:fs"),a=require("node:assert/strict"),source=matter(fs.readFileSync("fixtures/sub-agent/my-agent.md","utf8")),actual=matter(fs.readFileSync(process.env.QWEN_HOME+"/agents/my-agent.md","utf8"));a.equal(actual.data.description,source.data.description);a.equal(actual.content,source.content);a.ok(!Object.keys(actual.data).some(k=>k.startsWith("agent-add/")));'
+    And the summary names the actual user destination and project state is unchanged: grep -F "$QWEN_HOME/settings.json" out.txt && grep -F 'Scope: user (--global)' out.txt && cmp .qwen/settings.json project-before.json && test ! -e .qwen/skills && test ! -e .qwen/commands && test ! -e .qwen/agents && test ! -e "$HOME/.qwen"
+    Given installed files are fingerprinted: find "$QWEN_HOME" -type f -exec sha256sum {} + | sort > before.sha256
+    When the same installation is repeated: node "$PROJECT_ROOT/bin/agent-add.js" --global --host qwen-code --pack ./pack.json --command ./fixtures/command/my-command.md --sub-agent ./fixtures/sub-agent/my-agent.md > repeat.txt
+    Then reinstall changes no files and still avoids default targets: find "$QWEN_HOME" -type f -exec sha256sum {} + | sort > after.sha256; cmp before.sha256 after.sha256 && grep -F 'exists' repeat.txt && test ! -e "$HOME/.qwen"
+
+  @P0
+  Scenario: Relative and tilde-prefixed Qwen home overrides fail before any asset writes
+    When each unsupported path form is requested: cd "$SETUP_TMPDIR" && for root in ./relative-qwen '~/custom-qwen'; do QWEN_HOME="$root" node "$PROJECT_ROOT/bin/agent-add.js" --global --host qwen-code --mcp ./fixtures/mcp/playwright.json --skill ./fixtures/skill/my-skill --command ./fixtures/command/my-command.md --sub-agent ./fixtures/sub-agent/my-agent.md > out.txt 2>&1; code=$?; test "$code" -eq 2 && grep -F 'QWEN_HOME must be an absolute path' out.txt || exit 1; done
+    Then neither default nor rejected destinations exist: test ! -e "$HOME/.qwen" && test ! -e .qwen && test ! -e relative-qwen && test ! -e '~' && test ! -e "$HOME/custom-qwen"
+
+  @P0
+  Scenario: Empty Qwen home uses the same user default as an unset override
+    When Qwen home is unset: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --global --host qwen-code --mcp ./fixtures/mcp/playwright.json --skill ./fixtures/skill/my-skill --command ./fixtures/command/my-command.md --sub-agent ./fixtures/sub-agent/my-agent.md
+    Then every asset uses the default user root: node -e 'const fs=require("node:fs"),a=require("node:assert/strict"),c=JSON.parse(fs.readFileSync(process.env.HOME+"/.qwen/settings.json"));a.deepEqual(c.mcpServers.playwright,JSON.parse(fs.readFileSync("fixtures/mcp/playwright.json")));' && diff -r fixtures/skill/my-skill "$HOME/.qwen/skills/my-skill" && cmp fixtures/command/my-command.md "$HOME/.qwen/commands/my-command.md" && test -f "$HOME/.qwen/agents/my-agent.md" && test ! -e .qwen
+    Given installed files are fingerprinted: find "$HOME/.qwen" -type f -exec sha256sum {} + | sort > before.sha256
+    When Qwen home is explicitly empty: QWEN_HOME='' node "$PROJECT_ROOT/bin/agent-add.js" --global --host qwen-code --mcp ./fixtures/mcp/playwright.json --skill ./fixtures/skill/my-skill --command ./fixtures/command/my-command.md --sub-agent ./fixtures/sub-agent/my-agent.md > out.txt
+    Then the same assets already exist without changing any files: find "$HOME/.qwen" -type f -exec sha256sum {} + | sort > after.sha256; cmp before.sha256 after.sha256 && grep -F 'exists' out.txt && test ! -e .qwen
+
+  @P0
+  Scenario: Qwen project installation ignores user root overrides
+    When each user override is present during project installation: cd "$SETUP_TMPDIR" && for root in "$SETUP_TMPDIR/alternate-qwen" ./relative-qwen '~/custom-qwen'; do QWEN_HOME="$root" node "$PROJECT_ROOT/bin/agent-add.js" --host qwen-code --mcp ./fixtures/mcp/playwright.json --skill ./fixtures/skill/my-skill --command ./fixtures/command/my-command.md --sub-agent ./fixtures/sub-agent/my-agent.md || exit 1; done
+    Then only project assets exist and MCP decodes to the source: node -e 'const fs=require("node:fs"),a=require("node:assert/strict"),c=JSON.parse(fs.readFileSync(".qwen/settings.json"));a.deepEqual(c.mcpServers.playwright,JSON.parse(fs.readFileSync("fixtures/mcp/playwright.json")));' && diff -r fixtures/skill/my-skill .qwen/skills/my-skill && cmp fixtures/command/my-command.md .qwen/commands/my-command.md && test -f .qwen/agents/my-agent.md && test ! -e "$HOME/.qwen" && test ! -e alternate-qwen && test ! -e relative-qwen && test ! -e '~' && test ! -e "$HOME/custom-qwen"
 
   @P0
   Scenario: Cline CLI honors specific MCP file override and independent rule root

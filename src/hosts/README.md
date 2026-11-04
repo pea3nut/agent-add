@@ -42,6 +42,7 @@ Only user destinations are relocated; sources still resolve from cwd. Overrides 
 |------|-------------------|-----------------|
 | Claude Code | `CLAUDE_CONFIG_DIR` relocates instructions, skills, commands and agents. MCP with this override is rejected: the separate `.claude.json` relocation contract is not selected. | https://code.claude.com/docs/en/settings |
 | Gemini CLI | `GEMINI_CLI_HOME` replaces the home **parent**; use `$GEMINI_CLI_HOME/.gemini/`, not `$GEMINI_CLI_HOME/settings.json`. | https://geminicli.com/docs/cli/enterprise/ |
+| Qwen Code | `QWEN_HOME` replaces `~/.qwen/` for MCP, skills, commands and agents. Unset or empty uses the default. Qwen itself accepts relative and `~`-prefixed paths; this installer requires an absolute path and rejects those forms before writing. Project `.qwen/` is unaffected. | https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/ |
 | Codex | `CODEX_HOME` relocates config, instructions and agents, not `$HOME/.agents/skills`. | https://developers.openai.com/codex/guides/agents-md ; https://developers.openai.com/codex/skills |
 | Vibe | `VIBE_HOME` replaces `~/.vibe/` for selected user assets. | https://docs.mistral.ai/vibe/code/cli/configuration |
 | Cline CLI | `CLINE_DIR` replaces `~/.cline/`; `CLINE_DATA_DIR` replaces its `data/`; `CLINE_MCP_SETTINGS_PATH` selects the MCP file directly and takes precedence. | https://docs.cline.bot/cli/cli-reference ; https://docs.cline.bot/mcp/mcp-overview |
@@ -122,7 +123,7 @@ Scope: the adapter's MCP target is **VS Code**, not Copilot CLI/cloud configurat
 | Prompt | https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot | `.github/copilot-instructions.md`; also supports `.github/instructions/*.instructions.md` and `AGENTS.md` | `.github/copilot-instructions.md` (strategy: `append-with-marker`) |
 | Skill | https://docs.github.com/en/copilot/concepts/agents/about-agent-skills | Project `.github/skills/`, `.claude/skills/`, `.agents/skills/` | `.github/skills/<name>/SKILL.md` requires frontmatter (name, description) and the complete directory bundle |
 | Command | https://docs.github.com/en/copilot/tutorials/customization-library/prompt-files/your-first-prompt-file | `.github/prompts/<name>.prompt.md`; YAML frontmatter; invoked with `/<name>` | `.github/prompts/<name>.prompt.md` (strategy: `copy-file`) |
-| Sub-agent | https://code.visualstudio.com/docs/copilot/customization/custom-agents | VS Code project `.github/agents/`, also `.claude/agents/`; Markdown with YAML frontmatter | `.github/agents/<name>.agent.md`; follow the VS Code schema rather than substituting cloud-agent field constraints |
+| Sub-agent | https://code.visualstudio.com/docs/agents/reference/custom-agent-file-reference | VS Code project `.github/agents/`, also `.claude/agents/`; Markdown with YAML frontmatter | `.github/agents/<name>.agent.md`; follow the VS Code schema rather than substituting cloud-agent field constraints |
 
 #### User scope (`--global`)
 
@@ -130,7 +131,7 @@ Scope: the adapter's MCP target is **VS Code**, not Copilot CLI/cloud configurat
 |------------|--------|-----------------|-----------------------------|
 | MCP / Prompt / Command | ? | https://code.visualstudio.com/docs/agent-customization/mcp-servers | No user target selected for these assets. Copilot Global MCP (`$COPILOT_HOME/mcp-config.json`) and VS Code profile MCP are distinct from this adapter's workspace compatibility schema. |
 | Skill | ✅ | https://docs.github.com/en/copilot/concepts/agents/about-agent-skills | `~/.copilot/skills/<name>/SKILL.md`; copy the whole bundle. |
-| Sub-agent | ✅ | https://code.visualstudio.com/docs/copilot/customization/custom-agents | `~/.copilot/agents/<name>.agent.md`; user custom agents, not VS Code profile storage. |
+| Sub-agent | ✅ | https://code.visualstudio.com/docs/agents/reference/custom-agent-file-reference | `~/.copilot/agents/<name>.agent.md`; user custom agents, not VS Code profile storage. |
 
 ### Gemini CLI
 
@@ -204,11 +205,11 @@ Homepage: https://qwenlm.github.io/qwen-code-docs/en/
 
 | Asset Type | Status | Official Source | Native Target / Constraints |
 |------------|--------|-----------------|-----------------------------|
-| MCP | ✅ | https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/ ; https://qwenlm.github.io/qwen-code-docs/en/users/features/mcp/ | `~/.qwen/settings.json` → `mcpServers`; preserve native HTTP/SSE fields and unrelated settings. |
+| MCP | ✅ | https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/ ; https://qwenlm.github.io/qwen-code-docs/en/users/features/mcp/ | `~/.qwen/settings.json` → `mcpServers`, or `$QWEN_HOME/settings.json`; preserve native HTTP/SSE fields and unrelated settings. |
 | Prompt | ? | https://qwenlm.github.io/qwen-code-docs/en/blog/updates/weekly-update-2026-03-06/ | The project `AGENTS.md` contract does not establish a user instruction target. None selected here. |
-| Skill | ✅ | https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/ | `~/.qwen/skills/<name>/SKILL.md`; copy the whole bundle. |
-| Command | ✅ | https://qwenlm.github.io/qwen-code-docs/en/users/features/commands/ | `~/.qwen/commands/<name>.md`; Markdown with optional YAML frontmatter, not deprecated TOML. |
-| Sub-agent | ✅ | https://qwenlm.github.io/qwen-code-docs/en/users/features/sub-agents/ | `~/.qwen/agents/<name>.md`; Markdown with YAML frontmatter; project definitions take precedence. |
+| Skill | ✅ | https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/ | `~/.qwen/skills/<name>/SKILL.md`, or `$QWEN_HOME/skills/<name>/SKILL.md`; copy the whole bundle. |
+| Command | ✅ | https://qwenlm.github.io/qwen-code-docs/en/users/features/commands/ | `~/.qwen/commands/<name>.md`, or `$QWEN_HOME/commands/<name>.md`; Markdown with optional YAML frontmatter, not deprecated TOML. |
+| Sub-agent | ✅ | https://qwenlm.github.io/qwen-code-docs/en/users/features/sub-agents/ | `~/.qwen/agents/<name>.md`, or `$QWEN_HOME/agents/<name>.md`; Markdown with YAML frontmatter; project definitions take precedence. |
 
 ### opencode
 
@@ -657,7 +658,7 @@ These constraints apply to the selected scope. Format compatibility does not imp
 | Area | Behavior | Boundary |
 |------|----------------------|----------|
 | MCP conversion | opencode/Kilo native local/remote schema; Codex HTTP and stdio TOML; Vibe stdio with environment; VS Code `servers`; Amp literal `amp.mcpServers` | Unsupported fields/transports fail explicitly. Remote Vibe transport is unsupported. Existing JSONC comments and unrelated settings are preserved. Native TOML table additions preserve existing text; inline TOML representations may require serialization and normalize comments/formatting. |
-| Native MCP fields | Validate opencode/Kilo booleans, positive integer millisecond timeouts and strict OAuth objects; Codex booleans, paths, string-valued headers, environment/tool lists, per-tool settings and finite nonnegative second timeouts before writing | Preserve `false`, empty lists/maps and valid zero/fractional Codex timeouts without coercion. Kilo OAuth supports `clientId`, `clientSecret` and `scope`; opencode additionally supports `callbackPort` (1–65535) and `redirectUri`. Invalid fields fail preflight without writing any asset, including with `--dry-run` or `--overwrite`. |
+| Native MCP fields | Validate opencode/Kilo booleans, positive integer millisecond timeouts and strict OAuth objects; Codex booleans, paths, string-valued headers, environment/tool lists, per-tool settings and finite nonnegative second timeouts before writing | Preserve `false`, empty lists/maps and valid zero/fractional Codex timeouts without coercion. Kilo OAuth supports `clientId`, `clientSecret` and `scope`; its strict OAuth object and positive integer millisecond timeouts are defined in the [official Kilo schema at commit `6f08110`](https://github.com/Kilo-Org/kilo/blob/6f08110d4dcc36200c084a7b4134ec040cedfd61/packages/opencode/src/config/config.ts#L609-L667). [opencode's schema](https://opencode.ai/config.json) additionally supports `callbackPort` (1–65535) and `redirectUri`. Invalid fields fail preflight without writing any asset. |
 | Other native MCP options | Validate documented Gemini/Qwen working directories, trust, timeout, tool lists and OAuth field types; Roo disabled/tool/watch-path options and 1–3600 second timeouts; Kiro disabled/tool lists | These are checks of verified optional fields, not exhaustive native-host schema validation. Other unverified extension fields are not interpreted. opencode/Kilo, Codex, Vibe, Gemini/Qwen, VS Code and Roo consume portable transport selectors; Roo uses native `streamable-http` rather than `http`. |
 | Prompt registration | Kilo writes a rule and registers `instructions`; Aider writes `CONVENTIONS.md` and merges YAML `read` | No interactive UI registration is attempted. A registration error is checked before writing prompt content; multi-file writes are not a filesystem transaction. |
 | Prompt selection | Zed respects first-match precedence; Gemini respects project `context.fileName` | Configured Gemini filenames stay inside the selected scope; user prompt selection uses user settings, not project overrides. |

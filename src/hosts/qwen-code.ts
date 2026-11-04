@@ -1,3 +1,4 @@
+import path from 'path';
 import {
   HostId,
   type HostAdapter,
@@ -52,12 +53,13 @@ export class QwenCodeAdapter implements HostAdapter {
   };
 
   readonly userAssets = (environment: UserEnvironment): UserAssets => {
-    const { at } = userPaths(environment);
+    const { at, override } = userPaths(environment);
+    const root = override('QWEN_HOME', at('.qwen'));
     return {
-      mcp: mcp(at('.qwen/settings.json'), 'mcpServers', true),
-      skill: skill(at('.qwen/skills')),
-      command: file(at('.qwen/commands')),
-      subAgent: file(at('.qwen/agents')),
+      mcp: mcp(path.join(root, 'settings.json'), 'mcpServers', true),
+      skill: skill(path.join(root, 'skills')),
+      command: file(path.join(root, 'commands')),
+      subAgent: file(path.join(root, 'agents')),
     };
   };
 }
