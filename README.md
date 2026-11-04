@@ -15,20 +15,20 @@
 ---
 
 ```bash
-npx -y agent-add \
-  --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}' \
-  --mcp 'https://github.com/modelcontextprotocol/servers.git#.mcp.json' \
-  --skill 'https://github.com/anthropics/skills.git#skills/pdf' \
-  --prompt $'# Code Review Rules\n\nAlways review for security issues first.' \
-  --command 'https://github.com/wshobson/commands.git#tools/security-scan.md' \
-  --sub-agent 'https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md'
+# Install a skill into this project → .claude/skills/pdf/
+npx -y agent-add --host claude-code \
+  --skill 'https://github.com/anthropics/skills.git#skills/pdf'
+
+# Or use it across your projects → ~/.claude/skills/pdf/
+npx -y agent-add --global --host claude-code \
+  --skill 'https://github.com/anthropics/skills.git#skills/pdf'
 ```
 
 ---
 
 ## Supported Hosts
 
-Choose a host and an installation scope. Capabilities are independent in each scope; support in one does not enable the other. The [host reference](src/hosts/README.md#host-file-contracts) lists native paths, formats and client-specific limits for each tool.
+Choose your tool below. See the [host reference](src/hosts/README.md#host-file-contracts) for paths and tool-specific details.
 
 ### Project scope (default)
 
@@ -92,7 +92,7 @@ Install for the current OS user, independently of the current project.
 | goose | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Amp CLI | ✅ | ✅ | ✅ | ❌ | ❌ |
 
-✅ means agent-add has an installation target in that scope. ❌ means it does not; this does not necessarily mean the upstream product lacks the feature. Requests for unavailable targets fail explicitly, with no fallback to the other scope. Skill-backed slash commands are not separate Command assets. Claude Code's standalone Command files use its backward-compatible command format. Claude Desktop's global MCP target is available on macOS and Windows, not Linux; see the [host reference](src/hosts/README.md#claude-desktop-global-only) for platform and transport limits.
+✅ / ❌ = installable / unavailable through agent-add in that scope. Claude Desktop requires macOS or Windows.
 
 ---
 
@@ -115,38 +115,45 @@ npx -y agent-add --mcp 'https://github.com/modelcontextprotocol/servers.git#.mcp
 
 Install [Node.js](https://nodejs.org/) (v18+), then run directly via `npx` — no separate install needed.
 
-### Installation scope
+### Project or global?
 
-By default, agent-add installs into the **current project**. Add `--global` to install for the **current OS user**, across that user's local projects in the selected host. It does not install agent-add itself, require administrator privileges, or write system-wide settings for other users. Global-only hosts still require `--global`; there is no automatic scope selection.
-
-| | Project (default) | User (`--global`) |
-|---|-------------------|-----------------------------|
-| Destination | Native project files under the current working directory | Native user configuration/asset locations, independent of the working directory |
-| Scope of a command | All supplied assets go to the project scope | All supplied assets, including pack contents, go to the user scope |
-| Relative source paths | Resolved from the current working directory | Still resolved from the current working directory, not the home directory |
-| Other scope | Not modified | Not modified; no migration or automatic fallback |
+No flag: install into the current project. `--global`: install for your user, across projects. The two installations are separate.
 
 ```bash
-# Project skill: .claude/skills/pdf/
+# Project MCP → .mcp.json
 npx -y agent-add --host claude-code \
-  --skill 'https://github.com/anthropics/skills.git#skills/pdf'
+  --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}'
 
-# User skill: ~/.claude/skills/pdf/
+# User MCP → ~/.claude.json
 npx -y agent-add --global --host claude-code \
-  --skill 'https://github.com/anthropics/skills.git#skills/pdf'
+  --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}'
 
-# Scope applies to the entire pack and any extra assets
+# User prompt → ~/.claude/CLAUDE.md (read ./prompts/personal.md from this directory)
 npx -y agent-add --global --host claude-code \
-  --pack ./agent-pack.json --prompt ./prompts/personal.md
+  --prompt ./prompts/personal.md
+
+# Global-only tool: always use --global (macOS / Windows)
+npx -y agent-add --global --host claude-desktop \
+  --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}'
 ```
 
-- Use two invocations if you want both project and user installations. A pack does not choose its own scope, and one invocation does not mix scopes.
-- Capability checks and installer conflicts are local to the selected scope. Explicitly requesting an unsupported asset fails before destination writes; unsupported pack-only assets are reported as skipped, never redirected to the other scope.
-- A same-name asset in the other scope is left untouched. Which asset the host loads, or whether instructions combine, follows that host's native precedence; project assets do not universally override user assets.
-- `--host` is required in CI/pipes in both scopes. Omit it for interactive selection. Global installs work outside a repository; the working directory only determines relative source paths.
-- Global paths are host-specific: Claude Code MCP uses `~/.claude.json`, Cursor MCP uses `~/.cursor/mcp.json`, and Codex user skills use `~/.agents/skills/`, not `~/.codex/skills/`. See the [host reference](src/hosts/README.md#host-file-contracts) for configuration-root overrides and OS-specific limits. An unsupported root override produces an error rather than a write to an unused default path.
-- Installation results show the selected scope and actual destination, so you can check where assets were written.
-- Review globally installed content carefully: it can affect every local project. Host trust, enablement, registration and restart requirements still apply; local user files are not automatically synced to cloud sessions.
+### Install a pack
+
+Use a [pack manifest](#pack-manifest) to install several assets together. `--global` applies to everything in the command.
+
+```bash
+# Install a pack into this project
+npx -y agent-add --host claude-code --pack ./agent-pack.json
+
+# Install the same pack for your user
+npx -y agent-add --global --host claude-code --pack ./agent-pack.json
+
+# Add extra assets alongside a pack — all installed for your user
+npx -y agent-add --global --host claude-code \
+  --pack ./agent-pack.json \
+  --skill ./skills/my-skill \
+  --prompt ./prompts/personal.md
+```
 
 ### Install MCP
 
@@ -251,9 +258,7 @@ Options:
   -h, --help            Show help
 ```
 
-All asset flags can be repeated (to install multiple assets of the same type) and freely combined with `--pack`.
-
-Omitting `--global` keeps project scope. This option changes destinations and scope-specific capabilities, not source formats or the pack manifest schema.
+Repeat asset flags to install more than one, or combine them with `--pack`.
 
 ## Asset Developer Guide
 
