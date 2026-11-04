@@ -22,6 +22,7 @@ import { unwrapMcpServers } from './utils/unwrap-mcp-servers.js';
 import { convertMcpServer } from './hosts/mcp-source.js';
 import { deepEqualIgnoringKeyOrder } from './utils/deep-equal.js';
 import { isRecord } from './utils/config.js';
+import type { InstallProgress } from './utils/progress.js';
 
 const README_URL =
   'https://github.com/pea3nut/agent-add/blob/master/src/hosts/README.md';
@@ -119,6 +120,7 @@ export async function runInstaller(
   cliInput: CliInput,
   host: HostConfig,
   cwd: string,
+  progress?: InstallProgress,
 ): Promise<InstallSummary> {
   host = selectHostScope(host, cliInput.scope ?? 'project', cwd);
   const explicitDescriptors: Array<{ type: AssetType; source: string }> = [];
@@ -140,8 +142,17 @@ export async function runInstaller(
     explicitDescriptors.push({ type: 'subAgent', source });
   }
 
+  const label = (type: AssetType | 'pack', source: string) =>
+    `${type}/${inferName(source.endsWith('/*') ? source.slice(0, -2) : source, {
+      isDirectorySource: type === 'skill',
+    })}`;
+  for (const item of explicitDescriptors) progress?.pending(label(item.type, item.source));
+  for (const source of cliInput.pack) progress?.pending(label('pack', source));
+
   for (const packSource of cliInput.pack) {
-    const manifest = await loadManifest(packSource, cwd);
+    progress?.start(label('pack', packSource), 'loading manifest');
+    const manifest = await loadManifest(packSource, cwd, progress);
+    progress?.finish('ready');
     for (const asset of manifest.assets) {
       packDescriptors.push(asset);
     }
@@ -173,6 +184,7 @@ export async function runInstaller(
     const sources = Array.isArray(desc.source) ? desc.source : [desc.source];
     for (const src of sources) {
       expandedItems.push({ assetType: desc.type, source: src });
+      progress?.pending(label(desc.type, src));
     }
   }
 
@@ -192,6 +204,7 @@ export async function runInstaller(
     let explicitCount = explicitDescriptors.length;
     let idx = 0;
     for (const item of expandedItems) {
+      progress?.start(label(item.assetType, item.source));
       const isGlob = item.source.endsWith('/*');
       const cleanSource = isGlob ? item.source.slice(0, -2) : item.source;
       const fromExplicitFlag = idx++ < explicitCount;
@@ -203,9 +216,10 @@ export async function runInstaller(
           },
           status: 'skipped', reason: host.assets[item.assetType].reason,
         });
+        progress?.finish('skipped');
         continue;
       }
-      const resolved = await resolveSource(cleanSource, cwd);
+      const resolved = await resolveSource(cleanSource, cwd, progress?.source);
       if (resolved.tempDir) {
         tempDirsToClean.add(resolved.tempDir);
       }
@@ -216,6 +230,7 @@ export async function runInstaller(
           item.assetType,
         );
         if (entries.length === 0) {
+          progress?.finish('error');
           process.stderr.write(
             `agent-add error: No matching files found in directory for ${item.assetType}\n` +
               `  Source: ${item.source}\n`,
@@ -243,14 +258,17 @@ export async function runInstaller(
           fromExplicitFlag,
         });
       }
+      progress?.finish('ready');
     }
 
+    progress?.start('batch', 'validating');
     for (const item of resolvedItems) {
       const validationError = await validateAsset(
         item.assetType,
         item.resolved,
       );
       if (validationError) {
+        progress?.finish('error');
         process.stderr.write(`agent-add error: ${validationError}\n`);
         process.stderr.write(`  Source: ${item.resolved.originalSource}\n`);
         await cleanupTempDirs(tempDirsToClean);
@@ -288,6 +306,7 @@ export async function runInstaller(
     const incoming = new Map<string, { job: InstallJob; content: unknown }>();
     const collisions = new Set<InstallJob>();
     const invalid: InstallResult[] = [];
+    progress?.update('preflight');
     for (const job of jobs) {
       if (job.assetType === 'skill') continue;
       try {
@@ -318,6 +337,7 @@ export async function runInstaller(
       }
     }
     if (collisions.size || invalid.length) {
+      progress?.finish(collisions.size ? 'conflict' : 'error');
       return {
         host,
         results: [
@@ -338,11 +358,14 @@ export async function runInstaller(
     }
 
     const results: InstallResult[] = [...skippedResults];
+    progress?.stop();
 
     for (const job of jobs) {
+      progress?.start(`${job.assetType}/${job.assetName}`, 'installing');
       const handler = getHandler(job.assetType);
       const result = await handler.handle(job);
       results.push(result);
+      progress?.finish(result.status);
     }
 
     return { host, results };
