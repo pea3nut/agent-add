@@ -1,3 +1,4 @@
+import { HostId } from '../hosts/types.js';
 import fs from 'fs';
 import path from 'path';
 import { getAllHosts } from '../hosts/index.js';
@@ -42,25 +43,25 @@ export function isHostDetected(host: HostConfig, cwd: string): boolean {
   return checkHostDetection(host, buildSearchDirs(cwd));
 }
 
-const POPULARITY_ORDER: string[] = [
-  'cursor',
-  'claude-code',
-  'trae',
-  'qwen-code',
-  'github-copilot',
-  'codex',
-  'windsurf',
-  'gemini',
-  'kimi',
-  'augment',
-  'roo-code',
-  'kiro',
-  'tabnine',
-  'kilo-code',
-  'opencode',
-  'openclaw',
-  'vibe',
-  'claude-desktop',
+const POPULARITY_ORDER: HostId[] = [
+  HostId.Cursor,
+  HostId.ClaudeCode,
+  HostId.Trae,
+  HostId.QwenCode,
+  HostId.GitHubCopilot,
+  HostId.Codex,
+  HostId.Windsurf,
+  HostId.Gemini,
+  HostId.Kimi,
+  HostId.Augment,
+  HostId.RooCode,
+  HostId.Kiro,
+  HostId.Tabnine,
+  HostId.KiloCode,
+  HostId.OpenCode,
+  HostId.OpenClaw,
+  HostId.Vibe,
+  HostId.ClaudeDesktop,
 ];
 
 function sortByPopularity(hosts: HostConfig[]): HostConfig[] {

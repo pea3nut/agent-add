@@ -1,4 +1,12 @@
-import type { HostAdapter, AssetCapability, AssetType } from './types.js';
+import {
+  HostId,
+  type HostAdapter,
+  type AssetCapability,
+  type AssetType,
+  type UserEnvironment,
+  type UserAssets,
+} from './types.js';
+import { file, mcp, userPaths } from './user-assets.js';
 
 const NOT_SUPPORTED = (reason: string): AssetCapability => ({
   supported: false,
@@ -6,7 +14,7 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 });
 
 export class TabnineAdapter implements HostAdapter {
-  readonly id = 'tabnine';
+  readonly id = HostId.Tabnine;
   readonly displayName = 'Tabnine CLI';
   readonly detection = {
     paths: ['.tabnine/'],
@@ -35,5 +43,13 @@ export class TabnineAdapter implements HostAdapter {
     subAgent: NOT_SUPPORTED(
       'Tabnine CLI does not support sub-agent configuration files.',
     ),
+  };
+
+  readonly userAssets = (environment: UserEnvironment): UserAssets => {
+    const { at } = userPaths(environment);
+    return {
+      mcp: mcp(at('.tabnine/mcp_servers.json')),
+      command: file(at('.tabnine/agent/commands'), '.toml'),
+    };
   };
 }

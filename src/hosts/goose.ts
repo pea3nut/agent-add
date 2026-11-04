@@ -1,7 +1,15 @@
-import type { HostAdapter, AssetCapability, AssetType } from './types.js';
+import {
+  HostId,
+  type HostAdapter,
+  type AssetCapability,
+  type AssetType,
+  type UserEnvironment,
+  type UserAssets,
+} from './types.js';
+import { unsupported, skill, prompt, userPaths } from './user-assets.js';
 
 export class GooseAdapter implements HostAdapter {
-  readonly id = 'goose';
+  readonly id = HostId.Goose;
   readonly displayName = 'goose';
   readonly detection = {
     paths: ['.goosehints', '.goose/'],
@@ -32,5 +40,14 @@ export class GooseAdapter implements HostAdapter {
       reason:
         'goose custom-agent/recipe registration is not a verified drop-in sub-agent contract.',
     },
+  };
+
+  readonly userAssets = (environment: UserEnvironment): UserAssets => {
+    const { platform } = environment;
+    const { at } = userPaths(environment);
+    return {
+      prompt: platform === 'win32' ? unsupported('No Windows user hints path is selected for goose.') : prompt(at('.config/goose/.goosehints')),
+      skill: skill(at('.agents/skills')),
+    };
   };
 }

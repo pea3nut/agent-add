@@ -1,4 +1,13 @@
-import type { HostAdapter, AssetCapability, AssetType } from './types.js';
+import path from 'path';
+import {
+  HostId,
+  type HostAdapter,
+  type AssetCapability,
+  type AssetType,
+  type UserEnvironment,
+  type UserAssets,
+} from './types.js';
+import { skill, file, prompt, mcp, userPaths } from './user-assets.js';
 
 const NOT_SUPPORTED = (reason: string): AssetCapability => ({
   supported: false,
@@ -6,7 +15,7 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 });
 
 export class CodexAdapter implements HostAdapter {
-  readonly id = 'codex';
+  readonly id = HostId.Codex;
   readonly displayName = 'Codex CLI';
   readonly detection = {
     paths: ['.codex/'],
@@ -38,5 +47,16 @@ export class CodexAdapter implements HostAdapter {
       fileExtension: '.toml',
       writeStrategy: 'copy-file',
     },
+  };
+
+  readonly userAssets = (environment: UserEnvironment): UserAssets => {
+    const { at, override } = userPaths(environment);
+    const root = override('CODEX_HOME', at('.codex'));
+    return {
+      mcp: mcp(path.join(root, 'config.toml'), 'mcp_servers'),
+      prompt: prompt(path.join(root, 'AGENTS.md')),
+      skill: skill(at('.agents/skills')),
+      subAgent: file(path.join(root, 'agents'), '.toml'),
+    };
   };
 }

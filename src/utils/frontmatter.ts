@@ -1,6 +1,7 @@
 import matter from 'gray-matter';
 import yaml from 'yaml';
 import { isRecord } from './config.js';
+import type { HostId } from '../hosts/types.js';
 
 export function splitFrontmatter(content: string): {
   metadata: Record<string, unknown>;
@@ -29,7 +30,7 @@ export function splitFrontmatter(content: string): {
 
 export function applyHostHints(
   metadata: Record<string, unknown>,
-  hostId: string,
+  hostId: HostId,
 ): Record<string, unknown> {
   const prefix = 'agent-add/' + hostId + '/';
   return Object.fromEntries([

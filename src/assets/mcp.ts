@@ -1,3 +1,4 @@
+import { HostId } from '../hosts/types.js';
 import fs from 'fs';
 import {
   atomicWriteText,
@@ -35,7 +36,7 @@ async function handleTomlMcp(
     };
   }
 
-  if (host.id === 'vibe') {
+  if (host.id === HostId.Vibe) {
     // Vibe uses [[mcp_servers]] array format
     const mcpServers =
       (parsed['mcp_servers'] as Array<Record<string, unknown>>) ?? [];
@@ -87,7 +88,7 @@ async function handleTomlMcp(
 
   const addition = stringify({
     mcp_servers:
-      host.id === 'vibe' ? [newServerConfig] : { [assetName]: newServerConfig },
+      host.id === HostId.Vibe ? [newServerConfig] : { [assetName]: newServerConfig },
   });
   let newToml = (tomlContent ?? '').trimEnd() + '\n\n' + addition;
   try {

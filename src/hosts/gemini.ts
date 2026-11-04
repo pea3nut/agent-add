@@ -1,4 +1,13 @@
-import type { HostAdapter, AssetCapability, AssetType } from './types.js';
+import path from 'path';
+import {
+  HostId,
+  type HostAdapter,
+  type AssetCapability,
+  type AssetType,
+  type UserEnvironment,
+  type UserAssets,
+} from './types.js';
+import { skill, file, prompt, mcp, userPaths } from './user-assets.js';
 
 const NOT_SUPPORTED = (reason: string): AssetCapability => ({
   supported: false,
@@ -6,7 +15,7 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 });
 
 export class GeminiAdapter implements HostAdapter {
-  readonly id = 'gemini';
+  readonly id = HostId.Gemini;
   readonly displayName = 'Gemini CLI';
   readonly detection = {
     paths: ['.gemini/'],
@@ -41,5 +50,18 @@ export class GeminiAdapter implements HostAdapter {
       fileExtension: '.md',
       writeStrategy: 'copy-file',
     },
+  };
+
+  readonly userAssets = (environment: UserEnvironment): UserAssets => {
+    const { home } = environment;
+    const { override } = userPaths(environment);
+    const root = path.join(override('GEMINI_CLI_HOME', home), '.gemini');
+    return {
+      mcp: mcp(path.join(root, 'settings.json'), 'mcpServers', true),
+      prompt: prompt(path.join(root, 'GEMINI.md')),
+      skill: skill(path.join(root, 'skills')),
+      command: file(path.join(root, 'commands'), '.toml'),
+      subAgent: file(path.join(root, 'agents')),
+    };
   };
 }

@@ -1,3 +1,4 @@
+import { HostId } from '../hosts/types.js';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
@@ -100,11 +101,11 @@ async function prepareRegistration(
 
 async function promptTarget(job: InstallJob): Promise<string> {
   const cwd = job.host.rootDir ?? process.cwd();
-  if (job.host.id === 'codex' && job.host.scope === 'user') {
+  if (job.host.id === HostId.Codex && job.host.scope === 'user') {
     const override = path.join(path.dirname(job.host.assets.prompt.targetFile!), 'AGENTS.override.md');
     if ((await readTextOrNull(override))?.trim()) return override;
   }
-  if (job.host.id === 'zed' && job.host.scope !== 'user') {
+  if (job.host.id === HostId.Zed && job.host.scope !== 'user') {
     const candidates = [
       '.rules',
       '.cursorrules',
@@ -120,7 +121,7 @@ async function promptTarget(job: InstallJob): Promise<string> {
       if ((await readTextOrNull(path.resolve(cwd, candidate))) !== null)
         return path.resolve(cwd, candidate);
   }
-  if (job.host.id === 'gemini') {
+  if (job.host.id === HostId.Gemini) {
     const root = job.host.scope === 'user' ? path.dirname(job.host.assets.prompt.targetFile!) : cwd;
     const content = await readTextOrNull(job.host.assets.mcp.configFile!);
     const config = content === null ? {} : parseConfig(content, 'jsonc');

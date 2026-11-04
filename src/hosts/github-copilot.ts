@@ -1,4 +1,12 @@
-import type { HostAdapter, AssetCapability, AssetType } from './types.js';
+import {
+  HostId,
+  type HostAdapter,
+  type AssetCapability,
+  type AssetType,
+  type UserEnvironment,
+  type UserAssets,
+} from './types.js';
+import { skill, file, userPaths } from './user-assets.js';
 
 const NOT_SUPPORTED = (reason: string): AssetCapability => ({
   supported: false,
@@ -6,7 +14,7 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 });
 
 export class GitHubCopilotAdapter implements HostAdapter {
-  readonly id = 'github-copilot';
+  readonly id = HostId.GitHubCopilot;
   readonly displayName = 'GitHub Copilot';
   readonly detection = {
     paths: ['.github/', '.vscode/'],
@@ -42,5 +50,19 @@ export class GitHubCopilotAdapter implements HostAdapter {
       fileExtension: '.agent.md',
       writeStrategy: 'copy-file',
     },
+  };
+
+  readonly userAssets = (environment: UserEnvironment): UserAssets => {
+    const { env } = environment;
+    const { at, reject } = userPaths(environment);
+    return env.COPILOT_HOME
+      ? {
+        skill: reject('COPILOT_HOME'),
+        subAgent: reject('COPILOT_HOME'),
+      }
+      : {
+        skill: skill(at('.copilot/skills')),
+        subAgent: file(at('.copilot/agents'), '.agent.md'),
+      };
   };
 }

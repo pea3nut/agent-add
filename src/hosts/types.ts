@@ -1,3 +1,30 @@
+export enum HostId {
+  Aider = 'aider',
+  Amp = 'amp',
+  Augment = 'augment',
+  ClaudeCode = 'claude-code',
+  ClaudeDesktop = 'claude-desktop',
+  Cline = 'cline',
+  Codex = 'codex',
+  Continue = 'continue',
+  Cursor = 'cursor',
+  Gemini = 'gemini',
+  GitHubCopilot = 'github-copilot',
+  Goose = 'goose',
+  KiloCode = 'kilo-code',
+  Kimi = 'kimi',
+  Kiro = 'kiro',
+  OpenClaw = 'openclaw',
+  OpenCode = 'opencode',
+  QwenCode = 'qwen-code',
+  RooCode = 'roo-code',
+  Tabnine = 'tabnine',
+  Trae = 'trae',
+  Vibe = 'vibe',
+  Windsurf = 'windsurf',
+  Zed = 'zed',
+}
+
 export type AssetType = 'mcp' | 'skill' | 'prompt' | 'command' | 'subAgent';
 export type InstallScope = 'project' | 'user';
 
@@ -28,11 +55,20 @@ export interface HostDetection {
   paths: string[];
 }
 
+export interface UserEnvironment {
+  home: string;
+  env: NodeJS.ProcessEnv;
+  platform: NodeJS.Platform;
+}
+
+export type UserAssets = Partial<Record<AssetType, AssetCapability>>;
+
 export interface HostAdapter {
-  readonly id: string;
+  readonly id: HostId;
   readonly displayName: string;
   readonly detection: HostDetection;
   readonly assets: Record<AssetType, AssetCapability>;
+  readonly userAssets?: (environment: UserEnvironment) => UserAssets;
   readonly scope?: InstallScope;
   readonly rootDir?: string;
 }

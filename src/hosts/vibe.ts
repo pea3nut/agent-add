@@ -1,4 +1,13 @@
-import type { HostAdapter, AssetCapability, AssetType } from './types.js';
+import path from 'path';
+import {
+  HostId,
+  type HostAdapter,
+  type AssetCapability,
+  type AssetType,
+  type UserEnvironment,
+  type UserAssets,
+} from './types.js';
+import { skill, file, prompt, mcp, userPaths } from './user-assets.js';
 
 const NOT_SUPPORTED = (reason: string): AssetCapability => ({
   supported: false,
@@ -6,7 +15,7 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 });
 
 export class VibeAdapter implements HostAdapter {
-  readonly id = 'vibe';
+  readonly id = HostId.Vibe;
   readonly displayName = 'Mistral Vibe';
   readonly detection = {
     paths: ['.vibe/'],
@@ -37,5 +46,16 @@ export class VibeAdapter implements HostAdapter {
       fileExtension: '.toml',
       writeStrategy: 'copy-file',
     },
+  };
+
+  readonly userAssets = (environment: UserEnvironment): UserAssets => {
+    const { at, override } = userPaths(environment);
+    const root = override('VIBE_HOME', at('.vibe'));
+    return {
+      mcp: mcp(path.join(root, 'config.toml'), 'mcp_servers'),
+      prompt: prompt(path.join(root, 'AGENTS.md')),
+      skill: skill(path.join(root, 'skills')),
+      subAgent: file(path.join(root, 'agents'), '.toml'),
+    };
   };
 }

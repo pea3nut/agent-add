@@ -1,4 +1,12 @@
-import type { HostAdapter, AssetCapability, AssetType } from './types.js';
+import {
+  HostId,
+  type HostAdapter,
+  type AssetCapability,
+  type AssetType,
+  type UserEnvironment,
+  type UserAssets,
+} from './types.js';
+import { skill, file, rules, mcp, userPaths } from './user-assets.js';
 
 const NOT_SUPPORTED = (reason: string): AssetCapability => ({
   supported: false,
@@ -6,7 +14,7 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 });
 
 export class AugmentAdapter implements HostAdapter {
-  readonly id = 'augment';
+  readonly id = HostId.Augment;
   readonly displayName = 'Augment';
   readonly detection = {
     paths: ['.augment/'],
@@ -42,5 +50,16 @@ export class AugmentAdapter implements HostAdapter {
       fileExtension: '.md',
       writeStrategy: 'copy-file',
     },
+  };
+
+  readonly userAssets = (environment: UserEnvironment): UserAssets => {
+    const { at } = userPaths(environment);
+    return {
+      mcp: mcp(at('.augment/settings.json'), 'mcpServers', true),
+      prompt: rules(at('.augment/rules')),
+      skill: skill(at('.augment/skills')),
+      command: file(at('.augment/commands')),
+      subAgent: file(at('.augment/agents')),
+    };
   };
 }

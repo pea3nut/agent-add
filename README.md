@@ -15,20 +15,18 @@
 ---
 
 ```bash
-# Install a skill into this project → .claude/skills/pdf/
-npx -y agent-add --host claude-code \
-  --skill 'https://github.com/anthropics/skills.git#skills/pdf'
-
-# Or use it across your projects → ~/.claude/skills/pdf/
-npx -y agent-add --global --host claude-code \
-  --skill 'https://github.com/anthropics/skills.git#skills/pdf'
+npx -y agent-add \
+  --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}' \
+  --mcp 'https://github.com/modelcontextprotocol/servers.git#.mcp.json' \
+  --skill 'https://github.com/anthropics/skills.git#skills/pdf' \
+  --prompt $'# Code Review Rules\n\nAlways review for security issues first.' \
+  --command 'https://github.com/wshobson/commands.git#tools/security-scan.md' \
+  --sub-agent 'https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md'
 ```
 
 ---
 
 ## Supported Hosts
-
-Choose your tool below. See the [host reference](src/hosts/README.md#host-file-contracts) for paths and tool-specific details.
 
 ### Project scope (default)
 

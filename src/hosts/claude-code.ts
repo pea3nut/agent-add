@@ -1,4 +1,13 @@
-import type { HostAdapter, AssetCapability, AssetType } from './types.js';
+import path from 'path';
+import {
+  HostId,
+  type HostAdapter,
+  type AssetCapability,
+  type AssetType,
+  type UserEnvironment,
+  type UserAssets,
+} from './types.js';
+import { skill, file, prompt, mcp, userPaths } from './user-assets.js';
 
 const NOT_SUPPORTED = (reason: string): AssetCapability => ({
   supported: false,
@@ -6,7 +15,7 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 });
 
 export class ClaudeCodeAdapter implements HostAdapter {
-  readonly id = 'claude-code';
+  readonly id = HostId.ClaudeCode;
   readonly displayName = 'Claude Code';
   readonly detection = {
     paths: ['.claude/'],
@@ -41,5 +50,18 @@ export class ClaudeCodeAdapter implements HostAdapter {
       fileExtension: '.md',
       writeStrategy: 'copy-file',
     },
+  };
+
+  readonly userAssets = (environment: UserEnvironment): UserAssets => {
+    const { env } = environment;
+    const { at, override, reject } = userPaths(environment);
+    const root = override('CLAUDE_CONFIG_DIR', at('.claude'));
+    return {
+      mcp: env.CLAUDE_CONFIG_DIR ? reject('CLAUDE_CONFIG_DIR for MCP') : mcp(at('.claude.json')),
+      prompt: prompt(path.join(root, 'CLAUDE.md')),
+      skill: skill(path.join(root, 'skills')),
+      command: file(path.join(root, 'commands')),
+      subAgent: file(path.join(root, 'agents')),
+    };
   };
 }

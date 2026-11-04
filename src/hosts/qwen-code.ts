@@ -1,4 +1,12 @@
-import type { HostAdapter, AssetCapability, AssetType } from './types.js';
+import {
+  HostId,
+  type HostAdapter,
+  type AssetCapability,
+  type AssetType,
+  type UserEnvironment,
+  type UserAssets,
+} from './types.js';
+import { skill, file, mcp, userPaths } from './user-assets.js';
 
 const NOT_SUPPORTED = (reason: string): AssetCapability => ({
   supported: false,
@@ -6,7 +14,7 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 });
 
 export class QwenCodeAdapter implements HostAdapter {
-  readonly id = 'qwen-code';
+  readonly id = HostId.QwenCode;
   readonly displayName = 'Qwen Code';
   readonly detection = {
     paths: ['.qwen/'],
@@ -41,5 +49,15 @@ export class QwenCodeAdapter implements HostAdapter {
       fileExtension: '.md',
       writeStrategy: 'copy-file',
     },
+  };
+
+  readonly userAssets = (environment: UserEnvironment): UserAssets => {
+    const { at } = userPaths(environment);
+    return {
+      mcp: mcp(at('.qwen/settings.json'), 'mcpServers', true),
+      skill: skill(at('.qwen/skills')),
+      command: file(at('.qwen/commands')),
+      subAgent: file(at('.qwen/agents')),
+    };
   };
 }

@@ -1,4 +1,12 @@
-import type { HostAdapter, AssetCapability, AssetType } from './types.js';
+import {
+  HostId,
+  type HostAdapter,
+  type AssetCapability,
+  type AssetType,
+  type UserEnvironment,
+  type UserAssets,
+} from './types.js';
+import { skill, file, mcp, userPaths } from './user-assets.js';
 
 const NOT_SUPPORTED = (reason: string): AssetCapability => ({
   supported: false,
@@ -6,7 +14,7 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 });
 
 export class CursorAdapter implements HostAdapter {
-  readonly id = 'cursor';
+  readonly id = HostId.Cursor;
   readonly displayName = 'Cursor';
   readonly detection = {
     paths: ['.cursor/'],
@@ -41,5 +49,14 @@ export class CursorAdapter implements HostAdapter {
       fileExtension: '.md',
       writeStrategy: 'copy-file',
     },
+  };
+
+  readonly userAssets = (environment: UserEnvironment): UserAssets => {
+    const { at } = userPaths(environment);
+    return {
+      mcp: mcp(at('.cursor/mcp.json'), 'mcpServers', true),
+      skill: skill(at('.cursor/skills')),
+      subAgent: file(at('.cursor/agents')),
+    };
   };
 }

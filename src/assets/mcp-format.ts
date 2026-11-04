@@ -1,3 +1,4 @@
+import { HostId } from '../hosts/types.js';
 import { assertSafeConfigKey, isRecord } from '../utils/config.js';
 import { z } from 'zod';
 import type { InstallJob } from './types.js';
@@ -14,7 +15,7 @@ export function convertMcpServer(
   name: string,
 ): Record<string, unknown> {
   assertSafeConfigKey(name);
-  if (job.host.id === 'claude-desktop' &&
+  if (job.host.id === HostId.ClaudeDesktop &&
       (source.url !== undefined || source.httpUrl !== undefined || source.serverUrl !== undefined))
     throw new Error('Claude Desktop file installation supports local stdio MCP servers only');
   const nativeHttp = source.httpUrl !== undefined;
@@ -26,9 +27,9 @@ export function convertMcpServer(
     source = { ...source, url: source.httpUrl };
     delete source.httpUrl;
   }
-  const format = ['opencode', 'kilo-code'].includes(job.host.id)
-    ? 'opencode'
-    : job.host.id === 'github-copilot' ? 'vscode' : job.host.id;
+  const format = [HostId.OpenCode, HostId.KiloCode].includes(job.host.id)
+    ? HostId.OpenCode
+    : job.host.id === HostId.GitHubCopilot ? 'vscode' : job.host.id;
   const command = source.command;
   const args = source.args;
   const env = source.env !== undefined ? source.env : source.environment;
@@ -73,7 +74,7 @@ export function convertMcpServer(
         /[\s\\]/.test(url)
       )
         throw new Error();
-      const validationUrl = ['gemini', 'qwen-code'].includes(job.host.id)
+      const validationUrl = [HostId.Gemini, HostId.QwenCode].includes(job.host.id)
         ? url.replace(/\$\{[A-Za-z_][A-Za-z0-9_]*\}/g, '1')
         : url;
       const parsed = new URL(validationUrl);
@@ -131,7 +132,7 @@ export function convertMcpServer(
     throw new Error('Remote MCP cannot use stdio args');
   if (command !== undefined && source.headers !== undefined)
     throw new Error('Stdio MCP cannot use HTTP headers');
-  if (job.host.id === 'claude-desktop') {
+  if (job.host.id === HostId.ClaudeDesktop) {
     if (typeof command !== 'string')
       throw new Error('Claude Desktop requires a string stdio command');
     const allowed = new Set(['command', 'args', 'env', 'environment', 'type', 'transport']);
@@ -146,12 +147,12 @@ export function convertMcpServer(
   if (
     url !== undefined &&
     transport === 'sse' &&
-    ['codex', 'opencode'].includes(format)
+    (format === HostId.Codex || format === HostId.OpenCode)
   )
     throw new Error(
       job.host.id + ' does not support converting legacy SSE transport',
     );
-  if (format === 'opencode') {
+  if (format === HostId.OpenCode) {
     const allowed = new Set([
       'type',
       'transport',
@@ -178,7 +179,7 @@ export function convertMcpServer(
           clientId: text,
           clientSecret: text,
           scope: text,
-          ...(job.host.id === 'opencode' ? {
+          ...(job.host.id === HostId.OpenCode ? {
             callbackPort: z.number().int().min(1).max(65535).optional(),
             redirectUri: text,
           } : {}),
@@ -203,7 +204,7 @@ export function convertMcpServer(
       if (source[key] !== undefined) entry[key] = source[key];
     return entry;
   }
-  if (format === 'codex' || format === 'vibe') {
+  if (format === HostId.Codex || format === HostId.Vibe) {
     if (Array.isArray(command))
       throw new Error(job.host.id + ' requires command to be a string');
     const entry = { ...source };
@@ -217,7 +218,7 @@ export function convertMcpServer(
       entry.env = source.environment;
       delete entry.environment;
     }
-    if (format === 'vibe') {
+    if (format === HostId.Vibe) {
       if (url !== undefined)
         throw new Error(
           'Remote Vibe MCP transport is not implemented; refusing to drop its URL',
@@ -283,7 +284,7 @@ export function convertMcpServer(
     entry.env = env;
     delete entry.environment;
   }
-  if (['gemini', 'qwen-code'].includes(job.host.id)) {
+  if ([HostId.Gemini, HostId.QwenCode].includes(job.host.id)) {
     delete entry.type;
     delete entry.transport;
     z.object({
@@ -310,18 +311,18 @@ export function convertMcpServer(
       }).optional(),
     }).parse(entry);
   }
-  if (['roo-code', 'kiro'].includes(job.host.id)) {
+  if ([HostId.RooCode, HostId.Kiro].includes(job.host.id)) {
     z.object({
       disabled: flag,
       disabledTools: strings,
-      ...(job.host.id === 'kiro' ? { autoApprove: strings } : {
+      ...(job.host.id === HostId.Kiro ? { autoApprove: strings } : {
         cwd: text,
         alwaysAllow: strings,
         watchPaths: strings,
         timeout: z.number().min(1).max(3600).optional(),
       }),
     }).parse(entry);
-    if (job.host.id === 'roo-code') {
+    if (job.host.id === HostId.RooCode) {
       delete entry.transport;
       if (url !== undefined)
         entry.type = transport === 'sse' ? 'sse' : 'streamable-http';
@@ -329,7 +330,7 @@ export function convertMcpServer(
         entry.type = 'stdio';
     }
   }
-  if (['gemini', 'qwen-code'].includes(job.host.id) && url !== undefined) {
+  if ([HostId.Gemini, HostId.QwenCode].includes(job.host.id) && url !== undefined) {
     delete entry.type;
     delete entry.transport;
     delete entry.url;
@@ -346,7 +347,7 @@ export function convertMcpServer(
         url !== undefined ? (transport === 'sse' ? 'sse' : 'http') : 'stdio',
     };
   }
-  if (job.host.id === 'claude-code' && url !== undefined) {
+  if (job.host.id === HostId.ClaudeCode && url !== undefined) {
     delete entry.transport;
     return { ...entry, type: transport === 'sse' ? 'sse' : 'http' };
   }

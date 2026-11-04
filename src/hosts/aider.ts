@@ -1,7 +1,7 @@
-import type { HostAdapter, AssetCapability, AssetType } from './types.js';
+import { HostId, type HostAdapter, type AssetCapability, type AssetType } from './types.js';
 
 export class AiderAdapter implements HostAdapter {
-  readonly id = 'aider';
+  readonly id = HostId.Aider;
   readonly displayName = 'Aider';
   readonly detection = { paths: ['.aider.conf.yml'] };
   readonly assets: Record<AssetType, AssetCapability> = {

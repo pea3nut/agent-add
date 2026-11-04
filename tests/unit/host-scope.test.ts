@@ -1,6 +1,7 @@
 import path from 'path';
-import { describe, expect, it } from 'vitest';
-import { getHost } from '../../src/hosts/index.js';
+import { describe, expect, it, vi } from 'vitest';
+import { getAllHosts, getHost, getValidHostIds } from '../../src/hosts/index.js';
+import { HostId, type HostAdapter } from '../../src/hosts/types.js';
 import { selectHostScope } from '../../src/hosts/scope.js';
 import { convertMcpServer } from '../../src/assets/mcp-format.js';
 import type { InstallJob } from '../../src/assets/types.js';
@@ -9,6 +10,33 @@ describe('scope path selection', () => {
   const home = path.resolve('test-home');
   const cwd = path.resolve('test-project');
   const environment = { home, env: {}, platform: 'linux' as const };
+
+  it('registers every enum ID exactly once and rejects unknown CLI IDs', () => {
+    const ids = Object.values(HostId).sort();
+    expect(getValidHostIds().sort()).toEqual(ids);
+    expect(getAllHosts().map((host) => host.id).sort()).toEqual(ids);
+    expect(getHost('unknown-host')).toBeUndefined();
+  });
+
+  it('delegates user capabilities to the adapter and fills unsupported gaps', () => {
+    const userAssets = vi.fn(() => ({
+      skill: { supported: true, installDir: path.join(home, 'custom-skills') },
+    }));
+    const host: HostAdapter = { ...getHost(HostId.Cursor)!, userAssets };
+    const selected = selectHostScope(host, 'user', cwd, environment);
+    expect(userAssets).toHaveBeenCalledExactlyOnceWith(environment);
+    expect(selected.assets.skill.installDir).toBe(path.join(home, 'custom-skills'));
+    expect(selected.assets.mcp.supported).toBe(false);
+    expect(host.assets.skill.installDir).toBe('.cursor/skills/');
+  });
+
+  it('never invokes the user factory for project scope', () => {
+    const userAssets = vi.fn(() => { throw new Error('user-only factory'); });
+    const host: HostAdapter = { ...getHost(HostId.Cursor)!, userAssets };
+    const selected = selectHostScope(host, 'project', cwd, environment);
+    expect(userAssets).not.toHaveBeenCalled();
+    expect(selected.assets.skill.installDir).toBe(path.join(cwd, '.cursor/skills'));
+  });
 
   it('resolves project paths without mutating the registered adapter', () => {
     const host = getHost('claude-code')!;

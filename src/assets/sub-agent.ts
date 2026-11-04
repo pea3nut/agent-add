@@ -1,3 +1,4 @@
+import { HostId } from '../hosts/types.js';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
@@ -12,13 +13,13 @@ import type { AssetHandler, InstallJob, InstallResult } from './types.js';
 function processSubAgentContent(content: string, job: InstallJob): string {
   const { metadata, body, hasFrontmatter } = splitFrontmatter(content);
   const processed = applyHostHints(metadata, job.host.id);
-  if (job.host.id === 'codex' || job.host.id === 'vibe') {
+  if (job.host.id === HostId.Codex || job.host.id === HostId.Vibe) {
     if (
       typeof processed.description !== 'string' ||
       !processed.description.trim()
     )
       throw new Error('A nonempty sub-agent description is required');
-    if (job.host.id === 'codex') {
+    if (job.host.id === HostId.Codex) {
       const allowed = new Set([
         'name',
         'description',

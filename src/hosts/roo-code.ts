@@ -1,4 +1,12 @@
-import type { HostAdapter, AssetCapability, AssetType } from './types.js';
+import {
+  HostId,
+  type HostAdapter,
+  type AssetCapability,
+  type AssetType,
+  type UserEnvironment,
+  type UserAssets,
+} from './types.js';
+import { skill, file, rules, userPaths } from './user-assets.js';
 
 const NOT_SUPPORTED = (reason: string): AssetCapability => ({
   supported: false,
@@ -6,7 +14,7 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 });
 
 export class RooCodeAdapter implements HostAdapter {
-  readonly id = 'roo-code';
+  readonly id = HostId.RooCode;
   readonly displayName = 'Roo Code';
   readonly detection = {
     paths: ['.roo/'],
@@ -36,5 +44,14 @@ export class RooCodeAdapter implements HostAdapter {
       writeStrategy: 'copy-file',
     },
     subAgent: NOT_SUPPORTED('Roo Code does not support sub-agent configuration files.'),
+  };
+
+  readonly userAssets = (environment: UserEnvironment): UserAssets => {
+    const { at } = userPaths(environment);
+    return {
+      prompt: rules(at('.roo/rules')),
+      skill: skill(at('.roo/skills')),
+      command: file(at('.roo/commands')),
+    };
   };
 }
