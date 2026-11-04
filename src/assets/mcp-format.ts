@@ -1,5 +1,12 @@
 import { assertSafeConfigKey, isRecord } from '../utils/config.js';
+import { z } from 'zod';
 import type { InstallJob } from './types.js';
+
+const text = z.string().optional();
+const flag = z.boolean().optional();
+const strings = z.array(z.string()).optional();
+const stringMap = z.record(z.string(), z.string()).optional();
+const seconds = z.number().nonnegative().lt(2 ** 64).optional();
 
 export function convertMcpServer(
   job: InstallJob,
@@ -132,6 +139,7 @@ export function convertMcpServer(
   if (format === 'opencode') {
     const allowed = new Set([
       'type',
+      'transport',
       'command',
       'args',
       'env',
@@ -146,6 +154,22 @@ export function convertMcpServer(
     for (const key of Object.keys(source))
       if (!allowed.has(key))
         throw new Error(job.host.id + ' cannot represent MCP field ' + key);
+    z.object({
+      enabled: flag,
+      timeout: z.number().int().positive().optional(),
+      oauth: z.union([
+        z.literal(false),
+        z.strictObject({
+          clientId: text,
+          clientSecret: text,
+          scope: text,
+          ...(job.host.id === 'opencode' ? {
+            callbackPort: z.number().int().min(1).max(65535).optional(),
+            redirectUri: text,
+          } : {}),
+        }),
+      ]).optional(),
+    }).parse(source);
     const remote = url !== undefined;
     if (remote && env !== undefined)
       throw new Error('Remote MCP does not support env');
@@ -169,6 +193,7 @@ export function convertMcpServer(
       throw new Error(job.host.id + ' requires command to be a string');
     const entry = { ...source };
     delete entry.type;
+    delete entry.transport;
     if (source.serverUrl !== undefined) {
       entry.url = source.serverUrl;
       delete entry.serverUrl;
@@ -186,8 +211,6 @@ export function convertMcpServer(
       for (const key of Object.keys(entry))
         if (!allowed.has(key))
           throw new Error('Vibe cannot represent MCP field ' + key);
-      if (entry.transport !== undefined && entry.transport !== 'stdio')
-        throw new Error('Vibe command MCP requires stdio transport');
       return { ...entry, name, transport: 'stdio' };
     }
     if (source.headers !== undefined) {
@@ -196,28 +219,30 @@ export function convertMcpServer(
       entry.http_headers = source.headers;
       delete entry.headers;
     }
-    const allowed = new Set([
-      'command',
-      'args',
-      'env',
-      'cwd',
-      'env_vars',
-      'url',
-      'http_headers',
-      'env_http_headers',
-      'bearer_token_env_var',
-      'startup_timeout_sec',
-      'tool_timeout_sec',
-      'enabled',
-      'required',
-      'enabled_tools',
-      'disabled_tools',
-      'tools',
-      'experimental_environment',
-    ]);
-    for (const key of Object.keys(entry))
-      if (!allowed.has(key))
-        throw new Error('Codex cannot represent MCP field ' + key);
+    z.strictObject({
+      command: text,
+      args: strings,
+      env: stringMap,
+      cwd: text,
+      env_vars: z.array(z.union([
+        z.string(),
+        z.strictObject({ name: z.string(), source: text }),
+      ])).optional(),
+      url: text,
+      http_headers: stringMap,
+      env_http_headers: stringMap,
+      bearer_token_env_var: text,
+      startup_timeout_sec: seconds,
+      tool_timeout_sec: seconds,
+      enabled: flag,
+      required: flag,
+      enabled_tools: strings,
+      disabled_tools: strings,
+      tools: z.record(z.string(), z.strictObject({
+        approval_mode: z.enum(['auto', 'prompt', 'writes', 'approve']).optional(),
+        output_token_limit: z.number().int().positive().optional(),
+      })).optional(),
+    }).parse(entry);
     if (
       url !== undefined &&
       ['args', 'env', 'cwd', 'env_vars'].some((key) => entry[key] !== undefined)
@@ -243,6 +268,52 @@ export function convertMcpServer(
     entry.env = env;
     delete entry.environment;
   }
+  if (['gemini', 'qwen-code'].includes(job.host.id)) {
+    delete entry.type;
+    delete entry.transport;
+    z.object({
+      cwd: text,
+      timeout: z.number().optional(),
+      trust: flag,
+      description: text,
+      includeTools: strings,
+      excludeTools: strings,
+      oauth: z.object({
+        enabled: flag,
+        clientId: text,
+        clientSecret: text,
+        authorizationUrl: text,
+        tokenUrl: text,
+        redirectUri: text,
+        tokenParamName: text,
+        registrationUrl: text,
+        issuer: text,
+        scopes: strings,
+        audiences: strings,
+        authorizationResponseIssParameterSupported: flag,
+        allowPrivateNetwork: flag,
+      }).optional(),
+    }).parse(entry);
+  }
+  if (['roo-code', 'kiro'].includes(job.host.id)) {
+    z.object({
+      disabled: flag,
+      disabledTools: strings,
+      ...(job.host.id === 'kiro' ? { autoApprove: strings } : {
+        cwd: text,
+        alwaysAllow: strings,
+        watchPaths: strings,
+        timeout: z.number().min(1).max(3600).optional(),
+      }),
+    }).parse(entry);
+    if (job.host.id === 'roo-code') {
+      delete entry.transport;
+      if (url !== undefined)
+        entry.type = transport === 'sse' ? 'sse' : 'streamable-http';
+      else if (source.type !== undefined || source.transport !== undefined)
+        entry.type = 'stdio';
+    }
+  }
   if (['gemini', 'qwen-code'].includes(job.host.id) && url !== undefined) {
     delete entry.type;
     delete entry.transport;
@@ -252,12 +323,14 @@ export function convertMcpServer(
       [transport === 'http' || transport === 'remote' || nativeHttp ? 'httpUrl' : 'url']: url,
     };
   }
-  if (format === 'vscode')
+  if (format === 'vscode') {
+    delete entry.transport;
     return {
       ...entry,
       type:
         url !== undefined ? (transport === 'sse' ? 'sse' : 'http') : 'stdio',
     };
+  }
   if (job.host.id === 'claude-code' && url !== undefined) {
     delete entry.transport;
     return { ...entry, type: transport === 'sse' ? 'sse' : 'http' };

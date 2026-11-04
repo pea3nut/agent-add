@@ -101,6 +101,15 @@ Feature: MCP advanced installation scenarios
     Then decoded settings match each host's documented native schema, retaining commands, arguments, environments, URLs and headers where supported
     And Amp preserves its literal amp.mcpServers key and JSONC comments, and existing unrelated entries remain unchanged
     And reinstalling identical entries reports exists without modifying configuration
+    And equivalent type and transport aliases produce the same native entry without leaking portable selectors
+
+  @P0
+  Scenario: Native MCP optional fields are validated before any batch writes
+    Given isolated new and existing project configurations for Codex, opencode, Kilo, Gemini, Qwen, Roo and Kiro
+    When native fields contain wrong scalar types, nulls, malformed nested OAuth or tool settings, invalid list elements or out-of-range timeouts
+    Then installation fails without creating or changing any target or accompanying prompt, also with overwrite and dry-run
+    And native false values, empty lists and maps, valid timeout boundaries and nested field values are preserved without coercion
+    And decoded Codex and opencode positive controls satisfy their independently fetched official schemas
 
   @P0
   Scenario: Gemini and Qwen distinguish native HTTP from SSE while Claude normalizes remote types
