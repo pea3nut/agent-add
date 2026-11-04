@@ -18,12 +18,13 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 
 export class QwenCodeAdapter implements HostAdapter {
   readonly id = HostId.QwenCode;
+  readonly selectionPriority = 4;
   readonly displayName = 'Qwen Code';
   readonly detection = {
     paths: ['.qwen/'],
   };
   readonly mcp: McpAdapter = {
-    interpolateEnvironment: true,
+    normalizeUrl: (url) => url.replace(/\$\{[A-Za-z_][A-Za-z0-9_]*\}/g, '1'),
     convert: (input) => geminiMcp(input, this.id),
   };
 

@@ -15,6 +15,7 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 
 export class WindsurfAdapter implements HostAdapter {
   readonly id = HostId.Windsurf;
+  readonly selectionPriority = 7;
   readonly displayName = 'Windsurf';
   readonly detection = {
     paths: ['.windsurf/'],

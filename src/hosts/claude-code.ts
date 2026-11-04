@@ -18,6 +18,7 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 
 export class ClaudeCodeAdapter implements HostAdapter {
   readonly id = HostId.ClaudeCode;
+  readonly selectionPriority = 2;
   readonly displayName = 'Claude Code';
   readonly detection = {
     paths: ['.claude/'],

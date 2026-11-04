@@ -1,3 +1,4 @@
+import { serializeTomlCommand } from './command.js';
 import { readTextOrNull, isRecord, parseConfig } from '../utils/config.js';
 import { geminiMcp } from './mcp.js';
 import path from 'path';
@@ -19,12 +20,13 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 
 export class GeminiAdapter implements HostAdapter {
   readonly id = HostId.Gemini;
+  readonly selectionPriority = 8;
   readonly displayName = 'Gemini CLI';
   readonly detection = {
     paths: ['.gemini/'],
   };
   readonly mcp: McpAdapter = {
-    interpolateEnvironment: true,
+    normalizeUrl: (url) => url.replace(/\$\{[A-Za-z_][A-Za-z0-9_]*\}/g, '1'),
     convert: (input) => geminiMcp(input, this.id),
   };
 
@@ -52,6 +54,8 @@ export class GeminiAdapter implements HostAdapter {
     }
     return path.resolve(host.assets.prompt.targetFile!);
   };
+
+  readonly serializeCommand = serializeTomlCommand;
 
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {

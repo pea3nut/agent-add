@@ -17,6 +17,7 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 
 export class OpencodeAdapter implements HostAdapter {
   readonly id = HostId.OpenCode;
+  readonly selectionPriority = 15;
   readonly displayName = 'opencode';
   readonly detection = {
     paths: ['opencode.json', 'opencode.jsonc', '.opencode/'],

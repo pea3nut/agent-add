@@ -17,6 +17,7 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 
 export class GitHubCopilotAdapter implements HostAdapter {
   readonly id = HostId.GitHubCopilot;
+  readonly selectionPriority = 5;
   readonly displayName = 'GitHub Copilot';
   readonly detection = {
     paths: ['.github/', '.vscode/'],

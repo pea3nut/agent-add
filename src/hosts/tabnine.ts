@@ -1,3 +1,4 @@
+import { serializeTomlCommand } from './command.js';
 import {
   HostId,
   type HostAdapter,
@@ -15,10 +16,13 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 
 export class TabnineAdapter implements HostAdapter {
   readonly id = HostId.Tabnine;
+  readonly selectionPriority = 13;
   readonly displayName = 'Tabnine CLI';
   readonly detection = {
     paths: ['.tabnine/'],
   };
+  readonly serializeCommand = serializeTomlCommand;
+
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
       supported: true,

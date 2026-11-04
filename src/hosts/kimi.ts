@@ -15,6 +15,7 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 
 export class KimiAdapter implements HostAdapter {
   readonly id = HostId.Kimi;
+  readonly selectionPriority = 9;
   readonly displayName = 'Kimi Code';
   readonly detection = {
     paths: ['.kimi/'],

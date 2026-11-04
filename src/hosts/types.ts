@@ -41,7 +41,6 @@ export interface AssetCapability {
   configKey?: string;
   configFormat?: 'json' | 'jsonc';
   configFileAlternatives?: string[];
-  registration?: 'instructions' | 'read';
   installDir?: string;
   entryFile?: string;
   fileExtension?: string;
@@ -73,10 +72,19 @@ export interface McpServerInput {
   nativeHttp: boolean;
 }
 
+export type McpConfigEdit =
+  | { status: 'written'; content: string }
+  | { status: 'exists' | 'conflict'; reason?: string };
+
 export interface McpAdapter {
   validateSource?: (source: Record<string, unknown>) => void;
-  interpolateEnvironment?: boolean;
-  tomlLayout?: 'named-array';
+  normalizeUrl?: (url: string) => string;
+  editConfig?: (
+    current: string | null,
+    file: string,
+    name: string,
+    server: Record<string, unknown>,
+  ) => McpConfigEdit;
   convert: (input: McpServerInput, name: string) => Record<string, unknown>;
 }
 
@@ -89,10 +97,16 @@ export interface HostAdapter {
   readonly id: HostId;
   readonly displayName: string;
   readonly detection: HostDetection;
+  readonly selectionPriority?: number;
   readonly assets: Record<AssetType, AssetCapability>;
   readonly userAssets?: (environment: UserEnvironment) => UserAssets;
   readonly mcp?: McpAdapter;
   readonly serializeSubAgent?: (content: SubAgentContent, name: string) => string;
+  readonly serializeCommand?: (content: string) => string;
+  readonly registerPrompt?: (
+    host: HostAdapter,
+    target: string,
+  ) => Promise<{ file: string; content: string } | null>;
   readonly resolvePromptTarget?: (host: HostAdapter) => Promise<string>;
   readonly scope?: InstallScope;
   readonly rootDir?: string;

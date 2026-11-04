@@ -15,6 +15,7 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 
 export class AugmentAdapter implements HostAdapter {
   readonly id = HostId.Augment;
+  readonly selectionPriority = 10;
   readonly displayName = 'Augment';
   readonly detection = {
     paths: ['.augment/'],

@@ -1,3 +1,4 @@
+import { registerPromptFile } from './prompt.js';
 import { openCodeMcp } from './mcp.js';
 import {
   HostId,
@@ -17,6 +18,7 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 
 export class KiloCodeAdapter implements HostAdapter {
   readonly id = HostId.KiloCode;
+  readonly selectionPriority = 14;
   readonly displayName = 'Kilo Code';
   readonly detection = {
     paths: ['.kilo/', 'kilo.jsonc', 'kilo.json', '.kilocode/'],
@@ -24,6 +26,9 @@ export class KiloCodeAdapter implements HostAdapter {
   readonly mcp: McpAdapter = {
     convert: (input) => openCodeMcp(input, this.id),
   };
+
+  readonly registerPrompt = (host: HostAdapter, target: string) =>
+    registerPromptFile(host, target, host.assets.mcp, 'instructions', 'jsonc');
 
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
@@ -41,7 +46,6 @@ export class KiloCodeAdapter implements HostAdapter {
     prompt: {
       supported: true,
       installDir: '.kilo/rules',
-      registration: 'instructions',
       writeStrategy: 'create-file-in-dir',
     },
     skill: {

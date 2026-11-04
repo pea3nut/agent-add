@@ -18,6 +18,7 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 
 export class RooCodeAdapter implements HostAdapter {
   readonly id = HostId.RooCode;
+  readonly selectionPriority = 11;
   readonly displayName = 'Roo Code';
   readonly detection = {
     paths: ['.roo/'],

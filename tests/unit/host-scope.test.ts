@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { getAllHosts, getHost, getValidHostIds } from '../../src/hosts/index.js';
 import { HostId, type HostAdapter } from '../../src/hosts/types.js';
 import { selectHostScope } from '../../src/hosts/scope.js';
-import { convertMcpServer } from '../../src/assets/mcp-format.js';
+import { convertMcpServer } from '../../src/hosts/mcp-source.js';
 import type { InstallJob } from '../../src/assets/types.js';
 
 describe('scope path selection', () => {
@@ -43,12 +43,16 @@ describe('scope path selection', () => {
       ...getHost(HostId.Cursor)!,
       mcp: { convert: vi.fn(() => ({})) },
       serializeSubAgent: vi.fn(() => 'native content'),
+      serializeCommand: vi.fn((content: string) => content),
+      registerPrompt: vi.fn(async () => null),
       resolvePromptTarget: vi.fn(async () => 'native target'),
     };
     for (const scope of ['project', 'user'] as const) {
       const selected = selectHostScope(host, scope, cwd, environment);
       expect(selected.mcp).toBe(host.mcp);
       expect(selected.serializeSubAgent).toBe(host.serializeSubAgent);
+      expect(selected.serializeCommand).toBe(host.serializeCommand);
+      expect(selected.registerPrompt).toBe(host.registerPrompt);
       expect(selected.resolvePromptTarget).toBe(host.resolvePromptTarget);
     }
   });
@@ -61,7 +65,7 @@ describe('scope path selection', () => {
       resolvedSource: { type: 'inline-json', localPath: '', originalSource: '{}' },
     };
     const source = { command: 'node', environment: { MODE: 'test' } };
-    expect(convertMcpServer(job, source, 'demo')).toEqual({ native: true });
+    expect(convertMcpServer(job.host, source, 'demo')).toEqual({ native: true });
     expect(convert).toHaveBeenCalledExactlyOnceWith({
       source, command: 'node', args: undefined, env: { MODE: 'test' },
       url: undefined, transport: undefined, nativeHttp: false,
@@ -106,7 +110,7 @@ describe('scope path selection', () => {
       assetType: 'mcp', assetName: 'demo', host: getHost('claude-desktop')!,
       resolvedSource: { type: 'inline-json', localPath: '', originalSource: '{}' },
     };
-    expect(convertMcpServer(job, { command: 'node', args: ['server.js'], environment: { MODE: 'test' }, type: 'stdio' }, 'demo'))
+    expect(convertMcpServer(job.host, { command: 'node', args: ['server.js'], environment: { MODE: 'test' }, type: 'stdio' }, 'demo'))
       .toEqual({ command: 'node', args: ['server.js'], env: { MODE: 'test' } });
   });
 
@@ -115,9 +119,9 @@ describe('scope path selection', () => {
       assetType: 'mcp', assetName: 'demo', host: getHost('claude-desktop')!,
       resolvedSource: { type: 'inline-json', localPath: '', originalSource: '{}' },
     };
-    expect(() => convertMcpServer(job, { url: 'https://example.com/mcp' }, 'demo')).toThrow('local stdio');
-    expect(() => convertMcpServer(job, { command: ['node', 'server.js'] }, 'demo')).toThrow('string stdio command');
-    expect(() => convertMcpServer(job, { command: 'node', unknown: true }, 'demo')).toThrow('cannot represent');
+    expect(() => convertMcpServer(job.host, { url: 'https://example.com/mcp' }, 'demo')).toThrow('local stdio');
+    expect(() => convertMcpServer(job.host, { command: ['node', 'server.js'] }, 'demo')).toThrow('string stdio command');
+    expect(() => convertMcpServer(job.host, { command: 'node', unknown: true }, 'demo')).toThrow('cannot represent');
   });
 
   it('does not apply user overrides to project path selection', () => {

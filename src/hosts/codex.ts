@@ -1,3 +1,4 @@
+import { editTomlMcpConfig } from './mcp-config.js';
 import { readTextOrNull } from '../utils/config.js';
 import { stringify } from 'smol-toml';
 import { z } from 'zod';
@@ -25,11 +26,14 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 
 export class CodexAdapter implements HostAdapter {
   readonly id = HostId.Codex;
+  readonly selectionPriority = 6;
   readonly displayName = 'Codex CLI';
   readonly detection = {
     paths: ['.codex/'],
   };
   readonly mcp: McpAdapter = {
+    editConfig: (current, file, name, server) =>
+      editTomlMcpConfig(current, file, name, server, 'table', this.displayName),
     convert: (input) => {
       rejectLegacySse(input, this.id);
       const { source, command, url } = input;

@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import select from '@inquirer/select';
 import { getAllHosts, getHost, getValidHostIds } from './hosts/index.js';
-import { detectHosts, isHostDetected } from './utils/detect-hosts.js';
+import { detectHosts, isHostDetected } from './hosts/detect.js';
 import { runInstaller } from './installer.js';
 import { printSummary } from './utils/summary.js';
 import type { CliInput } from './installer.js';

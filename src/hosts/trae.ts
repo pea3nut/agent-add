@@ -15,6 +15,7 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 
 export class TraeAdapter implements HostAdapter {
   readonly id = HostId.Trae;
+  readonly selectionPriority = 3;
   readonly displayName = 'Trae';
   readonly detection = {
     paths: ['.trae/'],

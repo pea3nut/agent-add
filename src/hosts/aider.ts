@@ -1,9 +1,13 @@
+import { registerPromptFile } from './prompt.js';
 import { HostId, type HostAdapter, type AssetCapability, type AssetType } from './types.js';
 
 export class AiderAdapter implements HostAdapter {
   readonly id = HostId.Aider;
   readonly displayName = 'Aider';
   readonly detection = { paths: ['.aider.conf.yml'] };
+  readonly registerPrompt = (host: HostAdapter, target: string) =>
+    registerPromptFile(host, target, host.assets.prompt, 'read', 'yaml');
+
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
       supported: false,
@@ -14,7 +18,6 @@ export class AiderAdapter implements HostAdapter {
       supported: true,
       targetFile: 'CONVENTIONS.md',
       configFile: '.aider.conf.yml',
-      registration: 'read',
       writeStrategy: 'append-with-marker',
     },
     skill: {

@@ -1,8 +1,7 @@
-import { HostId } from '../hosts/types.js';
 import fs from 'fs';
 import path from 'path';
-import { getAllHosts } from '../hosts/index.js';
-import type { HostConfig } from '../hosts/types.js';
+import { getAllHosts } from './index.js';
+import type { HostConfig } from './types.js';
 
 const MAX_WALK_DEPTH = 3;
 
@@ -43,32 +42,9 @@ export function isHostDetected(host: HostConfig, cwd: string): boolean {
   return checkHostDetection(host, buildSearchDirs(cwd));
 }
 
-const POPULARITY_ORDER: HostId[] = [
-  HostId.Cursor,
-  HostId.ClaudeCode,
-  HostId.Trae,
-  HostId.QwenCode,
-  HostId.GitHubCopilot,
-  HostId.Codex,
-  HostId.Windsurf,
-  HostId.Gemini,
-  HostId.Kimi,
-  HostId.Augment,
-  HostId.RooCode,
-  HostId.Kiro,
-  HostId.Tabnine,
-  HostId.KiloCode,
-  HostId.OpenCode,
-  HostId.OpenClaw,
-  HostId.Vibe,
-  HostId.ClaudeDesktop,
-];
-
 function sortByPopularity(hosts: HostConfig[]): HostConfig[] {
   return hosts.slice().sort((a, b) => {
-    const ai = POPULARITY_ORDER.indexOf(a.id);
-    const bi = POPULARITY_ORDER.indexOf(b.id);
-    return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi);
+    return (a.selectionPriority ?? Infinity) - (b.selectionPriority ?? Infinity);
   });
 }
 

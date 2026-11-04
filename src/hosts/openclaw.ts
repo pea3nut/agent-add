@@ -16,6 +16,7 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 
 export class OpenclawAdapter implements HostAdapter {
   readonly id = HostId.OpenClaw;
+  readonly selectionPriority = 16;
   readonly displayName = 'OpenClaw';
   readonly detection = {
     paths: ['.openclaw/'],

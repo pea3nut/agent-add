@@ -1,21 +1,11 @@
 import fs from 'fs';
 import path from 'path';
-import yaml from 'yaml';
 import {
   atomicWriteText,
   readTextOrNull,
 } from '../utils/config.js';
-import { applyHostHints, splitFrontmatter } from '../utils/frontmatter.js';
+import { formatSubAgent } from '../hosts/sub-agent.js';
 import type { AssetHandler, InstallJob, InstallResult } from './types.js';
-
-function processSubAgentContent(content: string, job: InstallJob): string {
-  const { metadata, body, hasFrontmatter } = splitFrontmatter(content);
-  const processed = applyHostHints(metadata, job.host.id);
-  if (job.host.serializeSubAgent)
-    return job.host.serializeSubAgent({ metadata: processed, body }, job.assetName);
-  if (!hasFrontmatter) return body;
-  return `---\n${yaml.stringify(processed).trimEnd()}\n---\n${body}`;
-}
 
 export const subAgentHandler: AssetHandler = {
   async handle(job: InstallJob): Promise<InstallResult> {
@@ -45,7 +35,7 @@ export const subAgentHandler: AssetHandler = {
     let processedContent: string;
     let existingContent: string | null;
     try {
-      processedContent = processSubAgentContent(sourceContent, job);
+      processedContent = formatSubAgent(host, sourceContent, assetName);
       existingContent = await readTextOrNull(targetPath);
     } catch (err) {
       return {

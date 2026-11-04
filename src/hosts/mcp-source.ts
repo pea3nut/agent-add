@@ -1,14 +1,14 @@
 import { assertSafeConfigKey, isRecord } from '../utils/config.js';
-import { standardMcpServer } from '../hosts/mcp.js';
-import type { InstallJob } from './types.js';
+import { standardMcpServer } from './mcp.js';
+import type { HostAdapter } from './types.js';
 
 export function convertMcpServer(
-  job: InstallJob,
+  host: HostAdapter,
   source: Record<string, unknown>,
   name: string,
 ): Record<string, unknown> {
   assertSafeConfigKey(name);
-  job.host.mcp?.validateSource?.(source);
+  host.mcp?.validateSource?.(source);
   const nativeHttp = source.httpUrl !== undefined;
   if (nativeHttp) {
     if (source.url !== undefined || source.serverUrl !== undefined)
@@ -62,9 +62,7 @@ export function convertMcpServer(
         /[\s\\]/.test(url)
       )
         throw new Error();
-      const validationUrl = job.host.mcp?.interpolateEnvironment
-        ? url.replace(/\$\{[A-Za-z_][A-Za-z0-9_]*\}/g, '1')
-        : url;
+      const validationUrl = host.mcp?.normalizeUrl?.(url) ?? url;
       const parsed = new URL(validationUrl);
       if (!['http:', 'https:'].includes(parsed.protocol) || !parsed.hostname)
         throw new Error();
@@ -121,7 +119,7 @@ export function convertMcpServer(
   if (command !== undefined && source.headers !== undefined)
     throw new Error('Stdio MCP cannot use HTTP headers');
   const input = { source, command, args, env, url, transport, nativeHttp };
-  return job.host.mcp
-    ? job.host.mcp.convert(input, name)
-    : standardMcpServer(input, job.host.id);
+  return host.mcp
+    ? host.mcp.convert(input, name)
+    : standardMcpServer(input, host.id);
 }

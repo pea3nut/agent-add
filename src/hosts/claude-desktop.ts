@@ -12,6 +12,7 @@ import { unsupported, mcp, userPaths } from './user-assets.js';
 
 export class ClaudeDesktopAdapter implements HostAdapter {
   readonly id = HostId.ClaudeDesktop;
+  readonly selectionPriority = 18;
   readonly displayName = 'Claude Desktop';
   readonly detection = {
     paths: [],

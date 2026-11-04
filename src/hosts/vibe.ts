@@ -1,3 +1,4 @@
+import { editTomlMcpConfig } from './mcp-config.js';
 import { stringify } from 'smol-toml';
 import { standardMcpServer } from './mcp.js';
 import path from 'path';
@@ -20,12 +21,14 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 
 export class VibeAdapter implements HostAdapter {
   readonly id = HostId.Vibe;
+  readonly selectionPriority = 17;
   readonly displayName = 'Mistral Vibe';
   readonly detection = {
     paths: ['.vibe/'],
   };
   readonly mcp: McpAdapter = {
-    tomlLayout: 'named-array',
+    editConfig: (current, file, name, server) =>
+      editTomlMcpConfig(current, file, name, server, 'named-array', this.displayName),
     convert: (input, name) => {
       const { url } = input;
       const entry = standardMcpServer(input, this.id);

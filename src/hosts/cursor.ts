@@ -15,6 +15,7 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 
 export class CursorAdapter implements HostAdapter {
   readonly id = HostId.Cursor;
+  readonly selectionPriority = 1;
   readonly displayName = 'Cursor';
   readonly detection = {
     paths: ['.cursor/'],

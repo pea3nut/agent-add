@@ -19,7 +19,7 @@ import { commandHandler } from './assets/command.js';
 import { subAgentHandler } from './assets/sub-agent.js';
 import type { InstallSummary } from './utils/summary.js';
 import { unwrapMcpServers } from './utils/unwrap-mcp-servers.js';
-import { convertMcpServer } from './assets/mcp-format.js';
+import { convertMcpServer } from './hosts/mcp-source.js';
 import { deepEqualIgnoringKeyOrder } from './utils/deep-equal.js';
 import { isRecord } from './utils/config.js';
 
@@ -302,7 +302,7 @@ export async function runInstaller(
           const wrapped = unwrapMcpServers(parsed);
           if (wrapped) job.assetName = wrapped.name;
           content = convertMcpServer(
-            job,
+            host,
             wrapped?.config ?? parsed,
             job.assetName,
           );
