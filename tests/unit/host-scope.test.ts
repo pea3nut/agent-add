@@ -38,6 +38,36 @@ describe('scope path selection', () => {
     expect(selected.assets.skill.installDir).toBe(path.join(cwd, '.cursor/skills'));
   });
 
+  it('preserves adapter hooks when selecting either scope', () => {
+    const host: HostAdapter = {
+      ...getHost(HostId.Cursor)!,
+      mcp: { convert: vi.fn(() => ({})) },
+      serializeSubAgent: vi.fn(() => 'native content'),
+      resolvePromptTarget: vi.fn(async () => 'native target'),
+    };
+    for (const scope of ['project', 'user'] as const) {
+      const selected = selectHostScope(host, scope, cwd, environment);
+      expect(selected.mcp).toBe(host.mcp);
+      expect(selected.serializeSubAgent).toBe(host.serializeSubAgent);
+      expect(selected.resolvePromptTarget).toBe(host.resolvePromptTarget);
+    }
+  });
+
+  it('delegates normalized MCP input to the selected adapter', () => {
+    const convert = vi.fn(() => ({ native: true }));
+    const host: HostAdapter = { ...getHost(HostId.Cursor)!, mcp: { convert } };
+    const job: InstallJob = {
+      assetType: 'mcp', assetName: 'demo', host,
+      resolvedSource: { type: 'inline-json', localPath: '', originalSource: '{}' },
+    };
+    const source = { command: 'node', environment: { MODE: 'test' } };
+    expect(convertMcpServer(job, source, 'demo')).toEqual({ native: true });
+    expect(convert).toHaveBeenCalledExactlyOnceWith({
+      source, command: 'node', args: undefined, env: { MODE: 'test' },
+      url: undefined, transport: undefined, nativeHttp: false,
+    }, 'demo');
+  });
+
   it('resolves project paths without mutating the registered adapter', () => {
     const host = getHost('claude-code')!;
     const selected = selectHostScope(host, 'project', cwd, environment);

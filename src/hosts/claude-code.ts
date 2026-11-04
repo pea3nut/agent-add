@@ -1,6 +1,8 @@
+import { standardMcpServer } from './mcp.js';
 import path from 'path';
 import {
   HostId,
+  type McpAdapter,
   type HostAdapter,
   type AssetCapability,
   type AssetType,
@@ -20,6 +22,16 @@ export class ClaudeCodeAdapter implements HostAdapter {
   readonly detection = {
     paths: ['.claude/'],
   };
+  readonly mcp: McpAdapter = {
+    convert: (input) => {
+      const { url, transport } = input;
+      const entry = standardMcpServer(input, this.id);
+      if (url === undefined) return entry;
+      delete entry.transport;
+      return { ...entry, type: transport === 'sse' ? 'sse' : 'http' };
+    },
+  };
+
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
       supported: true,

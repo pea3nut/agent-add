@@ -1,5 +1,8 @@
+import { z } from 'zod';
+import { flag, strings, standardMcpServer } from './mcp.js';
 import {
   HostId,
+  type McpAdapter,
   type HostAdapter,
   type AssetCapability,
   type AssetType,
@@ -19,6 +22,14 @@ export class KiroAdapter implements HostAdapter {
   readonly detection = {
     paths: ['.kiro/'],
   };
+  readonly mcp: McpAdapter = {
+    convert: (input) => {
+      const entry = standardMcpServer(input, this.id);
+      z.object({ disabled: flag, disabledTools: strings, autoApprove: strings, }).parse(entry);
+      return entry;
+    },
+  };
+
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
       supported: true,

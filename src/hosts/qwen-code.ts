@@ -1,6 +1,8 @@
+import { geminiMcp } from './mcp.js';
 import path from 'path';
 import {
   HostId,
+  type McpAdapter,
   type HostAdapter,
   type AssetCapability,
   type AssetType,
@@ -20,6 +22,11 @@ export class QwenCodeAdapter implements HostAdapter {
   readonly detection = {
     paths: ['.qwen/'],
   };
+  readonly mcp: McpAdapter = {
+    interpolateEnvironment: true,
+    convert: (input) => geminiMcp(input, this.id),
+  };
+
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
       supported: true,

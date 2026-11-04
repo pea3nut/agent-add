@@ -1,5 +1,7 @@
+import { openCodeMcp } from './mcp.js';
 import {
   HostId,
+  type McpAdapter,
   type HostAdapter,
   type AssetCapability,
   type AssetType,
@@ -19,6 +21,10 @@ export class OpencodeAdapter implements HostAdapter {
   readonly detection = {
     paths: ['opencode.json', 'opencode.jsonc', '.opencode/'],
   };
+  readonly mcp: McpAdapter = {
+    convert: (input) => openCodeMcp(input, this.id, true),
+  };
+
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
       supported: true,

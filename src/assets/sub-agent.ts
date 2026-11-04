@@ -1,8 +1,6 @@
-import { HostId } from '../hosts/types.js';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
-import { stringify } from 'smol-toml';
 import {
   atomicWriteText,
   readTextOrNull,
@@ -13,87 +11,8 @@ import type { AssetHandler, InstallJob, InstallResult } from './types.js';
 function processSubAgentContent(content: string, job: InstallJob): string {
   const { metadata, body, hasFrontmatter } = splitFrontmatter(content);
   const processed = applyHostHints(metadata, job.host.id);
-  if (job.host.id === HostId.Codex || job.host.id === HostId.Vibe) {
-    if (
-      typeof processed.description !== 'string' ||
-      !processed.description.trim()
-    )
-      throw new Error('A nonempty sub-agent description is required');
-    if (job.host.id === HostId.Codex) {
-      const allowed = new Set([
-        'name',
-        'description',
-        'developer_instructions',
-        'model',
-        'model_provider',
-        'model_reasoning_effort',
-        'sandbox_mode',
-        'mcp_servers',
-        'skills',
-        'nickname_candidates',
-      ]);
-      for (const key of Object.keys(processed))
-        if (!allowed.has(key))
-          throw new Error(
-            'Codex sub-agent cannot represent field ' +
-              key +
-              '; use host-specific hints',
-          );
-      const result: Record<string, unknown> = {
-        ...processed,
-        name: processed.name ?? path.basename(job.assetName),
-        developer_instructions: processed.developer_instructions ?? body,
-      };
-      for (const key of [
-        'name',
-        'description',
-        'developer_instructions',
-      ] as const)
-        if (typeof result[key] !== 'string' || !result[key].trim())
-          throw new Error('Codex requires nonempty ' + key);
-      return stringify(result);
-    }
-    if (path.basename(job.assetName) === 'main')
-      throw new Error('Vibe reserves the agent name main');
-    const { name, model, ...native } = processed;
-    if (native.system_prompt_id !== undefined)
-      throw new Error(
-        'Use inline instructions for Vibe sub-agents; external prompt references are not installed automatically',
-      );
-    if (native.agent_type !== undefined && native.agent_type !== 'subagent')
-      throw new Error('Vibe sub-agent must have agent_type = subagent');
-    const allowed = new Set([
-      'description',
-      'display_name',
-      'instructions',
-      'agent_type',
-      'active_model',
-      'safety',
-      'enabled_tools',
-      'disabled_tools',
-      'tools',
-      'enabled_skills',
-      'disabled_skills',
-    ]);
-    for (const key of Object.keys(native))
-      if (!allowed.has(key))
-        throw new Error(
-          'Vibe sub-agent cannot represent field ' +
-            key +
-            '; use host-specific hints',
-        );
-    const result = {
-      ...native,
-      agent_type: 'subagent',
-      display_name: native.display_name ?? name ?? path.basename(job.assetName),
-      instructions: native.instructions ?? body,
-    };
-    if (typeof result.instructions !== 'string' || !result.instructions.trim())
-      throw new Error('Vibe sub-agent instructions must be a nonempty string');
-    return stringify(
-      model === undefined ? result : { active_model: model, ...result },
-    );
-  }
+  if (job.host.serializeSubAgent)
+    return job.host.serializeSubAgent({ metadata: processed, body }, job.assetName);
   if (!hasFrontmatter) return body;
   return `---\n${yaml.stringify(processed).trimEnd()}\n---\n${body}`;
 }

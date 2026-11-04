@@ -63,12 +63,37 @@ export interface UserEnvironment {
 
 export type UserAssets = Partial<Record<AssetType, AssetCapability>>;
 
+export interface McpServerInput {
+  source: Record<string, unknown>;
+  command: unknown;
+  args: unknown;
+  env: unknown;
+  url: unknown;
+  transport: unknown;
+  nativeHttp: boolean;
+}
+
+export interface McpAdapter {
+  validateSource?: (source: Record<string, unknown>) => void;
+  interpolateEnvironment?: boolean;
+  tomlLayout?: 'named-array';
+  convert: (input: McpServerInput, name: string) => Record<string, unknown>;
+}
+
+export interface SubAgentContent {
+  metadata: Record<string, unknown>;
+  body: string;
+}
+
 export interface HostAdapter {
   readonly id: HostId;
   readonly displayName: string;
   readonly detection: HostDetection;
   readonly assets: Record<AssetType, AssetCapability>;
   readonly userAssets?: (environment: UserEnvironment) => UserAssets;
+  readonly mcp?: McpAdapter;
+  readonly serializeSubAgent?: (content: SubAgentContent, name: string) => string;
+  readonly resolvePromptTarget?: (host: HostAdapter) => Promise<string>;
   readonly scope?: InstallScope;
   readonly rootDir?: string;
 }

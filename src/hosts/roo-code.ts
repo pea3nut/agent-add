@@ -1,5 +1,8 @@
+import { z } from 'zod';
+import { flag, strings, text, standardMcpServer } from './mcp.js';
 import {
   HostId,
+  type McpAdapter,
   type HostAdapter,
   type AssetCapability,
   type AssetType,
@@ -19,6 +22,25 @@ export class RooCodeAdapter implements HostAdapter {
   readonly detection = {
     paths: ['.roo/'],
   };
+  readonly mcp: McpAdapter = {
+    convert: (input) => {
+      const { source, url, transport } = input;
+      const entry = standardMcpServer(input, this.id);
+      z.object({
+        disabled: flag,
+        disabledTools: strings,
+        cwd: text,
+        alwaysAllow: strings,
+        watchPaths: strings,
+        timeout: z.number().min(1).max(3600).optional(),
+      }).parse(entry);
+      delete entry.transport;
+      if (url !== undefined) entry.type = transport === 'sse' ? 'sse' : 'streamable-http';
+      else if (source.type !== undefined || source.transport !== undefined) entry.type = 'stdio';
+      return entry;
+    },
+  };
+
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
       supported: true,

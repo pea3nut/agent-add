@@ -1,3 +1,5 @@
+import path from 'path';
+import { readTextOrNull } from '../utils/config.js';
 import {
   HostId,
   type HostAdapter,
@@ -12,6 +14,27 @@ export class ZedAdapter implements HostAdapter {
   readonly id = HostId.Zed;
   readonly displayName = 'Zed Agent';
   readonly detection = { paths: ['.zed/'] };
+  readonly resolvePromptTarget = async (host: HostAdapter): Promise<string> => {
+    const cwd = host.rootDir ?? process.cwd();
+    if (host.scope !== 'user') {
+      const candidates = [
+        '.rules',
+        '.cursorrules',
+        '.windsurfrules',
+        '.clinerules',
+        '.github/copilot-instructions.md',
+        'AGENT.md',
+        'AGENTS.md',
+        'CLAUDE.md',
+        'GEMINI.md',
+      ];
+      for (const candidate of candidates)
+        if ((await readTextOrNull(path.resolve(cwd, candidate))) !== null)
+          return path.resolve(cwd, candidate);
+    }
+    return path.resolve(host.assets.prompt.targetFile!);
+  };
+
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
       supported: false,

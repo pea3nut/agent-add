@@ -1,4 +1,3 @@
-import { HostId } from '../hosts/types.js';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
@@ -99,53 +98,6 @@ async function prepareRegistration(
   return { file, content: setConfigValue(existing, [key], [...items, relative], 'jsonc') };
 }
 
-async function promptTarget(job: InstallJob): Promise<string> {
-  const cwd = job.host.rootDir ?? process.cwd();
-  if (job.host.id === HostId.Codex && job.host.scope === 'user') {
-    const override = path.join(path.dirname(job.host.assets.prompt.targetFile!), 'AGENTS.override.md');
-    if ((await readTextOrNull(override))?.trim()) return override;
-  }
-  if (job.host.id === HostId.Zed && job.host.scope !== 'user') {
-    const candidates = [
-      '.rules',
-      '.cursorrules',
-      '.windsurfrules',
-      '.clinerules',
-      '.github/copilot-instructions.md',
-      'AGENT.md',
-      'AGENTS.md',
-      'CLAUDE.md',
-      'GEMINI.md',
-    ];
-    for (const candidate of candidates)
-      if ((await readTextOrNull(path.resolve(cwd, candidate))) !== null)
-        return path.resolve(cwd, candidate);
-  }
-  if (job.host.id === HostId.Gemini) {
-    const root = job.host.scope === 'user' ? path.dirname(job.host.assets.prompt.targetFile!) : cwd;
-    const content = await readTextOrNull(job.host.assets.mcp.configFile!);
-    const config = content === null ? {} : parseConfig(content, 'jsonc');
-    const context = config.context;
-    const name = isRecord(context) ? context.fileName : undefined;
-    if (name !== undefined) {
-      const names = Array.isArray(name) ? name : [name];
-      if (
-        !names.length ||
-        names.some((v) => typeof v !== 'string' || !v.trim())
-      )
-        throw new Error(
-          'Gemini context.fileName must be a nonempty filename or filename array',
-        );
-      const target = path.resolve(root, names[0] as string);
-      const relative = path.relative(root, target);
-      if (relative === '..' || relative.startsWith('..' + path.sep) || path.isAbsolute(relative))
-        throw new Error('Gemini context.fileName must stay inside the ' + (job.host.scope === 'user' ? 'user configuration root' : 'project'));
-      return target;
-    }
-  }
-  return path.resolve(job.host.assets.prompt.targetFile!);
-}
-
 export const promptHandler: AssetHandler = {
   async handle(job: InstallJob): Promise<InstallResult> {
     const capability = job.host.assets.prompt;
@@ -157,7 +109,9 @@ export const promptHandler: AssetHandler = {
               path.resolve(capability.installDir!),
               job.assetName + '.md',
             )
-          : await promptTarget(job);
+          : job.host.resolvePromptTarget
+            ? await job.host.resolvePromptTarget(job.host)
+            : path.resolve(capability.targetFile!);
       const content = await fs.promises.readFile(
         job.resolvedSource.localPath,
         'utf-8',

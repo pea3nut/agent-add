@@ -1,4 +1,3 @@
-import { HostId } from '../hosts/types.js';
 import fs from 'fs';
 import {
   atomicWriteText,
@@ -36,12 +35,12 @@ async function handleTomlMcp(
     };
   }
 
-  if (host.id === HostId.Vibe) {
-    // Vibe uses [[mcp_servers]] array format
+  if (host.mcp?.tomlLayout === 'named-array') {
+    // Named array entries use [[mcp_servers]].
     const mcpServers =
       (parsed['mcp_servers'] as Array<Record<string, unknown>>) ?? [];
     if (!Array.isArray(mcpServers) || mcpServers.some((s) => !isRecord(s)))
-      throw new Error('Vibe mcp_servers must be an array of tables');
+      throw new Error(host.displayName + ' mcp_servers must be an array of tables');
     const entry = newServerConfig;
 
     const existingIdx = mcpServers.findIndex((s) => s['name'] === assetName);
@@ -88,7 +87,7 @@ async function handleTomlMcp(
 
   const addition = stringify({
     mcp_servers:
-      host.id === HostId.Vibe ? [newServerConfig] : { [assetName]: newServerConfig },
+      host.mcp?.tomlLayout === 'named-array' ? [newServerConfig] : { [assetName]: newServerConfig },
   });
   let newToml = (tomlContent ?? '').trimEnd() + '\n\n' + addition;
   try {

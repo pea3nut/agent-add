@@ -1,5 +1,7 @@
+import { standardMcpServer } from './mcp.js';
 import {
   HostId,
+  type McpAdapter,
   type HostAdapter,
   type AssetCapability,
   type AssetType,
@@ -19,6 +21,15 @@ export class GitHubCopilotAdapter implements HostAdapter {
   readonly detection = {
     paths: ['.github/', '.vscode/'],
   };
+  readonly mcp: McpAdapter = {
+    convert: (input) => {
+      const { url, transport } = input;
+      const entry = standardMcpServer(input, this.id);
+      delete entry.transport;
+      return { ...entry, type: url !== undefined ? (transport === 'sse' ? 'sse' : 'http') : 'stdio' };
+    },
+  };
+
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
       supported: true,

@@ -3,6 +3,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { mcpHandler } from '../../../src/assets/mcp.js';
+import { getHost } from '../../../src/hosts/index.js';
 import type { InstallJob } from '../../../src/assets/types.js';
 import { HostId, type HostConfig } from '../../../src/hosts/types.js';
 
@@ -12,6 +13,7 @@ async function makeTmpDir(): Promise<string> {
 
 function makeHost(configFilePath: string, hostId: HostId = HostId.Codex): HostConfig {
   return {
+    ...getHost(hostId)!,
     id: hostId,
     displayName: hostId,
     detection: { paths: [] },

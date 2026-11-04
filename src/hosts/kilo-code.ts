@@ -1,5 +1,7 @@
+import { openCodeMcp } from './mcp.js';
 import {
   HostId,
+  type McpAdapter,
   type HostAdapter,
   type AssetCapability,
   type AssetType,
@@ -19,6 +21,10 @@ export class KiloCodeAdapter implements HostAdapter {
   readonly detection = {
     paths: ['.kilo/', 'kilo.jsonc', 'kilo.json', '.kilocode/'],
   };
+  readonly mcp: McpAdapter = {
+    convert: (input) => openCodeMcp(input, this.id),
+  };
+
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
       supported: true,

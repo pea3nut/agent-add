@@ -1,6 +1,9 @@
+import { readTextOrNull, isRecord, parseConfig } from '../utils/config.js';
+import { geminiMcp } from './mcp.js';
 import path from 'path';
 import {
   HostId,
+  type McpAdapter,
   type HostAdapter,
   type AssetCapability,
   type AssetType,
@@ -20,6 +23,36 @@ export class GeminiAdapter implements HostAdapter {
   readonly detection = {
     paths: ['.gemini/'],
   };
+  readonly mcp: McpAdapter = {
+    interpolateEnvironment: true,
+    convert: (input) => geminiMcp(input, this.id),
+  };
+
+  readonly resolvePromptTarget = async (host: HostAdapter): Promise<string> => {
+    const cwd = host.rootDir ?? process.cwd();
+    const root = host.scope === 'user' ? path.dirname(host.assets.prompt.targetFile!) : cwd;
+    const content = await readTextOrNull(host.assets.mcp.configFile!);
+    const config = content === null ? {} : parseConfig(content, 'jsonc');
+    const context = config.context;
+    const name = isRecord(context) ? context.fileName : undefined;
+    if (name !== undefined) {
+      const names = Array.isArray(name) ? name : [name];
+      if (
+        !names.length ||
+        names.some((v) => typeof v !== 'string' || !v.trim())
+      )
+        throw new Error(
+          'Gemini context.fileName must be a nonempty filename or filename array',
+        );
+      const target = path.resolve(root, names[0] as string);
+      const relative = path.relative(root, target);
+      if (relative === '..' || relative.startsWith('..' + path.sep) || path.isAbsolute(relative))
+        throw new Error('Gemini context.fileName must stay inside the ' + (host.scope === 'user' ? 'user configuration root' : 'project'));
+      return target;
+    }
+    return path.resolve(host.assets.prompt.targetFile!);
+  };
+
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
       supported: true,

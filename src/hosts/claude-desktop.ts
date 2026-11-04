@@ -1,6 +1,7 @@
 import path from 'path';
 import {
   HostId,
+  type McpAdapter,
   type HostAdapter,
   type AssetCapability,
   type AssetType,
@@ -15,6 +16,25 @@ export class ClaudeDesktopAdapter implements HostAdapter {
   readonly detection = {
     paths: [],
   };
+  readonly mcp: McpAdapter = {
+    validateSource: (source) => {
+      if (source.url !== undefined || source.httpUrl !== undefined || source.serverUrl !== undefined)
+        throw new Error('Claude Desktop file installation supports local stdio MCP servers only');
+    },
+    convert: ({ source, command, args, env }) => {
+      if (typeof command !== 'string')
+        throw new Error('Claude Desktop requires a string stdio command');
+      const allowed = new Set(['command', 'args', 'env', 'environment', 'type', 'transport']);
+      for (const key of Object.keys(source))
+        if (!allowed.has(key)) throw new Error('Claude Desktop cannot represent MCP field ' + key);
+      return {
+        command,
+        ...(args !== undefined ? { args } : {}),
+        ...(env !== undefined ? { env } : {}),
+      };
+    },
+  };
+
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
       supported: false,
