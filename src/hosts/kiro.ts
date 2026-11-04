@@ -1,4 +1,15 @@
-import type { HostAdapter, AssetCapability, AssetType } from './types.js';
+import { z } from 'zod';
+import { flag, strings, standardMcpServer } from './mcp.js';
+import {
+  HostId,
+  type McpAdapter,
+  type HostAdapter,
+  type AssetCapability,
+  type AssetType,
+  type UserEnvironment,
+  type UserAssets,
+} from './types.js';
+import { skill, file, rules, mcp, userPaths } from './user-assets.js';
 
 const NOT_SUPPORTED = (reason: string): AssetCapability => ({
   supported: false,
@@ -6,11 +17,20 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 });
 
 export class KiroAdapter implements HostAdapter {
-  readonly id = 'kiro';
+  readonly id = HostId.Kiro;
+  readonly selectionPriority = 12;
   readonly displayName = 'Kiro CLI';
   readonly detection = {
     paths: ['.kiro/'],
   };
+  readonly mcp: McpAdapter = {
+    convert: (input) => {
+      const entry = standardMcpServer(input, this.id);
+      z.object({ disabled: flag, disabledTools: strings, autoApprove: strings, }).parse(entry);
+      return entry;
+    },
+  };
+
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
       supported: true,
@@ -36,5 +56,15 @@ export class KiroAdapter implements HostAdapter {
       fileExtension: '.md',
       writeStrategy: 'copy-file',
     },
+  };
+
+  readonly userAssets = (environment: UserEnvironment): UserAssets => {
+    const { at } = userPaths(environment);
+    return {
+      mcp: mcp(at('.kiro/settings/mcp.json')),
+      prompt: rules(at('.kiro/steering')),
+      skill: skill(at('.kiro/skills')),
+      subAgent: file(at('.kiro/agents')),
+    };
   };
 }

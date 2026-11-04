@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import type { AssetCapability } from '../hosts/types.js';
 import { applyEdits, modify, parse, visit, type ParseError } from 'jsonc-parser';
 import { ensureDir } from './fs.js';
 import { deepEqualIgnoringKeyOrder } from './deep-equal.js';
@@ -11,7 +10,10 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
 
 export type ConfigFormat = 'json' | 'jsonc';
 
-export async function resolveConfigPath(capability: AssetCapability): Promise<string> {
+export async function resolveConfigPath(capability: {
+  configFile?: string;
+  configFileAlternatives?: string[];
+}): Promise<string> {
   const files = [capability.configFile!, ...(capability.configFileAlternatives ?? [])];
   for (const file of files)
     if ((await readTextOrNull(file)) !== null) return path.resolve(file);

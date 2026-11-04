@@ -1,13 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import yaml from 'yaml';
 import {
   atomicWriteText,
-  isRecord,
-  parseConfig,
   readTextOrNull,
-  resolveConfigPath,
-  setConfigValue,
 } from '../utils/config.js';
 import type { AssetHandler, InstallJob, InstallResult } from './types.js';
 
@@ -54,92 +49,6 @@ export function mergePrompt(
   return { content: existing + separator + block + '\n', status: 'written' };
 }
 
-async function prepareRegistration(
-  job: InstallJob,
-  target: string,
-): Promise<{ file: string; content: string } | null> {
-  const capability = job.host.assets.prompt;
-  if (!capability.registration) return null;
-  const configCapability =
-    capability.registration === 'instructions'
-      ? job.host.assets.mcp
-      : capability;
-  const file = await resolveConfigPath(configCapability);
-  const existing = (await readTextOrNull(file)) ?? '{}\n';
-  const document = capability.registration === 'read' ? yaml.parseDocument(existing) : null;
-  if (document?.errors.length) throw new Error(document.errors[0]!.message);
-  const config: unknown = document
-    ? document.contents === null ? {} : document.toJS()
-    : parseConfig(existing, 'jsonc');
-  if (!isRecord(config)) throw new Error('Configuration must be an object');
-  const key = capability.registration;
-  const value = config[key];
-  const items =
-    key === 'read' && typeof value === 'string' ? [value] : (value ?? []);
-  if (!Array.isArray(items) || items.some((v) => typeof v !== 'string'))
-    throw new Error("Configuration '" + key + "' must contain file paths");
-  const relative = path
-    .relative(process.cwd(), target)
-    .split(path.sep)
-    .join('/');
-  if (items.some((v) => path.resolve(v) === target))
-    return null;
-  if (document) {
-    const current = document.get(key, true);
-    if (yaml.isSeq(current)) current.add(relative);
-    else {
-      const sequence = document.createNode([...items, relative]);
-      if (yaml.isScalar(current) && typeof current.value === 'string') sequence.items[0] = current;
-      document.set(key, sequence);
-    }
-    return { file, content: document.toString() };
-  }
-  return { file, content: setConfigValue(existing, [key], [...items, relative], 'jsonc') };
-}
-
-async function promptTarget(job: InstallJob): Promise<string> {
-  if (job.host.id === 'zed') {
-    const candidates = [
-      '.rules',
-      '.cursorrules',
-      '.windsurfrules',
-      '.clinerules',
-      '.github/copilot-instructions.md',
-      'AGENT.md',
-      'AGENTS.md',
-      'CLAUDE.md',
-      'GEMINI.md',
-    ];
-    for (const candidate of candidates)
-      if ((await readTextOrNull(path.resolve(candidate))) !== null)
-        return path.resolve(candidate);
-  }
-  if (job.host.id === 'gemini') {
-    const content = await readTextOrNull(
-      path.resolve('.gemini/settings.json'),
-    );
-    const config = content === null ? {} : parseConfig(content, 'jsonc');
-    const context = config.context;
-    const name = isRecord(context) ? context.fileName : undefined;
-    if (name !== undefined) {
-      const names = Array.isArray(name) ? name : [name];
-      if (
-        !names.length ||
-        names.some((v) => typeof v !== 'string' || !v.trim())
-      )
-        throw new Error(
-          'Gemini context.fileName must be a nonempty filename or filename array',
-        );
-      const target = path.resolve(names[0] as string);
-      const relative = path.relative(process.cwd(), target);
-      if (relative === '..' || relative.startsWith('..' + path.sep) || path.isAbsolute(relative))
-        throw new Error('Gemini context.fileName must stay inside the project');
-      return target;
-    }
-  }
-  return path.resolve(job.host.assets.prompt.targetFile!);
-}
-
 export const promptHandler: AssetHandler = {
   async handle(job: InstallJob): Promise<InstallResult> {
     const capability = job.host.assets.prompt;
@@ -151,7 +60,9 @@ export const promptHandler: AssetHandler = {
               path.resolve(capability.installDir!),
               job.assetName + '.md',
             )
-          : await promptTarget(job);
+          : job.host.resolvePromptTarget
+            ? await job.host.resolvePromptTarget(job.host)
+            : path.resolve(capability.targetFile!);
       const content = await fs.promises.readFile(
         job.resolvedSource.localPath,
         'utf-8',
@@ -176,7 +87,7 @@ export const promptHandler: AssetHandler = {
           targetPath,
           reason: targetPath + ' already exists with different content',
         };
-      const registration = await prepareRegistration(job, targetPath);
+      const registration = await job.host.registerPrompt?.(job.host, targetPath);
       if (merged.status !== 'exists')
         await atomicWriteText(targetPath, merged.content);
       if (registration)

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { getAllHosts } from '../hosts/index.js';
-import type { HostConfig } from '../hosts/types.js';
+import { getAllHosts } from './index.js';
+import type { HostConfig } from './types.js';
 
 const MAX_WALK_DEPTH = 3;
 
@@ -42,32 +42,9 @@ export function isHostDetected(host: HostConfig, cwd: string): boolean {
   return checkHostDetection(host, buildSearchDirs(cwd));
 }
 
-const POPULARITY_ORDER: string[] = [
-  'cursor',
-  'claude-code',
-  'trae',
-  'qwen-code',
-  'github-copilot',
-  'codex',
-  'windsurf',
-  'gemini',
-  'kimi',
-  'augment',
-  'roo-code',
-  'kiro',
-  'tabnine',
-  'kilo-code',
-  'opencode',
-  'openclaw',
-  'vibe',
-  'claude-desktop',
-];
-
 function sortByPopularity(hosts: HostConfig[]): HostConfig[] {
   return hosts.slice().sort((a, b) => {
-    const ai = POPULARITY_ORDER.indexOf(a.id);
-    const bi = POPULARITY_ORDER.indexOf(b.id);
-    return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi);
+    return (a.selectionPriority ?? Infinity) - (b.selectionPriority ?? Infinity);
   });
 }
 

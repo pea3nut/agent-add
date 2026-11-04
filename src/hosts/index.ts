@@ -1,4 +1,4 @@
-import type { HostAdapter } from './types.js';
+import { HostId, type HostAdapter } from './types.js';
 import { CursorAdapter } from './cursor.js';
 import { ClaudeCodeAdapter } from './claude-code.js';
 import { ClaudeDesktopAdapter } from './claude-desktop.js';
@@ -24,42 +24,43 @@ import { AiderAdapter } from './aider.js';
 import { GooseAdapter } from './goose.js';
 import { AmpAdapter } from './amp.js';
 
-const hostRegistry: Map<string, HostAdapter> = new Map<string, HostAdapter>([
-  ['cursor', new CursorAdapter()],
-  ['claude-code', new ClaudeCodeAdapter()],
-  ['claude-desktop', new ClaudeDesktopAdapter()],
-  ['windsurf', new WindsurfAdapter()],
-  ['github-copilot', new GitHubCopilotAdapter()],
-  ['gemini', new GeminiAdapter()],
-  ['roo-code', new RooCodeAdapter()],
-  ['kilo-code', new KiloCodeAdapter()],
-  ['qwen-code', new QwenCodeAdapter()],
-  ['opencode', new OpencodeAdapter()],
-  ['augment', new AugmentAdapter()],
-  ['kiro', new KiroAdapter()],
-  ['tabnine', new TabnineAdapter()],
-  ['kimi', new KimiAdapter()],
-  ['trae', new TraeAdapter()],
-  ['openclaw', new OpenclawAdapter()],
-  ['codex', new CodexAdapter()],
-  ['vibe', new VibeAdapter()],
-  ['zed', new ZedAdapter()],
-  ['cline', new ClineAdapter()],
-  ['continue', new ContinueAdapter()],
-  ['aider', new AiderAdapter()],
-  ['goose', new GooseAdapter()],
-  ['amp', new AmpAdapter()],
+const hostRegistry: Map<HostId, HostAdapter> = new Map<HostId, HostAdapter>([
+  [HostId.Cursor, new CursorAdapter()],
+  [HostId.ClaudeCode, new ClaudeCodeAdapter()],
+  [HostId.ClaudeDesktop, new ClaudeDesktopAdapter()],
+  [HostId.Windsurf, new WindsurfAdapter()],
+  [HostId.GitHubCopilot, new GitHubCopilotAdapter()],
+  [HostId.Gemini, new GeminiAdapter()],
+  [HostId.RooCode, new RooCodeAdapter()],
+  [HostId.KiloCode, new KiloCodeAdapter()],
+  [HostId.QwenCode, new QwenCodeAdapter()],
+  [HostId.OpenCode, new OpencodeAdapter()],
+  [HostId.Augment, new AugmentAdapter()],
+  [HostId.Kiro, new KiroAdapter()],
+  [HostId.Tabnine, new TabnineAdapter()],
+  [HostId.Kimi, new KimiAdapter()],
+  [HostId.Trae, new TraeAdapter()],
+  [HostId.OpenClaw, new OpenclawAdapter()],
+  [HostId.Codex, new CodexAdapter()],
+  [HostId.Vibe, new VibeAdapter()],
+  [HostId.Zed, new ZedAdapter()],
+  [HostId.Cline, new ClineAdapter()],
+  [HostId.Continue, new ContinueAdapter()],
+  [HostId.Aider, new AiderAdapter()],
+  [HostId.Goose, new GooseAdapter()],
+  [HostId.Amp, new AmpAdapter()],
 ]);
 
 export function getHost(id: string): HostAdapter | undefined {
-  return hostRegistry.get(id);
+  const hostId = Object.values(HostId).find((value) => value === id);
+  return hostId === undefined ? undefined : hostRegistry.get(hostId);
 }
 
 export function getAllHosts(): HostAdapter[] {
   return Array.from(hostRegistry.values());
 }
 
-export function getValidHostIds(): string[] {
+export function getValidHostIds(): HostId[] {
   return Array.from(hostRegistry.keys());
 }
 

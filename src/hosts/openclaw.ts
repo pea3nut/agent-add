@@ -1,4 +1,13 @@
-import type { HostAdapter, AssetCapability, AssetType } from './types.js';
+import path from 'path';
+import {
+  HostId,
+  type HostAdapter,
+  type AssetCapability,
+  type AssetType,
+  type UserEnvironment,
+  type UserAssets,
+} from './types.js';
+import { skill, userPaths } from './user-assets.js';
 
 const NOT_SUPPORTED = (reason: string): AssetCapability => ({
   supported: false,
@@ -6,7 +15,8 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 });
 
 export class OpenclawAdapter implements HostAdapter {
-  readonly id = 'openclaw';
+  readonly id = HostId.OpenClaw;
+  readonly selectionPriority = 16;
   readonly displayName = 'OpenClaw';
   readonly detection = {
     paths: ['.openclaw/'],
@@ -21,5 +31,12 @@ export class OpenclawAdapter implements HostAdapter {
     subAgent: NOT_SUPPORTED(
       'OpenClaw does not support sub-agent configuration files.',
     ),
+  };
+
+  readonly userAssets = (environment: UserEnvironment): UserAssets => {
+    const { env } = environment;
+    const { at, override, custom, reject } = userPaths(environment);
+    const name = env.OPENCLAW_PROFILE && env.OPENCLAW_PROFILE !== 'default' ? 'OPENCLAW_PROFILE' : custom(['OPENCLAW_HOME']);
+    return { skill: name ? reject(name) : skill(path.join(override('OPENCLAW_STATE_DIR', at('.openclaw')), 'skills')) };
   };
 }

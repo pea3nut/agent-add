@@ -23,7 +23,7 @@ export const skillHandler: AssetHandler = {
     const skillCapability = host.assets['skill'];
     const installDir = skillCapability.installDir as string;
     const targetDir = path.resolve(installDir, assetName);
-    const entryFile = path.join(targetDir, 'SKILL.md');
+    const entryFile = path.join(targetDir, skillCapability.entryFile ?? 'SKILL.md');
 
     try {
       // Check the entry file, not just the directory: a directory that

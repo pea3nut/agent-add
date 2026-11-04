@@ -4,11 +4,11 @@ import os from 'os';
 import path from 'path';
 import { skillHandler } from '../../../src/assets/skill.js';
 import type { InstallJob } from '../../../src/assets/types.js';
-import type { HostConfig } from '../../../src/hosts/types.js';
+import { HostId, type HostConfig } from '../../../src/hosts/types.js';
 
 function makeHost(installDir: string): HostConfig {
   return {
-    id: 'test-host',
+    id: HostId.Cursor,
     displayName: 'Test Host',
     detection: { paths: [] },
     assets: {
@@ -18,7 +18,7 @@ function makeHost(installDir: string): HostConfig {
       command: { supported: false },
       subAgent: { supported: false },
     },
-  } as HostConfig;
+  };
 }
 
 describe('skillHandler (regression)', () => {

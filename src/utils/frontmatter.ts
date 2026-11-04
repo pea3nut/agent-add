@@ -26,18 +26,3 @@ export function splitFrontmatter(content: string): {
     hasFrontmatter: true,
   };
 }
-
-export function applyHostHints(
-  metadata: Record<string, unknown>,
-  hostId: string,
-): Record<string, unknown> {
-  const prefix = 'agent-add/' + hostId + '/';
-  return Object.fromEntries([
-    ...Object.entries(metadata).filter(
-      ([key]) => !key.startsWith('agent-add/'),
-    ),
-    ...Object.entries(metadata)
-      .filter(([key]) => key.startsWith(prefix))
-      .map(([key, value]) => [key.slice(prefix.length), value]),
-  ]);
-}

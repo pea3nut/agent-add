@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { formatSummary } from '../../../src/utils/summary.js';
 import type { InstallSummary } from '../../../src/utils/summary.js';
-import type { HostConfig } from '../../../src/hosts/types.js';
+import { HostId, type HostConfig } from '../../../src/hosts/types.js';
 import type { InstallJob, InstallResult } from '../../../src/assets/types.js';
 
 const mockHost: HostConfig = {
-  id: 'cursor',
+  id: HostId.Cursor,
   displayName: 'Cursor',
   detection: { paths: ['.cursor'] },
   assets: {

@@ -1,4 +1,12 @@
-import type { HostAdapter, AssetCapability, AssetType } from './types.js';
+import {
+  HostId,
+  type HostAdapter,
+  type AssetCapability,
+  type AssetType,
+  type UserEnvironment,
+  type UserAssets,
+} from './types.js';
+import { file, userPaths } from './user-assets.js';
 
 const NOT_SUPPORTED = (reason: string): AssetCapability => ({
   supported: false,
@@ -6,7 +14,8 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 });
 
 export class WindsurfAdapter implements HostAdapter {
-  readonly id = 'windsurf';
+  readonly id = HostId.Windsurf;
+  readonly selectionPriority = 7;
   readonly displayName = 'Windsurf';
   readonly detection = {
     paths: ['.windsurf/'],
@@ -34,5 +43,10 @@ export class WindsurfAdapter implements HostAdapter {
       writeStrategy: 'copy-file',
     },
     subAgent: NOT_SUPPORTED('Windsurf does not have a sub-agent file format.'),
+  };
+
+  readonly userAssets = (environment: UserEnvironment): UserAssets => {
+    const { at } = userPaths(environment);
+    return { command: file(at('.codeium/windsurf/global_workflows')) };
   };
 }

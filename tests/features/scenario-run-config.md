@@ -57,6 +57,11 @@ notes:
   This variable is available in all subsequent steps and replaces hardcoded absolute paths.
 - The `Given` steps create a unique temp working directory via `mktemp -d`. All installation targets stay in the project directory. Hosts without verified
   project targets must fail explicitly and leave user directories unchanged.
+  Global scenarios additionally isolate `HOME` below the scenario temp directory,
+  clear host-specific root overrides, and assert project/user separation. Never
+  install test assets into the real user's configuration. Preserve the Node PATH
+  before changing HOME. Platform-specific destinations may be checked through
+  isolated path-selection unit tests; do not report those as native OS execution.
 - Cursor and Claude Code detection relies on `.cursor/` or `.claude/` directories being
   present in the temp working directory. The `Given` step must create these before CLI invocation.
 - Use standard POSIX tools (`test -f`, `cat`, `grep`, `cmp`) for basic file and output

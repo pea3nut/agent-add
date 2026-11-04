@@ -1,7 +1,7 @@
-import type { HostAdapter, AssetCapability, AssetType } from './types.js';
+import { HostId, type HostAdapter, type AssetCapability, type AssetType } from './types.js';
 
 export class ContinueAdapter implements HostAdapter {
-  readonly id = 'continue';
+  readonly id = HostId.Continue;
   readonly displayName = 'Continue';
   readonly detection = { paths: ['.continue/'] };
   readonly assets: Record<AssetType, AssetCapability> = {

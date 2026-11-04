@@ -1,7 +1,15 @@
-import type { HostAdapter, AssetCapability, AssetType } from './types.js';
+import {
+  HostId,
+  type HostAdapter,
+  type AssetCapability,
+  type AssetType,
+  type UserEnvironment,
+  type UserAssets,
+} from './types.js';
+import { skill, prompt, mcp, userPaths } from './user-assets.js';
 
 export class AmpAdapter implements HostAdapter {
-  readonly id = 'amp';
+  readonly id = HostId.Amp;
   readonly displayName = 'Amp CLI';
   readonly detection = { paths: ['.amp/'] };
   readonly assets: Record<AssetType, AssetCapability> = {
@@ -33,5 +41,17 @@ export class AmpAdapter implements HostAdapter {
       reason:
         'Amp built-in delegation is not a standalone sub-agent file contract.',
     },
+  };
+
+  readonly userAssets = (environment: UserEnvironment): UserAssets => {
+    const { at } = userPaths(environment);
+    return {
+      mcp: {
+        ...mcp(at('.config/amp/settings.json'), 'amp.mcpServers', true),
+        configFileAlternatives: [at('.config/amp/settings.jsonc')],
+      },
+      prompt: prompt(at('.config/amp/AGENTS.md')),
+      skill: skill(at('.config/amp/skills')),
+    };
   };
 }

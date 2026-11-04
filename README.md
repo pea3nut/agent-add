@@ -26,6 +26,12 @@ npx -y agent-add \
 
 ---
 
+## Supported Hosts
+
+### Project scope (default)
+
+Install into the current project without `--global`.
+
 | AI Tool | MCP | Prompt | Skill | Command | Sub-agent |
 |------|-----|--------|-------|---------|-----------|
 | <img src="https://www.google.com/s2/favicons?domain=cursor.com&sz=32" width="16"> Cursor | ✅ | ✅ | ✅ | ✅ | ✅ |
@@ -34,18 +40,57 @@ npx -y agent-add \
 | <img src="https://www.google.com/s2/favicons?domain=qwen.ai&sz=32" width="16"> Qwen Code | ✅ | ✅ | ✅ | ✅ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=github.com&sz=32" width="16"> GitHub Copilot | ✅ | ✅ | ✅ | ✅ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=openai.com&sz=32" width="16"> Codex CLI | ✅ | ✅ | ✅ | ❌ | ✅ |
-| <img src="https://www.google.com/s2/favicons?domain=windsurf.com&sz=32" width="16"> Windsurf | ✅ | ✅ | ✅ | ✅ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=windsurf.com&sz=32" width="16"> Windsurf (legacy Cascade) | ❌ | ✅ | ✅ | ✅ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=gemini.google.com&sz=32" width="16"> Gemini CLI | ✅ | ✅ | ✅ | ✅ | ✅ |
-| <img src="https://www.google.com/s2/favicons?domain=kimi.ai&sz=32" width="16"> Kimi Code | ✅ | ✅ | ✅ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=kimi.ai&sz=32" width="16"> Kimi Code | ❌ | ✅ | ✅ | ❌ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=augmentcode.com&sz=32" width="16"> Augment | ✅ | ✅ | ✅ | ✅ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=roocode.com&sz=32" width="16"> Roo Code | ✅ | ✅ | ✅ | ✅ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=kiro.dev&sz=32" width="16"> Kiro CLI | ✅ | ✅ | ✅ | ❌ | ✅ |
-| <img src="https://www.google.com/s2/favicons?domain=tabnine.com&sz=32" width="16"> Tabnine CLI | ✅ | ✅ | ❌ | ✅ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=kiro.dev&sz=32" width="16"> Kiro (CLI V3 / IDE 1.0) | ✅ | ✅ | ✅ | ❌ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=tabnine.com&sz=32" width="16"> Tabnine (IDE Agent / CLI) | ✅ | ✅ | ❌ | ✅ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=kilo.ai&sz=32" width="16"> Kilo Code | ✅ | ✅ | ✅ | ✅ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=opencode.ai&sz=32" width="16"> opencode | ✅ | ✅ | ✅ | ✅ | ✅ |
-| <img src="https://www.google.com/s2/favicons?domain=openclawlab.com&sz=32" width="16"> OpenClaw | ✅ | ✅ | ✅ | ❌ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=mistral.ai&sz=32" width="16"> Mistral Vibe | ✅ | ✅ | ✅ | ❌ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=32" width="16"> Claude Desktop | ✅ | ❌ | ❌ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=mistral.ai&sz=32" width="16"> Mistral Vibe | ✅ | ✅ | ✅ | ❌ | ✅ |
+| Zed Agent | ❌ | ✅ | ✅ | ❌ | ❌ |
+| Cline | ❌ | ✅ | ✅ | ❌ | ❌ |
+| Continue | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Aider | ❌ | ✅ | ❌ | ❌ | ❌ |
+| goose | ❌ | ✅ | ✅ | ❌ | ❌ |
+| Amp CLI | ✅ | ✅ | ✅ | ❌ | ❌ |
+
+OpenClaw and Claude Desktop are global-only hosts; they have no project installation target.
+
+### User scope (`--global`)
+
+Install for the current OS user, independently of the current project.
+
+| AI Tool | MCP | Prompt | Skill | Command | Sub-agent |
+|---------|-----|--------|-------|---------|-----------|
+| Cursor | ✅ | ❌ | ✅ | ❌ | ✅ |
+| Claude Code | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Trae | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Qwen Code | ✅ | ❌ | ✅ | ✅ | ✅ |
+| GitHub Copilot (VS Code) | ❌ | ❌ | ✅ | ❌ | ✅ |
+| Codex CLI | ✅ | ✅ | ✅ | ❌ | ✅ |
+| Windsurf (legacy Cascade) | ❌ | ❌ | ❌ | ✅ | ❌ |
+| Gemini CLI | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Kimi Code | ✅ | ❌ | ✅ | ❌ | ❌ |
+| Augment / Auggie | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Roo Code | ❌ | ✅ | ✅ | ✅ | ❌ |
+| Kiro (CLI V3 / IDE 1.0) | ✅ | ✅ | ✅ | ❌ | ✅ |
+| Tabnine (IDE Agent / CLI) | ✅ | ❌ | ❌ | ✅ | ❌ |
+| Kilo Code | ✅ | ❌ | ✅ | ✅ | ✅ |
+| opencode | ✅ | ✅ | ✅ | ✅ | ✅ |
+| OpenClaw (global only) | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Mistral Vibe | ✅ | ✅ | ✅ | ❌ | ✅ |
+| Claude Desktop (global only) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Zed Agent | ❌ | ✅ | ✅ | ❌ | ❌ |
+| Cline | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Continue | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Aider | ❌ | ❌ | ❌ | ❌ | ❌ |
+| goose | ❌ | ✅ | ✅ | ❌ | ❌ |
+| Amp CLI | ✅ | ✅ | ✅ | ❌ | ❌ |
+
+✅ / ❌ = installable / unavailable through agent-add in that scope. Claude Desktop requires macOS or Windows.
 
 ---
 
@@ -67,6 +112,46 @@ npx -y agent-add --mcp 'https://github.com/modelcontextprotocol/servers.git#.mcp
 ## Usage
 
 Install [Node.js](https://nodejs.org/) (v18+), then run directly via `npx` — no separate install needed.
+
+### Project or global?
+
+No flag: install into the current project. `--global`: install for your user, across projects. The two installations are separate.
+
+```bash
+# Project MCP → .mcp.json
+npx -y agent-add --host claude-code \
+  --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}'
+
+# User MCP → ~/.claude.json
+npx -y agent-add --global --host claude-code \
+  --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}'
+
+# User prompt → ~/.claude/CLAUDE.md (read ./prompts/personal.md from this directory)
+npx -y agent-add --global --host claude-code \
+  --prompt ./prompts/personal.md
+
+# Global-only tool: always use --global (macOS / Windows)
+npx -y agent-add --global --host claude-desktop \
+  --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}'
+```
+
+### Install a pack
+
+Use a [pack manifest](#pack-manifest) to install several assets together. `--global` applies to everything in the command.
+
+```bash
+# Install a pack into this project
+npx -y agent-add --host claude-code --pack ./agent-pack.json
+
+# Install the same pack for your user
+npx -y agent-add --global --host claude-code --pack ./agent-pack.json
+
+# Add extra assets alongside a pack — all installed for your user
+npx -y agent-add --global --host claude-code \
+  --pack ./agent-pack.json \
+  --skill ./skills/my-skill \
+  --prompt ./prompts/personal.md
+```
 
 ### Install MCP
 
@@ -160,6 +245,7 @@ npx -y agent-add [OPTIONS]
 
 Options:
   --host <host>         Target AI tool ID
+  --global              Install all supplied assets into the host's user scope
   --mcp <source>        Install an MCP Server config
   --skill <source>      Install a Skill directory
   --prompt <source>     Install a Prompt file
@@ -170,7 +256,7 @@ Options:
   -h, --help            Show help
 ```
 
-All asset flags can be repeated (to install multiple assets of the same type) and freely combined with `--pack`.
+Repeat asset flags to install more than one, or combine them with `--pack`.
 
 ## Asset Developer Guide
 

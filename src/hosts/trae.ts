@@ -1,4 +1,12 @@
-import type { HostAdapter, AssetCapability, AssetType } from './types.js';
+import {
+  HostId,
+  type HostAdapter,
+  type AssetCapability,
+  type AssetType,
+  type UserEnvironment,
+  type UserAssets,
+} from './types.js';
+import { skill, userPaths } from './user-assets.js';
 
 const NOT_SUPPORTED = (reason: string): AssetCapability => ({
   supported: false,
@@ -6,7 +14,8 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 });
 
 export class TraeAdapter implements HostAdapter {
-  readonly id = 'trae';
+  readonly id = HostId.Trae;
+  readonly selectionPriority = 3;
   readonly displayName = 'Trae';
   readonly detection = {
     paths: ['.trae/'],
@@ -31,5 +40,10 @@ export class TraeAdapter implements HostAdapter {
     },
     command: NOT_SUPPORTED('Trae does not support custom slash commands via files.'),
     subAgent: NOT_SUPPORTED('Trae does not support sub-agent configuration files.'),
+  };
+
+  readonly userAssets = (environment: UserEnvironment): UserAssets => {
+    const { at } = userPaths(environment);
+    return { skill: skill(at('.trae/skills')) };
   };
 }

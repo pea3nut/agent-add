@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import select from '@inquirer/select';
-import { getHost, getValidHostIds } from './hosts/index.js';
-import { detectHosts, isHostDetected } from './utils/detect-hosts.js';
+import { getAllHosts, getHost, getValidHostIds } from './hosts/index.js';
+import { detectHosts, isHostDetected } from './hosts/detect.js';
 import { runInstaller } from './installer.js';
 import { printSummary } from './utils/summary.js';
 import type { CliInput } from './installer.js';
@@ -29,6 +29,7 @@ Examples:
 
   # Install Skill from directory (must contain SKILL.md)
   agent-add --skill ./skills/e2e-guide --host claude-code
+  agent-add --global --skill ./skills/e2e-guide --host claude-code
   agent-add --skill https://github.com/demo/skills.git#e2e-guide --host claude-code
 
   # Install Prompt and Command from Markdown files
@@ -50,6 +51,7 @@ Examples:
     .option('--prompt <source>', 'Install a Prompt (appends to host\'s base rules file)', collect, [])
     .option('--command <source>', 'Install a Command', collect, [])
     .option('--sub-agent <source>', 'Install a Sub-agent', collect, [])
+    .option('--global', 'Install for the current OS user instead of the current project')
     .option('--host <host>', `Target host ID (${getValidHostIds().join(' | ')})`)
     .action(async (options: {
       pack: string[];
@@ -59,6 +61,7 @@ Examples:
       command: string[];
       subAgent: string[];
       host?: string;
+      global?: boolean;
     }) => {
       const cliInput: CliInput = {
         mcp: options.mcp,
@@ -68,6 +71,7 @@ Examples:
         subAgent: options.subAgent,
         pack: options.pack,
         host: options.host,
+        scope: options.global ? 'user' : 'project',
       };
 
       const hasAssetFlags =
@@ -98,14 +102,14 @@ Examples:
         process.exit(2);
       } else {
         const cwd = process.cwd();
-        const detectedHosts = detectHosts(cwd);
+        const detectedHosts = options.global ? getAllHosts() : detectHosts(cwd);
         const choices = detectedHosts.map((h) => ({
-          name: isHostDetected(h, cwd) ? `${h.displayName} (detected)` : h.displayName,
+          name: !options.global && isHostDetected(h, cwd) ? `${h.displayName} (detected)` : h.displayName,
           value: h.id,
         }));
 
         hostId = await select({
-          message: 'Select target host:',
+          message: options.global ? 'Select target host (user scope):' : 'Select target host:',
           choices,
         });
       }

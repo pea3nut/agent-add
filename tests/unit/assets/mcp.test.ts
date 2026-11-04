@@ -3,15 +3,17 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { mcpHandler } from '../../../src/assets/mcp.js';
+import { getHost } from '../../../src/hosts/index.js';
 import type { InstallJob } from '../../../src/assets/types.js';
-import type { HostConfig } from '../../../src/hosts/types.js';
+import { HostId, type HostConfig } from '../../../src/hosts/types.js';
 
 async function makeTmpDir(): Promise<string> {
   return fs.promises.mkdtemp(path.join(os.tmpdir(), 'agent-add-mcp-test-'));
 }
 
-function makeHost(configFilePath: string, hostId = 'codex'): HostConfig {
+function makeHost(configFilePath: string, hostId: HostId = HostId.Codex): HostConfig {
   return {
+    ...getHost(hostId)!,
     id: hostId,
     displayName: hostId,
     detection: { paths: [] },
@@ -27,7 +29,7 @@ function makeHost(configFilePath: string, hostId = 'codex'): HostConfig {
       command: { supported: false },
       subAgent: { supported: false },
     },
-  } as HostConfig;
+  };
 }
 
 async function cleanup(tmpDir: string): Promise<void> {
@@ -114,7 +116,7 @@ describe('mcpHandler - TOML hosts (regression)', () => {
       configFilePath,
       '[[mcp_servers]]\nname = "playwright"\ntransport = "stdio"\ncommand = "different"\n',
     );
-    const host = makeHost(configFilePath, 'vibe');
+    const host = makeHost(configFilePath, HostId.Vibe);
     const job: InstallJob = {
       assetType: 'mcp',
       assetName: 'playwright',
@@ -133,7 +135,7 @@ describe('mcpHandler - TOML hosts (regression)', () => {
     const sourcePath = path.join(tmpDir, 'playwright.json');
     await fs.promises.writeFile(sourcePath, JSON.stringify({ command: 'npx' }));
     const configFilePath = path.join(tmpDir, 'config.toml');
-    const host = makeHost(configFilePath, 'vibe');
+    const host = makeHost(configFilePath, HostId.Vibe);
     const job: InstallJob = {
       assetType: 'mcp',
       assetName: 'playwright',
@@ -152,7 +154,7 @@ describe('mcpHandler - TOML hosts (regression)', () => {
 
 describe('mcpHandler - TOML content comparison ignores key order', () => {
   async function runAgainstExisting(
-    hostId: 'codex' | 'vibe',
+    hostId: HostId.Codex | HostId.Vibe,
     source: Record<string, unknown>,
     existingToml: string,
   ): Promise<{ status: string; before: string; after: string }> {
@@ -194,7 +196,7 @@ describe('mcpHandler - TOML content comparison ignores key order', () => {
       'DEBUG = "1"',
       '',
     ].join('\n');
-    const { status, before, after } = await runAgainstExisting('codex', source, toml);
+    const { status, before, after } = await runAgainstExisting(HostId.Codex, source, toml);
     expect(status).toBe('exists');
     expect(after).toBe(before);
   });
@@ -211,7 +213,7 @@ describe('mcpHandler - TOML content comparison ignores key order', () => {
       'NESTED_ORDER = "x"',
       '',
     ].join('\n');
-    const { status, before, after } = await runAgainstExisting('codex', source, toml);
+    const { status, before, after } = await runAgainstExisting(HostId.Codex, source, toml);
     expect(status).toBe('exists');
     expect(after).toBe(before);
   });
@@ -228,7 +230,7 @@ describe('mcpHandler - TOML content comparison ignores key order', () => {
       'NESTED_ORDER = "x"',
       '',
     ].join('\n');
-    const { status, before, after } = await runAgainstExisting('codex', source, toml);
+    const { status, before, after } = await runAgainstExisting(HostId.Codex, source, toml);
     expect(status).toBe('conflict');
     expect(after).toBe(before);
   });
@@ -245,7 +247,7 @@ describe('mcpHandler - TOML content comparison ignores key order', () => {
       'DEBUG = "1"',
       '',
     ].join('\n');
-    const { status, before, after } = await runAgainstExisting('codex', source, toml);
+    const { status, before, after } = await runAgainstExisting(HostId.Codex, source, toml);
     expect(status).toBe('conflict');
     expect(after).toBe(before);
   });
@@ -261,7 +263,7 @@ describe('mcpHandler - TOML content comparison ignores key order', () => {
       'name = "playwright"',
       '',
     ].join('\n');
-    const { status, before, after } = await runAgainstExisting('vibe', vibeSource, toml);
+    const { status, before, after } = await runAgainstExisting(HostId.Vibe, vibeSource, toml);
     expect(status).toBe('exists');
     expect(after).toBe(before);
   });
@@ -275,7 +277,7 @@ describe('mcpHandler - TOML content comparison ignores key order', () => {
       'args = ["-y", "@playwright/mcp"]',
       '',
     ].join('\n');
-    const { status, before, after } = await runAgainstExisting('vibe', vibeSource, toml);
+    const { status, before, after } = await runAgainstExisting(HostId.Vibe, vibeSource, toml);
     expect(status).toBe('conflict');
     expect(after).toBe(before);
   });
@@ -289,7 +291,7 @@ describe('mcpHandler - TOML content comparison ignores key order', () => {
       'args = ["@playwright/mcp", "-y"]',
       '',
     ].join('\n');
-    const { status, before, after } = await runAgainstExisting('vibe', vibeSource, toml);
+    const { status, before, after } = await runAgainstExisting(HostId.Vibe, vibeSource, toml);
     expect(status).toBe('conflict');
     expect(after).toBe(before);
   });
