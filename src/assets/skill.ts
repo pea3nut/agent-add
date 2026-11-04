@@ -22,7 +22,7 @@ export const skillHandler: AssetHandler = {
     const { host, assetName, resolvedSource } = job;
     const skillCapability = host.assets['skill'];
     const installDir = skillCapability.installDir as string;
-    const targetDir = path.resolve(process.cwd(), installDir, assetName);
+    const targetDir = path.resolve(installDir, assetName);
     const entryFile = path.join(targetDir, 'SKILL.md');
 
     try {

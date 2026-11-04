@@ -45,6 +45,8 @@
     "@inquirer/select": "4.3.4",
     "@types/node": "^25.5.0",
     "commander": "13.1.0",
+    "gray-matter": "4.0.3",
+    "jsonc-parser": "3.3.1",
     "smol-toml": "^1.9.1",
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",

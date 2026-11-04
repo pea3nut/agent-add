@@ -8,7 +8,6 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class CursorAdapter implements HostAdapter {
   readonly id = 'cursor';
   readonly displayName = 'Cursor';
-  readonly docs = 'https://cursor.com/docs';
   readonly detection = {
     paths: ['.cursor/'],
   };

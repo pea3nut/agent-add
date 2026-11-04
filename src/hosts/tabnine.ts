@@ -8,7 +8,6 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class TabnineAdapter implements HostAdapter {
   readonly id = 'tabnine';
   readonly displayName = 'Tabnine CLI';
-  readonly docs = 'https://docs.tabnine.com/main/getting-started/tabnine-agent/guidelines';
   readonly detection = {
     paths: ['.tabnine/'],
   };
@@ -24,13 +23,17 @@ export class TabnineAdapter implements HostAdapter {
       installDir: '.tabnine/guidelines',
       writeStrategy: 'create-file-in-dir',
     },
-    skill: NOT_SUPPORTED('Tabnine CLI does not support project-level skill directories.'),
+    skill: NOT_SUPPORTED(
+      'Tabnine CLI does not support project-level skill directories.',
+    ),
     command: {
       supported: true,
       installDir: '.tabnine/agent/commands/',
-      fileExtension: '.md',
+      fileExtension: '.toml',
       writeStrategy: 'copy-file',
     },
-    subAgent: NOT_SUPPORTED('Tabnine CLI does not support sub-agent configuration files.'),
+    subAgent: NOT_SUPPORTED(
+      'Tabnine CLI does not support sub-agent configuration files.',
+    ),
   };
 }

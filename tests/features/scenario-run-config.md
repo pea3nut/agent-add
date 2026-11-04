@@ -29,10 +29,6 @@ Run each CLI step with: `node "$PROJECT_ROOT/bin/agent-add.js"`
 
 The binary must be built before running scenarios (`npm run build`).
 
-For Claude Desktop scenarios, set the `AGENT_ADD_HOME` environment variable to the
-temp working directory to redirect `os.homedir()` expansions away from the real user home.
-Example: `AGENT_ADD_HOME="$SETUP_TMPDIR" node "$PROJECT_ROOT/bin/agent-add.js" --host claude-desktop ...`
-
 No network access is required for `@P0` and `@P1` scenarios. `@network`-tagged scenarios
 require internet access and should be excluded from the default run.
 
@@ -59,17 +55,10 @@ notes:
   binary at `bin/agent-add.js` reflects the latest source code.
 - Every feature file uses a `Background` block to set `PROJECT_ROOT=$(git rev-parse --show-toplevel)`.
   This variable is available in all subsequent steps and replaces hardcoded absolute paths.
-- The `Given` steps create a unique temp working directory via `mktemp -d`. All subsequent
-  file operations happen inside this directory.
+- The `Given` steps create a unique temp working directory via `mktemp -d`. All installation targets stay in the project directory. Hosts without verified
+  project targets must fail explicitly and leave user directories unchanged.
 - Cursor and Claude Code detection relies on `.cursor/` or `.claude/` directories being
   present in the temp working directory. The `Given` step must create these before CLI invocation.
-- For Claude Desktop scenarios, pass `AGENT_ADD_HOME` to the CLI command so that config paths
-  expand relative to the temp dir. On Windows, use `cygpath -w "$SETUP_TMPDIR"` to get the
-  Windows-native path, then set `AGENT_ADD_HOME` to that value — both `~/` and `%APPDATA%`
-  prefix paths are redirected via `AGENT_ADD_HOME`. Example:
-    WIN_TMPDIR=$(cygpath -w "$SETUP_TMPDIR" 2>/dev/null || echo "$SETUP_TMPDIR") && AGENT_ADD_HOME="$WIN_TMPDIR" node ...
-  Assert config existence cross-platform:
-    test -f "$SETUP_TMPDIR/Library/Application Support/Claude/claude_desktop_config.json" || test -f "$SETUP_TMPDIR/AppData/Roaming/Claude/claude_desktop_config.json"
 - Use standard POSIX tools (`test -f`, `cat`, `grep`, `cmp`) for basic file and output
   checks. For host-format acceptance, parse the document and check its decoded
   values as described above; a `grep` check alone is insufficient. Do NOT use

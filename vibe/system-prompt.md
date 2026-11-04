@@ -90,7 +90,6 @@ Currently supported 18 hosts: `cursor`, `claude-code`, `claude-desktop`, `windsu
 - **Non-TTY strict mode**: CI environments must explicitly specify `--host`, otherwise exit 2
 - **Inline sources**: source starting with `{` → `inline-json` (MCP only, format `{"name":{...}}`, key is asset name); source containing `\n` → `inline-md` (Prompt/Command/Sub-agent, name inferred from `# Heading`). Both inline sources write to temp files then follow normal flow, downstream handlers are unaware
 - **HTTP cannot install Skill**: `http-file`, `inline-json`, `inline-md` sources are not allowed for Skill type assets (exit 2)
-- **AGENT_ADD_HOME env var**: Overrides `os.homedir()` return value in `src/assets/mcp.ts`, used to redirect Claude Desktop / Codex host install paths to temp directories for test isolation
 
 ## Multi-language Documentation Sync
 

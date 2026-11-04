@@ -8,14 +8,15 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class OpencodeAdapter implements HostAdapter {
   readonly id = 'opencode';
   readonly displayName = 'opencode';
-  readonly docs = 'https://opencode.ai/docs';
   readonly detection = {
-    paths: ['opencode.json'],
+    paths: ['opencode.json', 'opencode.jsonc', '.opencode/'],
   };
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
       supported: true,
       configFile: 'opencode.json',
+      configFileAlternatives: ['opencode.jsonc'],
+      configFormat: 'jsonc',
       configKey: 'mcp',
       writeStrategy: 'inject-json-key',
     },

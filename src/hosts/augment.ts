@@ -8,19 +8,15 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class AugmentAdapter implements HostAdapter {
   readonly id = 'augment';
   readonly displayName = 'Augment';
-  readonly docs = 'https://docs.augmentcode.com/setup-augment/mcp';
   readonly detection = {
-    paths: ['~/.augment/'],
+    paths: ['.augment/'],
   };
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
       supported: true,
-      configFile: {
-        darwin: '~/.augment/settings.json',
-        linux: '~/.augment/settings.json',
-        win32: '%USERPROFILE%\\.augment\\settings.json',
-      },
+      configFile: '.augment/settings.json',
       configKey: 'mcpServers',
+      configFormat: 'jsonc',
       writeStrategy: 'inject-json-key',
     },
     prompt: {

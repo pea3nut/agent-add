@@ -51,7 +51,7 @@ npx -y agent-add \
 
 ## Why agent-add?
 
-Every AI tool has its own config format — Cursor uses `.cursor/mcp.json`, Claude Code uses `.mcp.json`, Windsurf uses global paths, Codex even uses TOML...
+Every AI tool has its own config format — Cursor uses `.cursor/mcp.json`, Claude Code uses `.mcp.json`, Codex uses project TOML...
 
 agent-add smooths out all the differences. One command installs to any of the supported AI tools:
 

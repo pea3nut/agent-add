@@ -8,7 +8,6 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class RooCodeAdapter implements HostAdapter {
   readonly id = 'roo-code';
   readonly displayName = 'Roo Code';
-  readonly docs = 'https://docs.roocode.com/features/mcp/using-mcp-in-roo';
   readonly detection = {
     paths: ['.roo/'],
   };

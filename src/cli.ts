@@ -50,7 +50,7 @@ Examples:
     .option('--prompt <source>', 'Install a Prompt (appends to host\'s base rules file)', collect, [])
     .option('--command <source>', 'Install a Command', collect, [])
     .option('--sub-agent <source>', 'Install a Sub-agent', collect, [])
-    .option('--host <host>', 'Target host ID (cursor | claude-code | claude-desktop)')
+    .option('--host <host>', `Target host ID (${getValidHostIds().join(' | ')})`)
     .action(async (options: {
       pack: string[];
       mcp: string[];
@@ -137,4 +137,3 @@ Examples:
 function collect(value: string, previous: string[]): string[] {
   return [...previous, value];
 }
-

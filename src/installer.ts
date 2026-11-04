@@ -2,7 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import type { AssetType, HostConfig } from './hosts/types.js';
 import type { AssetDescriptor } from './manifest/schema.js';
-import type { InstallJob, InstallResult, ResolvedSource } from './assets/types.js';
+import type {
+  InstallJob,
+  InstallResult,
+  ResolvedSource,
+} from './assets/types.js';
 import { resolveSource } from './source/index.js';
 import { inferName } from './source/infer-name.js';
 import { expandDirectory } from './source/expand-directory.js';
@@ -13,8 +17,13 @@ import { promptHandler } from './assets/prompt.js';
 import { commandHandler } from './assets/command.js';
 import { subAgentHandler } from './assets/sub-agent.js';
 import type { InstallSummary } from './utils/summary.js';
+import { unwrapMcpServers } from './utils/unwrap-mcp-servers.js';
+import { convertMcpServer } from './assets/mcp-format.js';
+import { deepEqualIgnoringKeyOrder } from './utils/deep-equal.js';
+import { isRecord } from './utils/config.js';
 
-const README_URL = 'https://github.com/pea3nut/agent-add/blob/main/src/hosts/README.md';
+const README_URL =
+  'https://github.com/pea3nut/agent-add/blob/master/src/hosts/README.md';
 const PR_URL = 'https://github.com/pea3nut/agent-add/pulls';
 
 export interface CliInput {
@@ -39,11 +48,16 @@ async function cleanupTempDirs(tempDirs: Set<string>): Promise<void> {
 
 function getHandler(assetType: AssetType) {
   switch (assetType) {
-    case 'mcp': return mcpHandler;
-    case 'skill': return skillHandler;
-    case 'prompt': return promptHandler;
-    case 'command': return commandHandler;
-    case 'subAgent': return subAgentHandler;
+    case 'mcp':
+      return mcpHandler;
+    case 'skill':
+      return skillHandler;
+    case 'prompt':
+      return promptHandler;
+    case 'command':
+      return commandHandler;
+    case 'subAgent':
+      return subAgentHandler;
   }
 }
 
@@ -52,7 +66,11 @@ async function validateAsset(
   resolved: ResolvedSource,
 ): Promise<string | null> {
   if (assetType === 'skill') {
-    if (resolved.type === 'http-file' || resolved.type === 'inline-json' || resolved.type === 'inline-md') {
+    if (
+      resolved.type === 'http-file' ||
+      resolved.type === 'inline-json' ||
+      resolved.type === 'inline-md'
+    ) {
       return 'Skill assets must point to a directory source (local path or Git URL); inline content and direct HTTP(S) URLs are not supported';
     }
     const skillMdPath = path.join(resolved.localPath, 'SKILL.md');
@@ -76,7 +94,11 @@ async function validateAsset(
     return null;
   }
 
-  if (assetType === 'prompt' || assetType === 'command' || assetType === 'subAgent') {
+  if (
+    assetType === 'prompt' ||
+    assetType === 'command' ||
+    assetType === 'subAgent'
+  ) {
     try {
       await fs.promises.access(resolved.localPath);
     } catch {
@@ -126,12 +148,13 @@ export async function runInstaller(
   for (const item of explicitDescriptors) {
     const capability = host.assets[item.type];
     if (!capability.supported) {
-      const reason = capability.reason ?? 'This asset type is not supported by this host.';
+      const reason =
+        capability.reason ?? 'This asset type is not supported by this host.';
       process.stderr.write(
         `Error: Host "${host.id}" does not support asset type "${item.type}".\n\n` +
-        `Reason: ${reason}\n\n` +
-        `• View the full host capability matrix: ${README_URL}\n` +
-        `• If you believe ${host.displayName} now supports this, feel free to open a PR: ${PR_URL}\n`,
+          `Reason: ${reason}\n\n` +
+          `• View the full host capability matrix: ${README_URL}\n` +
+          `• If you believe ${host.displayName} now supports this, feel free to open a PR: ${PR_URL}\n`,
       );
       process.exit(2);
     }
@@ -174,11 +197,14 @@ export async function runInstaller(
       const fromExplicitFlag = idx < explicitCount;
 
       if (isGlob) {
-        const entries = await expandDirectory(resolved.localPath, item.assetType);
+        const entries = await expandDirectory(
+          resolved.localPath,
+          item.assetType,
+        );
         if (entries.length === 0) {
           process.stderr.write(
             `agent-add error: No matching files found in directory for ${item.assetType}\n` +
-            `  Source: ${item.source}\n`,
+              `  Source: ${item.source}\n`,
           );
           await cleanupTempDirs(tempDirsToClean);
           process.exit(2);
@@ -193,7 +219,9 @@ export async function runInstaller(
           });
         }
       } else {
-        const assetName = inferName(cleanSource, { isDirectorySource: item.assetType === 'skill' });
+        const assetName = inferName(cleanSource, {
+          isDirectorySource: item.assetType === 'skill',
+        });
         resolvedItems.push({
           assetType: item.assetType,
           assetName,
@@ -205,7 +233,10 @@ export async function runInstaller(
     }
 
     for (const item of resolvedItems) {
-      const validationError = await validateAsset(item.assetType, item.resolved);
+      const validationError = await validateAsset(
+        item.assetType,
+        item.resolved,
+      );
       if (validationError) {
         process.stderr.write(`agent-add error: ${validationError}\n`);
         process.stderr.write(`  Source: ${item.resolved.originalSource}\n`);
@@ -228,7 +259,9 @@ export async function runInstaller(
             host,
           },
           status: 'skipped',
-          reason: capability.reason ?? `${host.displayName} does not support ${item.assetType}`,
+          reason:
+            capability.reason ??
+            `${host.displayName} does not support ${item.assetType}`,
         });
       } else {
         jobs.push({
@@ -238,6 +271,58 @@ export async function runInstaller(
           host,
         });
       }
+    }
+
+    const incoming = new Map<string, { job: InstallJob; content: unknown }>();
+    const collisions = new Set<InstallJob>();
+    const invalid: InstallResult[] = [];
+    for (const job of jobs) {
+      if (job.assetType === 'skill') continue;
+      try {
+        let content: unknown = await fs.promises.readFile(
+          job.resolvedSource.localPath,
+          'utf-8',
+        );
+        if (job.assetType === 'mcp') {
+          const parsed: unknown = JSON.parse(content as string);
+          if (!isRecord(parsed))
+            throw new Error('MCP source must be a JSON object');
+          const wrapped = unwrapMcpServers(parsed);
+          if (wrapped) job.assetName = wrapped.name;
+          content = convertMcpServer(
+            job,
+            wrapped?.config ?? parsed,
+            job.assetName,
+          );
+        }
+        const key = job.assetType + ':' + job.assetName;
+        const previous = incoming.get(key);
+        if (previous && !deepEqualIgnoringKeyOrder(previous.content, content)) {
+          collisions.add(previous.job);
+          collisions.add(job);
+        } else if (!previous) incoming.set(key, { job, content });
+      } catch (err) {
+        invalid.push({ job, status: 'error', reason: (err as Error).message });
+      }
+    }
+    if (collisions.size || invalid.length) {
+      return {
+        host,
+        results: [
+          ...skippedResults,
+          ...jobs.map((job) => {
+            const error = invalid.find((result) => result.job === job);
+            if (error) return error;
+            return {
+              job,
+              status: collisions.has(job) ? 'conflict' : 'skipped',
+              reason: collisions.has(job)
+                ? `Different sources share the ${job.assetType} name '${job.assetName}'; nothing was written`
+                : 'Batch blocked by preflight errors or name collisions',
+            } as InstallResult;
+          }),
+        ],
+      };
     }
 
     const results: InstallResult[] = [...skippedResults];

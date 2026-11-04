@@ -65,7 +65,7 @@ Feature: README.zh-CN.md documentation examples
   Scenario: Cross-host MCP on Codex
     Given a temp working directory is created
     And a .codex directory exists: mkdir -p "$SETUP_TMPDIR/.codex"
-    When the user runs: cd "$SETUP_TMPDIR" && WIN_TMPDIR=$(cygpath -w "$SETUP_TMPDIR" 2>/dev/null || echo "$SETUP_TMPDIR") && AGENT_ADD_HOME="$WIN_TMPDIR" node "$PROJECT_ROOT/bin/agent-add.js" --host codex --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}'
+    When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host codex --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}'
     Then the exit code is 0
     And the Codex TOML config exists: test -f "$SETUP_TMPDIR/.codex/config.toml"
     And the playwright entry exists in TOML: grep -q 'playwright' "$SETUP_TMPDIR/.codex/config.toml"

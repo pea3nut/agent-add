@@ -8,7 +8,6 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class KiroAdapter implements HostAdapter {
   readonly id = 'kiro';
   readonly displayName = 'Kiro CLI';
-  readonly docs = 'https://kiro.dev/docs/mcp/';
   readonly detection = {
     paths: ['.kiro/'],
   };

@@ -3,7 +3,7 @@ Feature: Gemini command installation and host-specific formats
   Background:
     Given the project root is detected: PROJECT_ROOT=$(git rev-parse --show-toplevel)
     And a temp working directory is created
-    And an isolated home is configured: export HOME="$SETUP_TMPDIR/home" AGENT_ADD_HOME="$SETUP_TMPDIR/home" && mkdir -p "$HOME"
+    And an isolated home is configured: export HOME="$SETUP_TMPDIR/home" && mkdir -p "$HOME"
 
   @P0
   Scenario: Install a Markdown command as a usable Gemini TOML command

@@ -8,7 +8,6 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class GeminiAdapter implements HostAdapter {
   readonly id = 'gemini';
   readonly displayName = 'Gemini CLI';
-  readonly docs = 'https://google-gemini.github.io/gemini-cli/docs/tools/mcp-server.html';
   readonly detection = {
     paths: ['.gemini/'],
   };

@@ -8,20 +8,13 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class WindsurfAdapter implements HostAdapter {
   readonly id = 'windsurf';
   readonly displayName = 'Windsurf';
-  readonly docs = 'https://docs.windsurf.com/windsurf/cascade/mcp';
   readonly detection = {
-    paths: ['~/.codeium/windsurf/', '.windsurf/'],
+    paths: ['.windsurf/'],
   };
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
-      supported: true,
-      configFile: {
-        darwin: '~/.codeium/windsurf/mcp_config.json',
-        linux: '~/.codeium/windsurf/mcp_config.json',
-        win32: '%APPDATA%\\Codeium\\windsurf\\mcp_config.json',
-      },
-      configKey: 'mcpServers',
-      writeStrategy: 'inject-json-key',
+      supported: false,
+      reason: 'No verified project-level MCP configuration target is supported.',
     },
     prompt: {
       supported: true,

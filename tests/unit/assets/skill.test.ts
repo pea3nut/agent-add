@@ -10,7 +10,6 @@ function makeHost(installDir: string): HostConfig {
   return {
     id: 'test-host',
     displayName: 'Test Host',
-    docs: '',
     detection: { paths: [] },
     assets: {
       mcp: { supported: false },

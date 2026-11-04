@@ -1,32 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-import os from 'os';
 import { getAllHosts } from '../hosts/index.js';
-import type { HostConfig, HostDetection } from '../hosts/types.js';
+import type { HostConfig } from '../hosts/types.js';
 
 const MAX_WALK_DEPTH = 3;
-
-function expandDetectionPath(p: string): string {
-  if (p.startsWith('~/')) {
-    return path.join(os.homedir(), p.slice(2));
-  }
-  if (process.platform === 'win32' && p.startsWith('%APPDATA%')) {
-    const appData = process.env['APPDATA'] ?? path.join(os.homedir(), 'AppData', 'Roaming');
-    return path.join(appData, p.slice('%APPDATA%'.length));
-  }
-  return p;
-}
-
-function getDetectionPaths(detection: HostDetection, cwd: string): string[] {
-  if (Array.isArray(detection.paths)) {
-    return detection.paths.map((p) => path.resolve(cwd, p));
-  }
-  const platformPaths = detection.paths as Record<string, string>;
-  const platform = process.platform as string;
-  const rawPath = platformPaths[platform] ?? platformPaths['linux'];
-  if (!rawPath) return [];
-  return [expandDetectionPath(rawPath)];
-}
 
 function pathExistsSync(p: string): boolean {
   try {
@@ -56,24 +33,9 @@ function buildSearchDirs(cwd: string): string[] {
 }
 
 function checkHostDetection(host: HostConfig, searchDirs: string[]): boolean {
-  if (Array.isArray(host.detection.paths)) {
-    for (const searchDir of searchDirs) {
-      for (const detPath of host.detection.paths as string[]) {
-        if (pathExistsSync(path.resolve(searchDir, detPath))) {
-          return true;
-        }
-      }
-    }
-    return false;
-  } else {
-    const paths = getDetectionPaths(host.detection, searchDirs[0] ?? '');
-    for (const p of paths) {
-      if (pathExistsSync(p)) {
-        return true;
-      }
-    }
-    return false;
-  }
+  return searchDirs.some((dir) =>
+    host.detection.paths.some((p) => pathExistsSync(path.resolve(dir, p))),
+  );
 }
 
 export function isHostDetected(host: HostConfig, cwd: string): boolean {

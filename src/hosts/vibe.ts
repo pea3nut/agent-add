@@ -8,7 +8,6 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class VibeAdapter implements HostAdapter {
   readonly id = 'vibe';
   readonly displayName = 'Mistral Vibe';
-  readonly docs = 'https://docs.mistral.ai/mistral-vibe/introduction/configuration';
   readonly detection = {
     paths: ['.vibe/'],
   };
@@ -29,7 +28,14 @@ export class VibeAdapter implements HostAdapter {
       entryFile: 'SKILL.md',
       writeStrategy: 'copy-file',
     },
-    command: NOT_SUPPORTED('Mistral Vibe does not support custom slash commands via files.'),
-    subAgent: NOT_SUPPORTED('Mistral Vibe does not support sub-agent configuration files.'),
+    command: NOT_SUPPORTED(
+      'Mistral Vibe does not support custom slash commands via files.',
+    ),
+    subAgent: {
+      supported: true,
+      installDir: '.vibe/agents/',
+      fileExtension: '.toml',
+      writeStrategy: 'copy-file',
+    },
   };
 }

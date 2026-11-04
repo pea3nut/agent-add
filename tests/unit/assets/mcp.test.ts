@@ -14,7 +14,6 @@ function makeHost(configFilePath: string, hostId = 'codex'): HostConfig {
   return {
     id: hostId,
     displayName: hostId,
-    docs: '',
     detection: { paths: [] },
     assets: {
       mcp: {

@@ -8,7 +8,6 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class TraeAdapter implements HostAdapter {
   readonly id = 'trae';
   readonly displayName = 'Trae';
-  readonly docs = 'https://docs.trae.ai/ide/model-context-protocol';
   readonly detection = {
     paths: ['.trae/'],
   };

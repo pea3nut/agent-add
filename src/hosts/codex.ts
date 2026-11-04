@@ -8,18 +8,13 @@ const NOT_SUPPORTED = (reason: string): AssetCapability => ({
 export class CodexAdapter implements HostAdapter {
   readonly id = 'codex';
   readonly displayName = 'Codex CLI';
-  readonly docs = 'https://github.com/openai/codex';
   readonly detection = {
-    paths: ['~/.codex/'],
+    paths: ['.codex/'],
   };
   readonly assets: Record<AssetType, AssetCapability> = {
     mcp: {
       supported: true,
-      configFile: {
-        darwin: '~/.codex/config.toml',
-        linux: '~/.codex/config.toml',
-        win32: '%USERPROFILE%\\.codex\\config.toml',
-      },
+      configFile: '.codex/config.toml',
       configKey: 'mcp_servers',
       writeStrategy: 'inject-json-key',
     },
@@ -30,11 +25,13 @@ export class CodexAdapter implements HostAdapter {
     },
     skill: {
       supported: true,
-      installDir: '.codex/skills/',
+      installDir: '.agents/skills/',
       entryFile: 'SKILL.md',
       writeStrategy: 'copy-file',
     },
-    command: NOT_SUPPORTED('Codex CLI does not support custom slash commands via files.'),
+    command: NOT_SUPPORTED(
+      'Codex CLI does not support custom slash commands via files.',
+    ),
     subAgent: {
       supported: true,
       installDir: '.codex/agents/',

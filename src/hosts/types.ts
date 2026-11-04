@@ -9,8 +9,11 @@ export type WriteStrategy =
 export interface AssetCapability {
   supported: boolean;
   reason?: string;
-  configFile?: string | Record<string, string>;
+  configFile?: string;
   configKey?: string;
+  configFormat?: 'json' | 'jsonc';
+  configFileAlternatives?: string[];
+  registration?: 'instructions' | 'read';
   installDir?: string;
   entryFile?: string;
   fileExtension?: string;
@@ -21,13 +24,12 @@ export interface AssetCapability {
 }
 
 export interface HostDetection {
-  paths: string[] | Record<string, string>;
+  paths: string[];
 }
 
 export interface HostAdapter {
   readonly id: string;
   readonly displayName: string;
-  readonly docs: string;
   readonly detection: HostDetection;
   readonly assets: Record<AssetType, AssetCapability>;
 }

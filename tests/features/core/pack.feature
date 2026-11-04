@@ -32,7 +32,6 @@ Feature: Pack installation on Cursor
   Scenario: Pack install on Claude Desktop skips unsupported assets
     Given a temp working directory is created
     And all fixtures are copied: cp -r "$PROJECT_ROOT/tests/fixtures" "$SETUP_TMPDIR/fixtures"
-    When the user runs: cd "$SETUP_TMPDIR" && AGENT_ADD_HOME="$SETUP_TMPDIR" node "$PROJECT_ROOT/bin/agent-add.js" --host claude-desktop --pack ./fixtures/pack/manifest.json
+    When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host claude-desktop --pack ./fixtures/pack/manifest.json
     Then the output contains "skipped"
-    And no skill directory exists: test ! -d "$SETUP_TMPDIR/Library/Application Support/Claude/skills"
-    And no command file exists: test ! -f "$SETUP_TMPDIR/Library/Application Support/Claude/commands/my-command.md"
+    And no project configuration is created: test ! -e "$SETUP_TMPDIR/.mcp.json" && test ! -e "$SETUP_TMPDIR/.claude"

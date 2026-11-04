@@ -46,3 +46,25 @@ Feature: Prompt lifecycle and write strategies
     Then the exit code is 0
     And the prompt file is created in rules dir: test -f "$SETUP_TMPDIR/.roo/rules/my-prompt.md"
     And the file content is correct: grep -q 'bullet points' "$SETUP_TMPDIR/.roo/rules/my-prompt.md"
+
+  @P0
+  Scenario: Project prompts follow the host's configured discovery rules
+    Given isolated Zed, Gemini and Goose projects with project instruction files
+    When prompts are installed with multiple Zed instruction candidates and a project Gemini context.fileName
+    Then Zed updates only the first matching instruction file, Gemini uses its configured project filename, and Goose writes project AGENTS.md
+    And Gemini rejects filenames outside the project without changing the external file
+
+  @P0
+  Scenario: Prompt conflicts are reported before ambiguous markers or colliding batch names can overwrite content
+    Given an installed prompt and snapshots of its containing directory
+    When the same source is reinstalled, changed, or installed into a standalone rules file
+    Then unchanged content reports exists, managed content changes report updated, and differing standalone files report conflict
+    And duplicate or incomplete markers fail without modifying existing content
+    And same-batch non-skill name collisions are rejected before any asset is written
+
+  @P1
+  Scenario: Aider and Kilo register prompt files without losing existing configuration
+    Given empty, comment-only and populated Aider YAML configurations with scalar or list read values, and Kilo JSONC instructions
+    When a prompt is installed and reinstalled on each host
+    Then the native registration includes its path exactly once and preserves existing entries and comments
+    And invalid root objects or registration values fail without leaving a new prompt file behind
