@@ -26,9 +26,13 @@ npx -y agent-add \
 
 ---
 
-### Project-level installation (current CLI)
+## Supported Hosts
 
-Without a scope flag, agent-add installs into the current project. This table covers **project targets only**, not user/global settings. See the [host reference](src/hosts/README.md#project-capability-matrix) for native contracts, legacy formats and client-specific limits.
+Choose a host and an installation scope. Capabilities are independent in each scope; support in one does not enable the other. The [host reference](src/hosts/README.md#host-file-contracts) lists native paths, formats and client-specific limits for each tool.
+
+### Project scope (default)
+
+Install into the current project without `--global`.
 
 | AI Tool | MCP | Prompt | Skill | Command | Sub-agent |
 |------|-----|--------|-------|---------|-----------|
@@ -47,9 +51,7 @@ Without a scope flag, agent-add installs into the current project. This table co
 | <img src="https://www.google.com/s2/favicons?domain=tabnine.com&sz=32" width="16"> Tabnine CLI | ✅ | ✅ | ❌ | ✅ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=kilo.ai&sz=32" width="16"> Kilo Code | ✅ | ✅ | ✅ | ✅ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=opencode.ai&sz=32" width="16"> opencode | ✅ | ✅ | ✅ | ✅ | ✅ |
-| <img src="https://www.google.com/s2/favicons?domain=openclawlab.com&sz=32" width="16"> OpenClaw | ❌ | ❌ | ❌ | ❌ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=mistral.ai&sz=32" width="16"> Mistral Vibe | ✅ | ✅ | ✅ | ❌ | ✅ |
-| <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=32" width="16"> Claude Desktop | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Zed Agent | ❌ | ✅ | ✅ | ❌ | ❌ |
 | Cline | ❌ | ✅ | ✅ | ❌ | ❌ |
 | Continue | ✅ | ✅ | ❌ | ❌ | ❌ |
@@ -57,13 +59,40 @@ Without a scope flag, agent-add installs into the current project. This table co
 | goose | ❌ | ✅ | ✅ | ❌ | ❌ |
 | Amp CLI | ✅ | ✅ | ✅ | ❌ | ❌ |
 
-❌ means no installation target enabled in this scope, not necessarily that the upstream product lacks the feature. Skill-backed slash commands are not separate Command assets.
+OpenClaw and Claude Desktop are global-only hosts; they have no project installation target.
 
-### User-level installation (`--global`, proposed)
+### User scope (`--global`)
 
-> **Documentation proposal, not implemented yet.** The current CLI does not accept `--global`. The examples and scope rules in the next section describe the intended behavior for review before implementation.
+Install for the current OS user, independently of the current project.
 
-Global support is independent of project support: for example, Claude Desktop has a documented user MCP configuration but no project target. See the separate [global capability matrix and native user paths](src/hosts/README.md#global-capability-matrix-proposed-not-implemented). Only verified global file contracts may be enabled; unresolved entries remain unavailable rather than falling back to a project directory.
+| AI Tool | MCP | Prompt | Skill | Command | Sub-agent |
+|---------|-----|--------|-------|---------|-----------|
+| Cursor | ✅ | ❌ | ✅ | ❌ | ✅ |
+| Claude Code | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Trae | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Qwen Code | ✅ | ❌ | ✅ | ❌ | ❌ |
+| GitHub Copilot (VS Code) | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Codex CLI | ✅ | ✅ | ✅ | ❌ | ✅ |
+| Windsurf (legacy Cascade) | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Gemini CLI | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Kimi Code | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Augment / Auggie | ✅ | ❌ | ✅ | ✅ | ✅ |
+| Roo Code | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Kiro (CLI V3 / IDE 1.0) | ✅ | ✅ | ✅ | ❌ | ✅ |
+| Tabnine CLI | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Kilo Code | ✅ | ❌ | ✅ | ✅ | ✅ |
+| opencode | ✅ | ✅ | ✅ | ✅ | ✅ |
+| OpenClaw (global only) | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Mistral Vibe | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Claude Desktop (global only) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Zed Agent | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Cline | ❌ | ✅ | ✅ | ❌ | ❌ |
+| Continue | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Aider | ❌ | ❌ | ❌ | ❌ | ❌ |
+| goose | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Amp CLI | ✅ | ✅ | ✅ | ❌ | ❌ |
+
+✅ means agent-add has an installation target in that scope. ❌ means it does not; this does not necessarily mean the upstream product lacks the feature. Requests for unavailable targets fail explicitly, with no fallback to the other scope. Skill-backed slash commands are not separate Command assets. Claude Code's standalone Command files use its backward-compatible command format. Claude Desktop's global MCP target is available on macOS and Windows, not Linux; see the [host reference](src/hosts/README.md#claude-desktop-global-only) for platform and transport limits.
 
 ---
 
@@ -88,27 +117,25 @@ Install [Node.js](https://nodejs.org/) (v18+), then run directly via `npx` — n
 
 ### Installation scope
 
-The existing default remains **project-level**. The proposed `--global` option installs assets for the **current OS user**, across that user's local projects in the selected host. It does not install agent-add itself, require administrator privileges, or write system-wide settings for other users.
+By default, agent-add installs into the **current project**. Add `--global` to install for the **current OS user**, across that user's local projects in the selected host. It does not install agent-add itself, require administrator privileges, or write system-wide settings for other users. Global-only hosts still require `--global`; there is no automatic scope selection.
 
-| | Project (default) | User (`--global`, proposed) |
+| | Project (default) | User (`--global`) |
 |---|-------------------|-----------------------------|
 | Destination | Native project files under the current working directory | Native user configuration/asset locations, independent of the working directory |
 | Scope of a command | All supplied assets go to the project scope | All supplied assets, including pack contents, go to the user scope |
 | Relative source paths | Resolved from the current working directory | Still resolved from the current working directory, not the home directory |
 | Other scope | Not modified | Not modified; no migration or automatic fallback |
 
-**Proposed usage — these `--global` examples require the later implementation:**
-
 ```bash
-# Project skill: .claude/skills/pdf/ (existing behavior)
+# Project skill: .claude/skills/pdf/
 npx -y agent-add --host claude-code \
   --skill 'https://github.com/anthropics/skills.git#skills/pdf'
 
-# User skill: ~/.claude/skills/pdf/ (proposed)
+# User skill: ~/.claude/skills/pdf/
 npx -y agent-add --global --host claude-code \
   --skill 'https://github.com/anthropics/skills.git#skills/pdf'
 
-# Scope applies to the entire pack and any extra assets (proposed)
+# Scope applies to the entire pack and any extra assets
 npx -y agent-add --global --host claude-code \
   --pack ./agent-pack.json --prompt ./prompts/personal.md
 ```
@@ -116,8 +143,9 @@ npx -y agent-add --global --host claude-code \
 - Use two invocations if you want both project and user installations. A pack does not choose its own scope, and one invocation does not mix scopes.
 - Capability checks and installer conflicts are local to the selected scope. Explicitly requesting an unsupported asset fails before destination writes; unsupported pack-only assets are reported as skipped, never redirected to the other scope.
 - A same-name asset in the other scope is left untouched. Which asset the host loads, or whether instructions combine, follows that host's native precedence; project assets do not universally override user assets.
-- `--host` is required in CI/pipes in both scopes. Interactive selection remains available when it is omitted; a global install must also work outside a repository.
-- Global paths are host-specific: Claude Code MCP uses `~/.claude.json`, Cursor MCP uses `~/.cursor/mcp.json`, and Codex user skills use `~/.agents/skills/`, not `~/.codex/skills/`. See the [scope contract and global targets](src/hosts/README.md#installation-scope-contract-proposed) for configuration-root overrides and OS-specific limits.
+- `--host` is required in CI/pipes in both scopes. Omit it for interactive selection. Global installs work outside a repository; the working directory only determines relative source paths.
+- Global paths are host-specific: Claude Code MCP uses `~/.claude.json`, Cursor MCP uses `~/.cursor/mcp.json`, and Codex user skills use `~/.agents/skills/`, not `~/.codex/skills/`. See the [host reference](src/hosts/README.md#host-file-contracts) for configuration-root overrides and OS-specific limits. An unsupported root override produces an error rather than a write to an unused default path.
+- Installation results show the selected scope and actual destination, so you can check where assets were written.
 - Review globally installed content carefully: it can affect every local project. Host trust, enablement, registration and restart requirements still apply; local user files are not automatically synced to cloud sessions.
 
 ### Install MCP
@@ -212,6 +240,7 @@ npx -y agent-add [OPTIONS]
 
 Options:
   --host <host>         Target AI tool ID
+  --global              Install all supplied assets into the host's user scope
   --mcp <source>        Install an MCP Server config
   --skill <source>      Install a Skill directory
   --prompt <source>     Install a Prompt file
@@ -223,12 +252,6 @@ Options:
 ```
 
 All asset flags can be repeated (to install multiple assets of the same type) and freely combined with `--pack`.
-
-**Planned addition (not in the current CLI):**
-
-```text
-  --global             Install all supplied assets into the selected host's user scope
-```
 
 Omitting `--global` keeps project scope. This option changes destinations and scope-specific capabilities, not source formats or the pack manifest schema.
 
