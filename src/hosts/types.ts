@@ -1,4 +1,5 @@
 export type AssetType = 'mcp' | 'skill' | 'prompt' | 'command' | 'subAgent';
+export type InstallScope = 'project' | 'user';
 
 export type WriteStrategy =
   | 'append-with-marker'
@@ -32,6 +33,8 @@ export interface HostAdapter {
   readonly displayName: string;
   readonly detection: HostDetection;
   readonly assets: Record<AssetType, AssetCapability>;
+  readonly scope?: InstallScope;
+  readonly rootDir?: string;
 }
 
 /** @deprecated Use HostAdapter */

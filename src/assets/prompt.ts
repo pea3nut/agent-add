@@ -78,11 +78,12 @@ async function prepareRegistration(
     key === 'read' && typeof value === 'string' ? [value] : (value ?? []);
   if (!Array.isArray(items) || items.some((v) => typeof v !== 'string'))
     throw new Error("Configuration '" + key + "' must contain file paths");
+  const root = job.host.rootDir ?? process.cwd();
   const relative = path
-    .relative(process.cwd(), target)
+    .relative(root, target)
     .split(path.sep)
     .join('/');
-  if (items.some((v) => path.resolve(v) === target))
+  if (items.some((v) => path.resolve(root, v) === target))
     return null;
   if (document) {
     const current = document.get(key, true);
@@ -98,7 +99,12 @@ async function prepareRegistration(
 }
 
 async function promptTarget(job: InstallJob): Promise<string> {
-  if (job.host.id === 'zed') {
+  const cwd = job.host.rootDir ?? process.cwd();
+  if (job.host.id === 'codex' && job.host.scope === 'user') {
+    const override = path.join(path.dirname(job.host.assets.prompt.targetFile!), 'AGENTS.override.md');
+    if ((await readTextOrNull(override))?.trim()) return override;
+  }
+  if (job.host.id === 'zed' && job.host.scope !== 'user') {
     const candidates = [
       '.rules',
       '.cursorrules',
@@ -111,13 +117,12 @@ async function promptTarget(job: InstallJob): Promise<string> {
       'GEMINI.md',
     ];
     for (const candidate of candidates)
-      if ((await readTextOrNull(path.resolve(candidate))) !== null)
-        return path.resolve(candidate);
+      if ((await readTextOrNull(path.resolve(cwd, candidate))) !== null)
+        return path.resolve(cwd, candidate);
   }
   if (job.host.id === 'gemini') {
-    const content = await readTextOrNull(
-      path.resolve('.gemini/settings.json'),
-    );
+    const root = job.host.scope === 'user' ? path.dirname(job.host.assets.prompt.targetFile!) : cwd;
+    const content = await readTextOrNull(job.host.assets.mcp.configFile!);
     const config = content === null ? {} : parseConfig(content, 'jsonc');
     const context = config.context;
     const name = isRecord(context) ? context.fileName : undefined;
@@ -130,10 +135,10 @@ async function promptTarget(job: InstallJob): Promise<string> {
         throw new Error(
           'Gemini context.fileName must be a nonempty filename or filename array',
         );
-      const target = path.resolve(names[0] as string);
-      const relative = path.relative(process.cwd(), target);
+      const target = path.resolve(root, names[0] as string);
+      const relative = path.relative(root, target);
       if (relative === '..' || relative.startsWith('..' + path.sep) || path.isAbsolute(relative))
-        throw new Error('Gemini context.fileName must stay inside the project');
+        throw new Error('Gemini context.fileName must stay inside the ' + (job.host.scope === 'user' ? 'user configuration root' : 'project'));
       return target;
     }
   }

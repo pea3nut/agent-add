@@ -36,12 +36,13 @@ Feature: Sub-agent frontmatter processing and conflict detection
     And the output contains conflict: grep -qi "conflict" "$SETUP_TMPDIR/out.txt"
 
   @P0
-  Scenario: Codex and Vibe sub-agents use native TOML and registered prompt dependencies
+  Scenario: Codex and Vibe sub-agents use native TOML with inline instructions
     Given isolated Codex and Vibe projects with the existing sub-agent fixture and host-specific metadata
     When the sub-agent is installed and reinstalled on each host
     Then Codex generates valid TOML with name, description and developer_instructions rather than renamed Markdown
-    And Vibe writes agent_type subagent and a prompt dependency whose contents preserve the Markdown body
-    And reinstalling identical sources reports exists without changing either generated file
+    And Vibe writes agent_type subagent and inline instructions preserving the Markdown body
+    And external system_prompt_id dependencies are rejected rather than installing incomplete sub-agents
+    And reinstalling identical sources reports exists without changing the generated file
 
   @P0
   Scenario: Host metadata overrides generic frontmatter independently of ordering and line endings

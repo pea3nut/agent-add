@@ -26,6 +26,7 @@ export function formatSummary(summary: InstallSummary): string {
 
   lines.push('agent-add — Install Summary');
   lines.push(`Host: ${host.displayName}`);
+  lines.push(`Scope: ${host.scope === 'user' ? 'user (--global)' : 'project'}`);
   lines.push('');
 
   const nonSkipped = results.filter((r) => r.status !== 'skipped');

@@ -14,6 +14,9 @@ export function convertMcpServer(
   name: string,
 ): Record<string, unknown> {
   assertSafeConfigKey(name);
+  if (job.host.id === 'claude-desktop' &&
+      (source.url !== undefined || source.httpUrl !== undefined || source.serverUrl !== undefined))
+    throw new Error('Claude Desktop file installation supports local stdio MCP servers only');
   const nativeHttp = source.httpUrl !== undefined;
   if (nativeHttp) {
     if (source.url !== undefined || source.serverUrl !== undefined)
@@ -67,7 +70,7 @@ export function convertMcpServer(
       if (
         typeof url !== 'string' ||
         !/^https?:\/\/[^/?#\s\\]/i.test(url) ||
-        /[\r\n\t]/.test(url)
+        /[\s\\]/.test(url)
       )
         throw new Error();
       const validationUrl = ['gemini', 'qwen-code'].includes(job.host.id)
@@ -128,6 +131,18 @@ export function convertMcpServer(
     throw new Error('Remote MCP cannot use stdio args');
   if (command !== undefined && source.headers !== undefined)
     throw new Error('Stdio MCP cannot use HTTP headers');
+  if (job.host.id === 'claude-desktop') {
+    if (typeof command !== 'string')
+      throw new Error('Claude Desktop requires a string stdio command');
+    const allowed = new Set(['command', 'args', 'env', 'environment', 'type', 'transport']);
+    for (const key of Object.keys(source))
+      if (!allowed.has(key)) throw new Error('Claude Desktop cannot represent MCP field ' + key);
+    return {
+      command,
+      ...(args !== undefined ? { args } : {}),
+      ...(env !== undefined ? { env } : {}),
+    };
+  }
   if (
     url !== undefined &&
     transport === 'sse' &&

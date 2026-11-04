@@ -48,7 +48,7 @@ Install into the current project without `--global`.
 | <img src="https://www.google.com/s2/favicons?domain=augmentcode.com&sz=32" width="16"> Augment | ✅ | ✅ | ✅ | ✅ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=roocode.com&sz=32" width="16"> Roo Code | ✅ | ✅ | ✅ | ✅ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=kiro.dev&sz=32" width="16"> Kiro (CLI V3 / IDE 1.0) | ✅ | ✅ | ✅ | ❌ | ✅ |
-| <img src="https://www.google.com/s2/favicons?domain=tabnine.com&sz=32" width="16"> Tabnine CLI | ✅ | ✅ | ❌ | ✅ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=tabnine.com&sz=32" width="16"> Tabnine (IDE Agent / CLI) | ✅ | ✅ | ❌ | ✅ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=kilo.ai&sz=32" width="16"> Kilo Code | ✅ | ✅ | ✅ | ✅ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=opencode.ai&sz=32" width="16"> opencode | ✅ | ✅ | ✅ | ✅ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=mistral.ai&sz=32" width="16"> Mistral Vibe | ✅ | ✅ | ✅ | ❌ | ✅ |
@@ -69,27 +69,27 @@ Install for the current OS user, independently of the current project.
 |---------|-----|--------|-------|---------|-----------|
 | Cursor | ✅ | ❌ | ✅ | ❌ | ✅ |
 | Claude Code | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Trae | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Qwen Code | ✅ | ❌ | ✅ | ❌ | ❌ |
-| GitHub Copilot (VS Code) | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Trae | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Qwen Code | ✅ | ❌ | ✅ | ✅ | ✅ |
+| GitHub Copilot (VS Code) | ❌ | ❌ | ✅ | ❌ | ✅ |
 | Codex CLI | ✅ | ✅ | ✅ | ❌ | ✅ |
-| Windsurf (legacy Cascade) | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Windsurf (legacy Cascade) | ❌ | ❌ | ❌ | ✅ | ❌ |
 | Gemini CLI | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Kimi Code | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Augment / Auggie | ✅ | ❌ | ✅ | ✅ | ✅ |
-| Roo Code | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Kimi Code | ✅ | ❌ | ✅ | ❌ | ❌ |
+| Augment / Auggie | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Roo Code | ❌ | ✅ | ✅ | ✅ | ❌ |
 | Kiro (CLI V3 / IDE 1.0) | ✅ | ✅ | ✅ | ❌ | ✅ |
-| Tabnine CLI | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Tabnine (IDE Agent / CLI) | ✅ | ❌ | ❌ | ✅ | ❌ |
 | Kilo Code | ✅ | ❌ | ✅ | ✅ | ✅ |
 | opencode | ✅ | ✅ | ✅ | ✅ | ✅ |
 | OpenClaw (global only) | ❌ | ❌ | ✅ | ❌ | ❌ |
-| Mistral Vibe | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Mistral Vibe | ✅ | ✅ | ✅ | ❌ | ✅ |
 | Claude Desktop (global only) | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Zed Agent | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Cline | ❌ | ✅ | ✅ | ❌ | ❌ |
+| Zed Agent | ❌ | ✅ | ✅ | ❌ | ❌ |
+| Cline | ✅ | ✅ | ✅ | ❌ | ❌ |
 | Continue | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Aider | ❌ | ❌ | ❌ | ❌ | ❌ |
-| goose | ❌ | ❌ | ❌ | ❌ | ❌ |
+| goose | ❌ | ✅ | ✅ | ❌ | ❌ |
 | Amp CLI | ✅ | ✅ | ✅ | ❌ | ❌ |
 
 ✅ / ❌ = installable / unavailable through agent-add in that scope. Claude Desktop requires macOS or Windows.

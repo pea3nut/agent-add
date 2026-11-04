@@ -2,7 +2,7 @@
 
 This file is the **single source of truth for host configuration in agent-add**: native file locations, schemas, registration, client/version boundaries and official sources. Each tool has its own section, with separate **Project scope** and **User scope (`--global`)** tables. Tools with no project installation target are labeled **global only**.
 
-**Project contracts last verified: 2026-11-01 (UTC). User contract sources checked: 2026-11-04 (UTC).** Sources are official product documentation unless explicitly labeled otherwise; descriptions are paraphrases, not verbatim quotations. Source links belong here, not in adapter metadata.
+**Official sources rechecked for all 24 registered tools and both candidates: 2026-11-04 (UTC).** Sources are official product documentation unless explicitly labeled otherwise; descriptions are paraphrases, not verbatim quotations. Source links belong here, not in adapter metadata. Unselected targets remain unavailable rather than guessed.
 
 ## Reading This Reference
 
@@ -33,6 +33,24 @@ This file is the **single source of truth for host configuration in agent-add**:
 - Native root overrides are host-specific. Honor a verified override or report unsupported configuration before writing; never silently write to an unused default. No generic home-prefix rule defines a user contract.
 - Preserve unrelated settings, comments where supported, file permissions and existing file-symlink behavior. Do not grant trust, bypass managed policy or rewrite embedded MCP commands, environment placeholders or resource references because scope changed.
 - Installation results identify the selected scope and actual destination.
+
+### User configuration roots
+
+Only user destinations are relocated; sources still resolve from cwd. Overrides must be absolute paths. Unsupported combinations fail before any destination write.
+
+| Host | Override handling | Official source |
+|------|-------------------|-----------------|
+| Claude Code | `CLAUDE_CONFIG_DIR` relocates instructions, skills, commands and agents. MCP with this override is rejected: the separate `.claude.json` relocation contract is not selected. | https://code.claude.com/docs/en/settings |
+| Gemini CLI | `GEMINI_CLI_HOME` replaces the home **parent**; use `$GEMINI_CLI_HOME/.gemini/`, not `$GEMINI_CLI_HOME/settings.json`. | https://geminicli.com/docs/cli/enterprise/ |
+| Codex | `CODEX_HOME` relocates config, instructions and agents, not `$HOME/.agents/skills`. | https://developers.openai.com/codex/guides/agents-md ; https://developers.openai.com/codex/skills |
+| Vibe | `VIBE_HOME` replaces `~/.vibe/` for selected user assets. | https://docs.mistral.ai/vibe/code/cli/configuration |
+| Cline CLI | `CLINE_DIR` replaces `~/.cline/`; `CLINE_DATA_DIR` replaces its `data/`; `CLINE_MCP_SETTINGS_PATH` selects the MCP file directly and takes precedence. | https://docs.cline.bot/cli/cli-reference ; https://docs.cline.bot/mcp/mcp-overview |
+| OpenClaw | `OPENCLAW_STATE_DIR` relocates state-owned skills. Non-default `OPENCLAW_PROFILE` and `OPENCLAW_HOME` combinations are not selected and are rejected. | https://docs.openclaw.ai/tools/skills ; https://docs.openclaw.ai/concepts/agent-workspace |
+| Kimi | MCP with `KIMI_SHARE_DIR` is not selected and is rejected; the verified user skill path is independent of this variable. | https://moonshotai.github.io/kimi-cli/en/customization/skills.html |
+| GitHub Copilot | Custom `COPILOT_HOME` user skill/agent roots are not selected and are rejected rather than guessed from MCP configuration. | https://code.visualstudio.com/docs/agent-customization/mcp-servers ; https://docs.github.com/en/copilot/concepts/agents/about-agent-skills |
+| opencode | `OPENCODE_CONFIG`, `OPENCODE_CONFIG_DIR` and inline `OPENCODE_CONFIG_CONTENT` are additional configuration layers, not a generic relocation rule; these custom configurations are rejected for user installation. | https://opencode.ai/docs/config/ |
+
+Custom `XDG_CONFIG_HOME` handling is not selected for opencode, Kilo, Amp, Zed instructions or goose hints; affected user operations fail explicitly rather than guessing relocated paths. This does not relocate independent `$HOME/.agents/skills` roots. Native application command-line overrides (for example Amp `--settings-file`) are not read from a different running process.
 
 ## Host File Contracts
 
@@ -110,7 +128,9 @@ Scope: the adapter's MCP target is **VS Code**, not Copilot CLI/cloud configurat
 
 | Asset Type | Status | Official Source | Native Target / Constraints |
 |------------|--------|-----------------|-----------------------------|
-| MCP / Prompt / Skill / Command / Sub-agent | ? | https://code.visualstudio.com/docs/agent-customization/mcp-servers ; https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot | No user-level file target selected for this VS Code adapter. VS Code profiles, Copilot CLI and cloud-agent settings are distinct contracts; do not turn project paths into home-relative paths. |
+| MCP / Prompt / Command | ? | https://code.visualstudio.com/docs/agent-customization/mcp-servers | No user target selected for these assets. Copilot Global MCP (`$COPILOT_HOME/mcp-config.json`) and VS Code profile MCP are distinct from this adapter's workspace compatibility schema. |
+| Skill | ✅ | https://docs.github.com/en/copilot/concepts/agents/about-agent-skills | `~/.copilot/skills/<name>/SKILL.md`; copy the whole bundle. |
+| Sub-agent | ✅ | https://code.visualstudio.com/docs/copilot/customization/custom-agents | `~/.copilot/agents/<name>.agent.md`; user custom agents, not VS Code profile storage. |
 
 ### Gemini CLI
 
@@ -187,8 +207,8 @@ Homepage: https://qwenlm.github.io/qwen-code-docs/en/
 | MCP | ✅ | https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/ ; https://qwenlm.github.io/qwen-code-docs/en/users/features/mcp/ | `~/.qwen/settings.json` → `mcpServers`; preserve native HTTP/SSE fields and unrelated settings. |
 | Prompt | ? | https://qwenlm.github.io/qwen-code-docs/en/blog/updates/weekly-update-2026-03-06/ | The project `AGENTS.md` contract does not establish a user instruction target. None selected here. |
 | Skill | ✅ | https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/ | `~/.qwen/skills/<name>/SKILL.md`; copy the whole bundle. |
-| Command | ? | https://qwenlm.github.io/qwen-code-docs/en/users/features/commands/ | No user command path/format selected in this reference. |
-| Sub-agent | ? | https://qwenlm.github.io/qwen-code-docs/en/users/features/sub-agents/ | No user agent path/format selected in this reference. |
+| Command | ✅ | https://qwenlm.github.io/qwen-code-docs/en/users/features/commands/ | `~/.qwen/commands/<name>.md`; Markdown with optional YAML frontmatter, not deprecated TOML. |
+| Sub-agent | ✅ | https://qwenlm.github.io/qwen-code-docs/en/users/features/sub-agents/ | `~/.qwen/agents/<name>.md`; Markdown with YAML frontmatter; project definitions take precedence. |
 
 ### opencode
 
@@ -237,7 +257,7 @@ Homepage: https://docs.augmentcode.com/
 | Asset Type | Status | Official Source | Native Target / Constraints |
 |------------|--------|-----------------|-----------------------------|
 | MCP | ✅ | https://docs.augmentcode.com/cli/settings ; https://docs.augmentcode.com/cli/integrations | **Auggie CLI** `~/.augment/settings.json` → `mcpServers`. Preserve JSONC comments; this is not an IDE-extension private-settings contract. |
-| Prompt | ? | https://docs.augmentcode.com/setup-augment/guidelines | No verified user rule-file target selected; do not infer one from project `.augment/rules/`. |
+| Prompt | ✅ | https://docs.augmentcode.com/setup-augment/guidelines | `~/.augment/rules/<name>.md`; documented user rules directory. IDE user guidelines also have a separate `~/.augment/user-guidelines.md` target, which this adapter does not modify. |
 | Skill | ✅ | https://docs.augmentcode.com/using-augment/skills | `~/.augment/skills/<name>/SKILL.md`; copy the whole bundle. |
 | Command | ✅ | https://docs.augmentcode.com/using-augment/custom-commands | `~/.augment/commands/<name>.md`. |
 | Sub-agent | ✅ | https://docs.augmentcode.com/cli/subagents | `~/.augment/agents/<name>.md`; Markdown with YAML frontmatter. |
@@ -264,7 +284,8 @@ Scope: the registered `windsurf` ID refers to legacy Windsurf/Cascade, **not Dev
 
 | Asset Type | Status | Official Source | Native Target / Constraints |
 |------------|--------|-----------------|-----------------------------|
-| MCP / Prompt / Skill / Command | ? | https://docs.windsurf.com/ | No reverified user-level file target selected. Redirects to current Devin documentation do not validate legacy Cascade paths. |
+| MCP / Prompt / Skill | ? | https://docs.devin.ai/desktop/devin-local/customizations | Current Devin Local user paths do not establish legacy Cascade user targets; none selected. |
+| Command | ✅ | https://docs.devin.ai/desktop/cascade#workflows | Legacy Cascade global workflows: `~/.codeium/windsurf/global_workflows/<name>.md`; explicitly documented separately from Devin Local customizations. |
 | Sub-agent | — | — | No independent user agent-file contract verified. |
 
 ### Roo Code
@@ -287,7 +308,9 @@ Homepage: https://docs.roocode.com/
 
 | Asset Type | Status | Official Source | Native Target / Constraints |
 |------------|--------|-----------------|-----------------------------|
-| MCP / Prompt / Command | ? | https://docs.roocode.com/ | No user target selected. In particular, do not move `.roo/mcp.json` under home and call it a global MCP contract. |
+| MCP | ? | https://docs.roocode.com/features/mcp/using-mcp-in-roo | Global `mcp_settings.json` is opened through the editor UI; no portable absolute path selected. Do not move project `.roo/mcp.json` under home. |
+| Prompt | ✅ | https://docs.roocode.com/features/custom-instructions | `~/.roo/rules/<name>.md`; global rules are loaded before workspace rules. |
+| Command | ✅ | https://docs.roocode.com/features/slash-commands | `~/.roo/commands/<name>.md`; project commands override same-name global commands. |
 | Skill | ✅ | https://docs.roocode.com/features/skills | `~/.roo/skills/<name>/SKILL.md`; copy the whole bundle. |
 | Sub-agent | — | — | Custom modes are not a standalone user sub-agent file contract. |
 
@@ -345,7 +368,7 @@ Homepage: https://github.com/openai/codex
 | Command | — | — | No independent command-file target selected. |
 | Sub-agent | ✅ | https://developers.openai.com/codex/subagents | `~/.codex/agents/<name>.toml`; serialize native TOML rather than copy Markdown. `CODEX_HOME` relocates the config/instructions root; do not infer unrelated skill paths from it. |
 
-### Tabnine CLI
+### Tabnine (IDE Agent / CLI)
 
 Host ID: `tabnine`
 
@@ -367,7 +390,9 @@ Scope: the MCP and guidelines sources describe **Tabnine IDE Agent**; the comman
 
 | Asset Type | Status | Official Source | Native Target / Constraints |
 |------------|--------|-----------------|-----------------------------|
-| MCP / Prompt / Command | ? | https://docs.tabnine.com/ | No verified user-level file target selected. IDE Agent and CLI contracts are not interchangeable. |
+| MCP | ✅ | https://docs.tabnine.com/main/getting-started/tabnine-agent/mcp-intro-and-setup | **IDE Agent:** `~/.tabnine/mcp_servers.json` → `mcpServers`. A workspace folder must be open for the MCP engine to read local or global configuration. |
+| Prompt | ? | https://docs.tabnine.com/main/getting-started/tabnine-agent/guidelines | Only the project guidelines directory is selected. |
+| Command | ✅ | https://docs.tabnine.com/main/getting-started/tabnine-cli/features/commands | **CLI:** `~/.tabnine/agent/commands/<name>.toml`; required `prompt`, optional `description`. |
 | Skill / Sub-agent | — | — | No standalone user file contract selected. |
 
 ### Kimi Code
@@ -391,7 +416,8 @@ Homepage: https://moonshotai.github.io/kimi-cli/
 | Asset Type | Status | Official Source | Native Target / Constraints |
 |------------|--------|-----------------|-----------------------------|
 | MCP | ✅ | https://moonshotai.github.io/kimi-cli/en/customization/mcp.html | `~/.kimi/mcp.json` → `mcpServers`. This does not enable a project MCP target. |
-| Prompt / Skill | ? | https://moonshotai.github.io/kimi-cli/ | User instruction/skill discovery has no selected path in this reference. |
+| Prompt | ? | https://moonshotai.github.io/kimi-cli/ | No user instruction target selected. |
+| Skill | ✅ | https://moonshotai.github.io/kimi-cli/en/customization/skills.html | `~/.kimi/skills/<name>/SKILL.md`; skills are independent of `KIMI_SHARE_DIR`. |
 | Command | ↪ | https://moonshotai.github.io/kimi-cli/ | Skill-backed invocation is not a standalone Command format. |
 | Sub-agent | — | https://moonshotai.github.io/kimi-cli/ | YAML agent files require parent registration and `--agent-file` selection, not a Markdown drop-in user asset. |
 
@@ -415,7 +441,9 @@ Homepage: https://docs.trae.ai/
 
 | Asset Type | Status | Official Source | Native Target / Constraints |
 |------------|--------|-----------------|-----------------------------|
-| MCP / Prompt / Skill | ? | https://docs.trae.ai/ | No user-level file contract selected. Global UI settings do not establish writable home-relative project paths. |
+| MCP | ? | https://docs.trae.ai/ide/add-mcp-servers | Global MCP is configured through the UI; no file path selected. |
+| Prompt | ? | https://docs.trae.ai/ide/rules | The docs name `~/.trae/user_rules`, but do not establish a per-asset Markdown filename/schema here. No installer target selected. |
+| Skill | ✅ | https://docs.trae.ai/ide/skills | `~/.trae/skills/<name>/SKILL.md`; Windows uses `%USERPROFILE%/.trae/skills`. |
 | Command / Sub-agent | — | — | No standalone user file contract selected. |
 
 ### OpenClaw (global only)
@@ -449,14 +477,16 @@ Homepage: https://docs.mistral.ai/vibe/code/cli/
 | Prompt | https://docs.mistral.ai/vibe/code/cli/agents | Every `AGENTS.md` between cwd and the trusted root in a trusted workspace | `AGENTS.md` in project root; respect trusted-folder boundaries |
 | Skill | https://docs.mistral.ai/vibe/code/cli/skills | Project `.vibe/skills/` / `.agents/skills/` | `.vibe/skills/<name>/SKILL.md` with YAML frontmatter; project discovery requires trust |
 | Command | https://docs.mistral.ai/vibe/code/cli/skills | Skills default to `user-invocable: true` and are invoked with `/skill-name`; supports `disable-model-invocation` | Reuse the Skill directory; do not create an undocumented `.vibe/commands/` directory |
-| Sub-agent | https://docs.mistral.ai/vibe/code/cli/agents | Project `.vibe/agents/<name>.toml`; `agent_type = "subagent"` and `description`; `system_prompt_id` can reference `.vibe/prompts/<id>.md` | Generate TOML and handle prompt dependencies; a regular `agent_type = "agent"` definition is not a delegation-only subagent |
+| Sub-agent | https://docs.mistral.ai/vibe/code/cli/agents | Project `.vibe/agents/<name>.toml`; `agent_type = "subagent"` and `description`; `system_prompt_id` can reference `.vibe/prompts/<id>.md` | Generate TOML with inline instructions; this installer rejects external prompt dependencies rather than copying incomplete agents. A regular `agent_type = "agent"` definition is not a delegation-only subagent |
 
 #### User scope (`--global`)
 
 | Asset Type | Status | Official Source | Native Target / Constraints |
 |------------|--------|-----------------|-----------------------------|
 | MCP | ✅ | https://docs.mistral.ai/vibe/code/cli/configuration ; https://docs.mistral.ai/vibe/code/cli/configuration-reference | `~/.vibe/config.toml` → `[[mcp_servers]]`. Respect `VIBE_HOME` or fail explicitly; serialize native arrays of tables. The installer supports stdio with environment, not remote transport. |
-| Prompt / Skill / Sub-agent | ? | https://docs.mistral.ai/vibe/code/cli/configuration | No verified user file target selected for these assets. |
+| Prompt | ✅ | https://docs.mistral.ai/vibe/code/cli/agents | `~/.vibe/AGENTS.md`, or `$VIBE_HOME/AGENTS.md`; user-level instructions. |
+| Skill | ✅ | https://docs.mistral.ai/vibe/code/cli/skills | `~/.vibe/skills/<name>/SKILL.md`, under `VIBE_HOME` when set. |
+| Sub-agent | ✅ | https://docs.mistral.ai/vibe/code/cli/agents | `~/.vibe/agents/<name>.toml`, under `VIBE_HOME` when set; generate `agent_type = "subagent"` with inline instructions. External prompt dependencies are not installed automatically. |
 | Command | ↪ | https://docs.mistral.ai/vibe/code/cli/ | Skill-backed invocation does not establish a separate Command target. |
 
 ### Claude Desktop (global only)
@@ -495,7 +525,7 @@ Scope: the current [configuration layout](https://docs.cline.bot/getting-started
 
 | Asset Type | Status | Official Source | Native Target / Constraints |
 |------------|--------|-----------------|-----------------------------|
-| MCP | ? | https://docs.cline.bot/mcp/mcp-overview ; https://docs.cline.bot/getting-started/config | No user MCP schema/target selected; distinguish CLI/Desktop and IDE settings. |
+| MCP | ✅ | https://docs.cline.bot/mcp/mcp-overview ; https://docs.cline.bot/cli/cli-reference | **CLI:** `~/.cline/data/settings/cline_mcp_settings.json` → `mcpServers`; honor `CLINE_DIR`, `CLINE_DATA_DIR`, and the more specific `CLINE_MCP_SETTINGS_PATH`. Do not claim IDE-extension private settings support. |
 | Prompt | ✅ | https://docs.cline.bot/customization/cline-rules ; https://docs.cline.bot/getting-started/config | `~/.cline/rules/<name>.md`. `CLINE_DIR` relocates the root; honor it or report unsupported configuration. |
 | Skill | ✅ | https://docs.cline.bot/customization/skills | `~/.cline/skills/<name>/SKILL.md`; copy the whole bundle and apply the same root-override handling. |
 | Command | ↪ | https://docs.cline.bot/core-workflows/using-commands | Skills are slash-invokable; no independent workflow format selected. |
@@ -521,8 +551,8 @@ Scope: **Amp CLI** configuration, not hosted MCP definitions stored by ampcode.c
 
 | Asset Type | Status | Official Source | Native Target / Constraints |
 |------------|--------|-----------------|-----------------------------|
-| MCP | ✅ | https://ampcode.com/docs/cli/settings ; https://ampcode.com/docs/customize/mcp | macOS/Linux `~/.config/amp/settings.json` / `settings.jsonc`; literal `amp.mcpServers`, not nested objects. Preserve JSONC and command/args/env or url/headers. Windows config path is unverified and not selected. |
-| Prompt | ✅ | https://ampcode.com/docs/customize/agents-md | `~/.config/amp/AGENTS.md` within the verified macOS/Linux config root. |
+| MCP | ✅ | https://ampcode.com/docs/cli/settings ; https://ampcode.com/docs/customize/mcp | `~/.config/amp/settings.json` / `settings.jsonc`; Windows uses `%USERPROFILE%/.config/amp/`. Literal `amp.mcpServers`, not nested objects. Preserve JSONC and command/args/env or url/headers. |
+| Prompt | ✅ | https://ampcode.com/docs/customize/agents-md | `$HOME/.config/amp/AGENTS.md`; user-level instructions, distinct from system-wide managed guidance. |
 | Skill | ✅ | https://ampcode.com/docs/customize/skills | `~/.config/amp/skills/<name>/SKILL.md`; this host-specific target avoids changing the shared agent-agnostic skill root. |
 | Command / Sub-agent | — | — | No independent user file contract selected. |
 
@@ -566,7 +596,9 @@ Scope: the native **Zed Agent**, not every external ACP agent or terminal thread
 
 | Asset Type | Status | Official Source | Native Target / Constraints |
 |------------|--------|-----------------|-----------------------------|
-| MCP / Prompt / Skill | ? | https://zed.dev/docs/ai/mcp.md ; https://zed.dev/docs/ai/instructions.md ; https://zed.dev/docs/ai/skills.md ; https://zed.dev/docs/reference/all-settings.md | No user-level target selected in this reference. User settings and external ACP agents do not establish the native Agent's file-discovery contract. |
+| MCP | ? | https://zed.dev/docs/ai/mcp.md | User `context_servers` settings exist, but native conversion/platform paths are not selected by this adapter. |
+| Prompt | ✅ | https://zed.dev/docs/ai/instructions.md | macOS/Linux: `~/.config/zed/AGENTS.md`; personal instructions for the native Zed Agent, not every external ACP agent. Project first-match filenames do not redirect this write. Windows instruction path is not selected. |
+| Skill | ✅ | https://zed.dev/docs/ai/skills.md | `~/.agents/skills/<name>/SKILL.md`; named skill directories must be direct children of the root. |
 | Command | ↪ | https://zed.dev/docs/ai/skills.md | Skill invocation is not an independent user Command asset. |
 | Sub-agent | — | — | No standalone user agent-file contract verified. |
 
@@ -610,7 +642,9 @@ Scope: current goose CLI/Desktop file contracts. The original `block/goose` repo
 
 | Asset Type | Status | Official Source | Native Target / Constraints |
 |------------|--------|-----------------|-----------------------------|
-| MCP / Prompt / Skill | ? | https://goose-docs.ai/docs/guides/config-files/ ; https://github.com/aaif-goose/goose/blob/main/documentation/docs/guides/context-engineering/using-goosehints.md ; https://github.com/aaif-goose/goose/blob/main/documentation/docs/guides/context-engineering/using-skills.md | No user-level target selected in this reference. Project discovery does not establish user paths; disabled extensions remain disabled. |
+| MCP | ? | https://goose-docs.ai/docs/guides/config-files/ | User `~/.config/goose/config.yaml` uses extensions, not a portable `mcpServers` map; no native converter selected. |
+| Prompt | ✅ | https://github.com/aaif-goose/goose/blob/main/documentation/docs/guides/context-engineering/using-goosehints.md | macOS/Linux: `~/.config/goose/.goosehints`; global hints. Windows target is not selected. |
+| Skill | ✅ | https://github.com/aaif-goose/goose/blob/main/documentation/docs/guides/context-engineering/using-skills.md | `~/.agents/skills/<name>/SKILL.md`; preserve the entire bundle. |
 | Command | ↪ | https://goose-docs.ai/docs/guides/config-files/ | `/skills` invocation, recipes and custom slash commands do not establish an independent Markdown Command target. |
 | Sub-agent | — | — | No standalone user agent-file contract verified. |
 

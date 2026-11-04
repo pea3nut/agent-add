@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import type { AssetType, HostConfig } from './hosts/types.js';
+import type { AssetType, HostConfig, InstallScope } from './hosts/types.js';
+import { selectHostScope } from './hosts/scope.js';
 import type { AssetDescriptor } from './manifest/schema.js';
 import type {
   InstallJob,
@@ -34,6 +35,7 @@ export interface CliInput {
   subAgent: string[];
   pack: string[];
   host?: string;
+  scope?: InstallScope;
 }
 
 async function cleanupTempDirs(tempDirs: Set<string>): Promise<void> {
@@ -118,6 +120,7 @@ export async function runInstaller(
   host: HostConfig,
   cwd: string,
 ): Promise<InstallSummary> {
+  host = selectHostScope(host, cliInput.scope ?? 'project', cwd);
   const explicitDescriptors: Array<{ type: AssetType; source: string }> = [];
   const packDescriptors: AssetDescriptor[] = [];
 
@@ -181,6 +184,7 @@ export async function runInstaller(
   }> = [];
 
   const tempDirsToClean = new Set<string>();
+  const skippedResults: InstallResult[] = [];
 
   // process.exit() skips `finally`, so every exit path below cleans up
   // explicitly; the `finally` covers normal returns and thrown errors.
@@ -190,11 +194,21 @@ export async function runInstaller(
     for (const item of expandedItems) {
       const isGlob = item.source.endsWith('/*');
       const cleanSource = isGlob ? item.source.slice(0, -2) : item.source;
+      const fromExplicitFlag = idx++ < explicitCount;
+      if (!fromExplicitFlag && !host.assets[item.assetType].supported) {
+        skippedResults.push({
+          job: {
+            assetType: item.assetType, assetName: inferName(cleanSource), host,
+            resolvedSource: { type: 'local', localPath: '', originalSource: item.source },
+          },
+          status: 'skipped', reason: host.assets[item.assetType].reason,
+        });
+        continue;
+      }
       const resolved = await resolveSource(cleanSource, cwd);
       if (resolved.tempDir) {
         tempDirsToClean.add(resolved.tempDir);
       }
-      const fromExplicitFlag = idx < explicitCount;
 
       if (isGlob) {
         const entries = await expandDirectory(
@@ -229,7 +243,6 @@ export async function runInstaller(
           fromExplicitFlag,
         });
       }
-      idx++;
     }
 
     for (const item of resolvedItems) {
@@ -246,7 +259,6 @@ export async function runInstaller(
     }
 
     const jobs: InstallJob[] = [];
-    const skippedResults: InstallResult[] = [];
 
     for (const item of resolvedItems) {
       const capability = host.assets[item.assetType];
