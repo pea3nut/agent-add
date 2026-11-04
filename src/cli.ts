@@ -4,6 +4,7 @@ import { getAllHosts, getHost, getValidHostIds } from './hosts/index.js';
 import { detectHosts, isHostDetected } from './hosts/detect.js';
 import { runInstaller } from './installer.js';
 import { printSummary } from './utils/summary.js';
+import { InstallProgress } from './utils/progress.js';
 import type { CliInput } from './installer.js';
 
 import pkgJson from '../package.json';
@@ -124,7 +125,16 @@ Examples:
       }
 
       const cwd = process.cwd();
-      const summary = await runInstaller(cliInput, host, cwd);
+      const progress = new InstallProgress();
+      let summary;
+      try {
+        summary = await runInstaller(cliInput, host, cwd, progress);
+      } catch (err) {
+        progress.finish('error');
+        throw err;
+      } finally {
+        progress.stop();
+      }
       printSummary(summary);
 
       const hasConflicts = summary.results.some((r) => r.status === 'conflict');

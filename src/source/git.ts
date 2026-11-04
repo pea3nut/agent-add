@@ -1,10 +1,11 @@
-import { execFile } from 'child_process';
+import { execFile, spawn } from 'child_process';
 import { promisify } from 'util';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import type { ResolvedSource } from '../assets/types.js';
 import type { SourceType } from './detect.js';
+import type { OnSourceProgress } from '../utils/progress.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -68,7 +69,32 @@ export function parseGitSource(source: string): ParsedGitSource {
   return { repoUrl, ref, subPath };
 }
 
-export async function resolveGit(source: string, type: SourceType): Promise<ResolvedSource> {
+async function fetchGit(args: string[], onProgress?: OnSourceProgress): Promise<void> {
+  onProgress?.({ phase: 'download', detail: 'fetching Git repository' });
+  await new Promise<void>((resolve, reject) => {
+    const child = spawn('git', args, { stdio: ['ignore', 'ignore', 'pipe'] });
+    let stderr = '';
+    let pending = '';
+    child.stderr.setEncoding('utf-8');
+    child.stderr.on('data', (chunk: string) => {
+      stderr = (stderr + chunk).slice(-8192);
+      const lines = (pending + chunk).split(/[\r\n]/);
+      pending = lines.pop()!.slice(-2048);
+      for (const line of lines) {
+        if (/(?:Receiving objects|Resolving deltas|Counting objects|Compressing objects|Enumerating objects):/.test(line)) {
+          onProgress?.({ phase: 'download', detail: line.trim() });
+        }
+      }
+    });
+    child.on('error', reject);
+    child.on('close', (code, signal) => {
+      if (code === 0) resolve();
+      else reject(new Error(`git fetch failed (${signal ?? code}): ${stderr.trim()}`));
+    });
+  });
+}
+
+export async function resolveGit(source: string, type: SourceType, onProgress?: OnSourceProgress): Promise<ResolvedSource> {
   const { repoUrl, ref, subPath } = parseGitSource(source);
 
   const tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'agent-add-git-'));
@@ -83,12 +109,10 @@ export async function resolveGit(source: string, type: SourceType): Promise<Reso
       await execFileAsync('git', ['-C', tmpDir, 'config', 'core.sparseCheckout', 'true']);
       const sparseFile = path.join(tmpDir, '.git', 'info', 'sparse-checkout');
       await fs.promises.writeFile(sparseFile, subPath + '\n', 'utf-8');
-      await execFileAsync('git', ['-C', tmpDir, 'fetch', '--depth=1', 'origin', fetchTarget]);
-      await execFileAsync('git', ['-C', tmpDir, 'checkout', 'FETCH_HEAD']);
-    } else {
-      await execFileAsync('git', ['-C', tmpDir, 'fetch', '--depth=1', 'origin', fetchTarget]);
-      await execFileAsync('git', ['-C', tmpDir, 'checkout', 'FETCH_HEAD']);
     }
+    await fetchGit(['-C', tmpDir, 'fetch', '--depth=1', '--progress', 'origin', fetchTarget], onProgress);
+    onProgress?.({ phase: 'checkout' });
+    await execFileAsync('git', ['-C', tmpDir, 'checkout', 'FETCH_HEAD']);
 
     const localPath = subPath ? path.join(tmpDir, subPath) : tmpDir;
 

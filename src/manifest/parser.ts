@@ -1,12 +1,13 @@
 import fs from 'fs';
 import { resolveSource } from '../source/index.js';
 import { ManifestSchema, type Manifest } from './schema.js';
+import type { InstallProgress } from '../utils/progress.js';
 
-export async function loadManifest(source: string, cwd: string): Promise<Manifest> {
+export async function loadManifest(source: string, cwd: string, progress?: InstallProgress): Promise<Manifest> {
   let jsonContent: string;
 
   try {
-    const resolved = await resolveSource(source, cwd);
+    const resolved = await resolveSource(source, cwd, progress?.source);
     jsonContent = await fs.promises.readFile(resolved.localPath, 'utf-8');
 
     if (resolved.tempDir) {
@@ -17,6 +18,7 @@ export async function loadManifest(source: string, cwd: string): Promise<Manifes
       }
     }
   } catch (err) {
+    progress?.finish('error');
     process.stderr.write(`agent-add error: Failed to load Manifest from: ${source}\n`);
     process.stderr.write(`  Cause: ${(err as Error).message}\n`);
     process.exit(2);
@@ -26,6 +28,7 @@ export async function loadManifest(source: string, cwd: string): Promise<Manifes
   try {
     rawData = JSON.parse(jsonContent);
   } catch (err) {
+    progress?.finish('error');
     process.stderr.write(`agent-add error: Invalid JSON in Manifest: ${source}\n`);
     process.stderr.write(`  Cause: ${(err as Error).message}\n`);
     process.exit(2);
@@ -33,6 +36,7 @@ export async function loadManifest(source: string, cwd: string): Promise<Manifes
 
   const parsed = ManifestSchema.safeParse(rawData);
   if (!parsed.success) {
+    progress?.finish('error');
     const firstIssue = parsed.error.issues[0];
     if (firstIssue) {
       const fieldPath = firstIssue.path.join('.');

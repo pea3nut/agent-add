@@ -1,9 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import { Readable } from 'stream';
+import { pipeline } from 'stream/promises';
 import type { ResolvedSource } from '../assets/types.js';
+import type { OnSourceProgress } from '../utils/progress.js';
 
-export async function resolveHttpFile(source: string, assetName: string): Promise<ResolvedSource> {
+export async function resolveHttpFile(source: string, assetName: string, onProgress?: OnSourceProgress): Promise<ResolvedSource> {
+  onProgress?.({ phase: 'download', receivedBytes: 0 });
   let response: Response;
   try {
     response = await fetch(source);
@@ -19,8 +23,6 @@ export async function resolveHttpFile(source: string, assetName: string): Promis
     );
   }
 
-  const buffer = await response.arrayBuffer();
-
   // Query and fragment are kept in the request above but never in the filename.
   const urlPath = new URL(source).pathname;
   const ext = path.extname(urlPath) || '.tmp';
@@ -28,7 +30,30 @@ export async function resolveHttpFile(source: string, assetName: string): Promis
   const tmpFile = path.join(tmpDir, `${assetName}${ext}`);
 
   try {
-    await fs.promises.writeFile(tmpFile, Buffer.from(buffer));
+    // Fetch decodes compressed bodies, so their Content-Length is not a byte total.
+    const length = Number(response.headers.get('content-length'));
+    const totalBytes = !response.headers.get('content-encoding') && Number.isSafeInteger(length) && length > 0
+      ? length : undefined;
+    let receivedBytes = 0;
+    onProgress?.({ phase: 'download', receivedBytes, totalBytes });
+    async function* chunks() {
+      const reader = response.body?.getReader();
+      if (!reader) return;
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          receivedBytes += value.byteLength;
+          onProgress?.({ phase: 'download', receivedBytes, totalBytes });
+          yield value;
+        }
+      } finally {
+        await reader.cancel().catch(() => {});
+        reader.releaseLock();
+      }
+    }
+    await pipeline(Readable.from(chunks()), fs.createWriteStream(tmpFile));
+    onProgress?.({ phase: 'download', receivedBytes, totalBytes, done: true });
   } catch (err) {
     await fs.promises.rm(tmpDir, { recursive: true, force: true }).catch(() => {});
     throw err;

@@ -5,11 +5,12 @@ import { resolveHttpFile } from './http-file.js';
 import { resolveInlineJson, resolveInlineMd } from './inline.js';
 import { inferName } from './infer-name.js';
 import { normalizeGitUrl, detectSourceType } from './detect.js';
+import type { OnSourceProgress } from '../utils/progress.js';
 
 export { normalizeGitUrl, detectSourceType } from './detect.js';
 export type { SourceType } from './detect.js';
 
-export async function resolveSource(source: string, cwd: string): Promise<ResolvedSource> {
+export async function resolveSource(source: string, cwd: string, onProgress?: OnSourceProgress): Promise<ResolvedSource> {
   const trimmed = source.trim(); // normalize: remove leading/trailing whitespace or BOM
   const normalizedSource = normalizeGitUrl(trimmed);
   const type = detectSourceType(normalizedSource);
@@ -24,8 +25,8 @@ export async function resolveSource(source: string, cwd: string): Promise<Resolv
       return resolveLocal(normalizedSource, cwd);
     case 'git-ssh':
     case 'git-https':
-      return resolveGit(normalizedSource, type);
+      return resolveGit(normalizedSource, type, onProgress);
     case 'http-file':
-      return resolveHttpFile(normalizedSource, assetName);
+      return resolveHttpFile(normalizedSource, assetName, onProgress);
   }
 }
