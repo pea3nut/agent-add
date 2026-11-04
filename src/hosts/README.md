@@ -5,14 +5,16 @@ It records upstream file contracts, not a guarantee that the current CLI impleme
 Adapters in `src/hosts/<id>.ts` should converge on these contracts; known gaps are listed below.
 Official documentation links are maintained here, not duplicated in adapter metadata.
 
-**Last verified: 2026-11-01 (UTC).** Sources are official product documentation unless explicitly labeled otherwise.
+**Project contracts last verified: 2026-11-01 (UTC). Global contract sources checked: 2026-11-04 (UTC).** Sources are official product documentation unless explicitly labeled otherwise.
 Descriptions below are paraphrases, not verbatim quotations. Contracts were documented before the corresponding adapter changes.
+
+> **Documentation proposal: `--global` is not implemented yet.** The current CLI remains project-only. The global contracts below describe the intended next implementation, pending review; they are not a claim of released support.
 
 ### Scope and interpretation
 
 - The first matrix covers the **24 registered adapters**. [New host candidates](#new-host-candidates-not-implemented) are separate: their proposed IDs are **not** accepted by `--host` yet.
 - A capability means an installable **file contract**, not merely a similarly named UI feature or a built-in command. Skills that expose slash commands are not a second, independent command-file format.
-- All installation targets are project-relative. Only verified project-level contracts are in scope; an upstream capability does not imply an implemented adapter. Respect workspace trust.
+- Project and global installation are **separate contracts**. The project matrix and project details use project-relative paths; the global matrix and global details use verified user-level paths. Never derive one from the other by prefixing the user's home directory. An upstream capability does not imply an implemented adapter. Respect workspace trust.
 - A Skill is a **directory bundle** with a `SKILL.md` entry point: preserve supporting scripts/resources, not just the entry file. Same-name discovery precedence is host-specific.
 - Write strategies name installer operations, not upstream formats. JSONC, TOML, nested keys, frontmatter and registration requirements must be handled explicitly; changing an extension or copying Markdown alone does not convert a format.
 - This reference and the executable file-contract scenarios are **not runtime validation in all native hosts**. Unverified protocols remain unverified rather than being inferred from third-party host lists or old issues. A successful HTTP response or redirect is not proof: check the final page's product, client/version scope and actual file contract.
@@ -23,7 +25,7 @@ Descriptions below are paraphrases, not verbatim quotations. Contracts were docu
 
 > ✅ = documented file contract | ↪ = legacy, skill-backed, or requires registration (see details) | ? = historical contract not reverified | — = no standalone file contract verified
 >
-> These are project-scoped upstream capabilities, **not current adapter implementation status**. A dash also marks capabilities outside this release's project-only contract. CLI/IDE scope matters.
+> These are project-scoped upstream capabilities, **not current adapter implementation status**. A dash also marks capabilities outside the current project-only contract. CLI/IDE scope matters. Global support never enables a project target implicitly.
 
 | Host | ID | MCP | Prompt | Skill | Command | Sub-agent |
 |------|----|-----|--------|-------|---------|-----------|
@@ -76,11 +78,105 @@ this does not claim native application or live MCP-server validation.
 | Claude Desktop / OpenClaw | No project installation target enabled | IDs remain registered so unsupported requests fail explicitly. |
 | Copilot / Augment | VS Code compatibility MCP / Auggie CLI JSONC settings | These IDs do not establish portable Copilot harness or Augment IDE-extension configuration behavior. |
 | New host limits | Zed/Cline/Goose support project Prompt and Skill; Amp supports MCP, Prompt and Skill; Continue supports MCP and Prompt; Aider supports registered Prompt | No new independent Command/Sub-agent format is invented. Continue uses `.continue/mcpServers/agent-add.json`. |
+| Global scope | Not implemented; the contracts below are a documentation proposal | Adding this reference does not change the CLI, adapters, or project-only defaults. |
 
 
 ---
 
-## Host Configuration Details
+## Installation Scope Contract (Proposed)
+
+`--global` selects **user-level installation for the entire invocation**, not a different host and not a system-wide installation for every OS user. Omitting it keeps the existing project-only behavior.
+
+| Concern | Project (default) | Global (`--global`, proposed) |
+|---------|-------------------|-------------------------------|
+| Destination | The selected host's project contract, relative to the invocation's working directory | The selected host's explicit user-level contract, independent of the working directory |
+| Capability lookup | Project host + asset type | Global host + asset type; never inherit project support |
+| Inputs | Relative local sources and pack paths resolve from the invocation's working directory | The same source resolution; `./skills/example` does **not** become home-relative |
+| Writes and conflicts | Only the selected project target and its required registrations | Only the selected user target and its required registrations; project copies do not count as already installed or conflicting |
+| Missing target | Explicit unsupported error; no user-level fallback | Explicit unsupported error; no project-level fallback, invented directory, or UI automation |
+
+Additional requirements for the implementation:
+
+- The scope applies equally to repeated asset flags, every asset expanded from `--pack`, and extra assets combined with a pack. Pack manifests remain scope-neutral: no per-asset scope field or mixed project/global writes in one invocation. Use two invocations to install in both scopes.
+- Capability handling remains consistent with the current installer: an explicitly requested unsupported asset fails before any destination writes; unsupported assets supplied only by a pack are reported as skipped **in the selected scope**. Skipped global assets must never be installed into the project instead. Validation and write failures are not unsupported-asset skips.
+- `--host` selects the same registered host ID in either scope. Non-interactive use still requires it. Without it, the interactive selector must identify the selected scope; global selection must not depend on finding project configuration.
+- A global install neither migrates nor deletes project assets, nor edits project registration files. Project installs must likewise not register assets in user settings. Installer conflict checks are scope-local; runtime discovery, merging and same-name precedence remain the host's responsibility. A project copy is not universally higher priority.
+- Paths below are **native defaults**, not a universal `~/.<host>` convention. Resolve the current user's home and platform-specific application directories explicitly. Host-native root overrides need separately verified handling (for example, `CODEX_HOME` and `VIBE_HOME`); either honor the relevant override or report the unsupported configuration rather than silently writing to an unused default. Do not add a generic scope/path templating system just to express these contracts.
+- Preserve unrelated user settings, comments where supported, permissions and existing file-symlink behavior. Do not grant trust, enable disabled extensions, bypass managed policy, or rewrite embedded MCP commands, environment placeholders and resource references just because scope changes. Global files can affect every local project; they are not automatically synchronized to hosted/cloud sessions.
+- Installation results must identify the selected scope and actual destination. File installation is not proof that the native application loaded the asset; restart, registration and trust requirements still apply.
+
+## Global Capability Matrix (Proposed, Not Implemented)
+
+This is an independent **user-level** baseline for the same 24 registered IDs. It does not change the project matrix. Only entries with a selected, sourced file contract may be enabled in the future adapter.
+
+> ✅ = verified user-level file contract selected below | ↪ = legacy or skill-backed, not a new standalone format | ? = user-level target/format still needs verification; keep unavailable | — = no independent file target selected; keep unsupported
+>
+> Every cell is **unimplemented in agent-add global mode**, including ✅. `?` and `—` do not assert that the upstream product lacks the feature.
+
+| Host | ID | MCP | Prompt | Skill | Command | Sub-agent |
+|------|----|-----|--------|-------|---------|-----------|
+| Cursor | `cursor` | ✅ | ? | ✅ | ? | ✅ |
+| Claude Code | `claude-code` | ✅ | ✅ | ✅ | ↪ | ✅ |
+| GitHub Copilot (VS Code) | `github-copilot` | ? | ? | ? | ? | ? |
+| Gemini CLI | `gemini` | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Kilo Code | `kilo-code` | ✅ | ? | ✅ | ✅ | ✅ |
+| Qwen Code | `qwen-code` | ✅ | ? | ✅ | ? | ? |
+| opencode | `opencode` | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Augment / Auggie | `augment` | ✅ | ? | ✅ | ✅ | ✅ |
+| Windsurf / legacy Cascade | `windsurf` | ? | ? | ? | ? | — |
+| Roo Code | `roo-code` | ? | ? | ✅ | ? | — |
+| Kiro (CLI V3 / IDE 1.0) | `kiro` | ✅ | ✅ | ✅ | ↪ | ✅ |
+| Codex CLI | `codex` | ✅ | ✅ | ✅ | — | ✅ |
+| Tabnine | `tabnine` | ? | ? | — | ? | — |
+| Kimi Code CLI | `kimi` | ✅ | ? | ? | ↪ | — |
+| Trae | `trae` | ? | ? | ? | — | — |
+| OpenClaw | `openclaw` | ? | ? | ✅ | — | — |
+| Mistral Vibe | `vibe` | ✅ | ? | ? | ↪ | ? |
+| Claude Desktop | `claude-desktop` | ✅ | — | — | — | — |
+| Zed Agent | `zed` | ? | ? | ? | ↪ | — |
+| Cline | `cline` | ? | ✅ | ✅ | ↪ | ? |
+| Continue | `continue` | ? | ? | ? | ? | — |
+| Aider | `aider` | — | ? | — | — | — |
+| goose | `goose` | ? | ? | ? | ↪ | — |
+| Amp CLI | `amp` | ✅ | ✅ | ✅ | — | — |
+
+### Global File Contracts and Sources
+
+All paths in this section are user-scoped. `<name>` is the inferred asset name. Skill targets denote **whole directory bundles**, including `SKILL.md` and supporting resources. JSON/JSONC/TOML conversion requirements remain native to each host; the project serialization rules are reusable only where the global schema actually matches.
+
+| Host | Selected global targets | Official sources and constraints |
+|------|-------------------------|----------------------------------|
+| Cursor | MCP: `~/.cursor/mcp.json` → `mcpServers`; Skill: `~/.cursor/skills/<name>/SKILL.md`; Sub-agent: `~/.cursor/agents/<name>.md` | [MCP](https://cursor.com/docs/context/mcp), [skills](https://cursor.com/docs/skills), [subagents](https://cursor.com/docs/subagents). User Rules in the settings UI do not establish a writable `~/.cursor/AGENTS.md` contract. Global Command remains unverified; do not extrapolate the legacy project directory. |
+| Claude Code | MCP: `~/.claude.json` → top-level `mcpServers`; Prompt: `~/.claude/CLAUDE.md`; Skill: `~/.claude/skills/<name>/SKILL.md`; legacy Command: `~/.claude/commands/<name>.md`; Sub-agent: `~/.claude/agents/<name>.md` | [MCP scopes](https://code.claude.com/docs/en/mcp#user-scope), [memory](https://code.claude.com/docs/en/memory), [skills/legacy commands](https://code.claude.com/docs/en/skills), [subagents](https://code.claude.com/docs/en/sub-agents). MCP **user scope** is top-level `mcpServers`, not the project-specific `projects[<path>]` local scope in the same file. Do not use `~/.claude/.mcp.json`. |
+| Gemini CLI | MCP: `~/.gemini/settings.json` → `mcpServers`; Prompt: `~/.gemini/GEMINI.md`; Skill: `~/.gemini/skills/<name>/SKILL.md`; Command: `~/.gemini/commands/<name>.toml`; Sub-agent: `~/.gemini/agents/<name>.md` | [Settings](https://geminicli.com/docs/reference/configuration/), [memory](https://geminicli.com/docs/cli/gemini-md/), [skills](https://geminicli.com/docs/cli/skills/), [commands](https://geminicli.com/docs/cli/custom-commands/), [subagent format](https://geminicli.com/docs/core/subagents/), [agent discovery](https://geminicli.com/docs/reference/commands/). Commands require TOML conversion. Global prompt selection must respect the effective user `context.fileName`, without reading project settings to redirect a user-level write. |
+| Kilo Code | MCP: `~/.config/kilo/kilo.jsonc` → `mcp`; Skill: `~/.kilo/skills/<name>/SKILL.md`; Command: `~/.config/kilo/commands/<name>.md`; Sub-agent: `~/.config/kilo/agents/<name>.md` | [MCP](https://kilo.ai/docs/automate/mcp/using-in-kilo-code), [skills](https://kilo.ai/docs/customize/skills), [commands](https://kilo.ai/docs/customize/workflows), [subagents](https://kilo.ai/docs/customize/custom-subagents). Note the **different skill and config roots**. Preserve existing `.json`/`.jsonc` selection and convert MCP schema, rather than creating a competing file. Global Prompt registration still needs verification. |
+| Qwen Code | MCP: `~/.qwen/settings.json` → `mcpServers`; Skill: `~/.qwen/skills/<name>/SKILL.md` | [User settings](https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/), [MCP format](https://qwenlm.github.io/qwen-code-docs/en/users/features/mcp/), [skills](https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/). Global Prompt, Command and Sub-agent targets/formats remain unselected in this proposal. |
+| opencode | MCP: `~/.config/opencode/opencode.json` / `opencode.jsonc` → `mcp`; Prompt: `~/.config/opencode/AGENTS.md`; Skill: `~/.config/opencode/skills/<name>/SKILL.md`; Command: `~/.config/opencode/commands/<name>.md`; Sub-agent: `~/.config/opencode/agents/<name>.md` | [Config](https://opencode.ai/docs/config/), [MCP](https://opencode.ai/docs/mcp-servers/), [rules](https://opencode.ai/docs/rules), [skills](https://opencode.ai/docs/skills), [commands](https://opencode.ai/docs/commands/), [agents](https://opencode.ai/docs/agents/). Keep JSONC-aware merging, native MCP conversion and subagent metadata. `OPENCODE_CONFIG` is an additional config layer, not permission to treat any arbitrary path as the global default. |
+| Augment / Auggie | MCP: `~/.augment/settings.json` → `mcpServers`; Skill: `~/.augment/skills/<name>/SKILL.md`; Command: `~/.augment/commands/<name>.md`; Sub-agent: `~/.augment/agents/<name>.md` | [Auggie settings](https://docs.augmentcode.com/cli/settings), [MCP](https://docs.augmentcode.com/cli/integrations), [skills](https://docs.augmentcode.com/using-augment/skills), [commands](https://docs.augmentcode.com/using-augment/custom-commands), [subagents](https://docs.augmentcode.com/cli/subagents). MCP is an Auggie CLI contract, not a claim about the IDE extension's private settings. Preserve JSONC comments. |
+| Roo Code | Skill: `~/.roo/skills/<name>/SKILL.md` | [Skills](https://docs.roocode.com/features/skills). Other user-level contracts remain unselected; do not manufacture a global MCP path by moving `.roo/mcp.json` under home. |
+| Kiro | MCP: `~/.kiro/settings/mcp.json` → `mcpServers`; Prompt: `~/.kiro/steering/<name>.md`; Skill: `~/.kiro/skills/<name>/SKILL.md`; Sub-agent: `~/.kiro/agents/<name>.md` | [MCP](https://kiro.dev/docs/mcp/configuration/), [steering](https://kiro.dev/docs/steering/), [skills](https://kiro.dev/docs/skills/), [agent locations](https://kiro.dev/docs/custom-agents/creating/), [agent format](https://kiro.dev/docs/custom-agents/configuration-reference/). CLI V3 / IDE 1.0 scope, not a migration of CLI 2.x JSON. Custom-agent resource registration remains necessary; no independent Command directory. |
+| Codex CLI | MCP: `~/.codex/config.toml` → `[mcp_servers.<name>]`; Prompt: `~/.codex/AGENTS.md` (or the effective `AGENTS.override.md`); Skill: `~/.agents/skills/<name>/SKILL.md`; Sub-agent: `~/.codex/agents/<name>.toml` | [Config](https://developers.openai.com/codex/config-basic/), [MCP](https://developers.openai.com/codex/mcp/), [instructions](https://developers.openai.com/codex/guides/agents-md), [skills](https://developers.openai.com/codex/skills), [subagents](https://developers.openai.com/codex/subagents). `CODEX_HOME` relocates the Codex config/instructions root, **not** the documented `$HOME/.agents/skills` root. Update the effective non-empty override file when present rather than an ignored `AGENTS.md`. No independent Command target selected. |
+| Kimi Code CLI | MCP: `~/.kimi/mcp.json` → `mcpServers` | [MCP](https://moonshotai.github.io/kimi-cli/en/customization/mcp.html). This user-level contract does not enable a project MCP target. Skill/global instruction discovery still needs a selected target. YAML subagent registration is not a standalone Markdown drop-in contract. |
+| OpenClaw | Skill: `~/.openclaw/skills/<name>/SKILL.md` in the default state | [Skills](https://docs.openclaw.ai/tools/skills), [configuration](https://docs.openclaw.ai/gateway/configuration). This is a shared state-owned skill root, not the configured agent workspace. Respect verified profile/state-root overrides before writing. Do not treat `~/.openclaw/workspace/AGENTS.md` as a universal user prompt or infer MCP installation from the existence of `openclaw.json`. |
+| Mistral Vibe | MCP: `~/.vibe/config.toml` → `[[mcp_servers]]` | [Configuration](https://docs.mistral.ai/vibe/code/cli/configuration), [schema](https://docs.mistral.ai/vibe/code/cli/configuration-reference). Respect `VIBE_HOME` and native arrays of tables; retain existing transport-conversion limits. Global Prompt/Skill/Sub-agent targets still need separate verification. |
+| Claude Desktop | MCP: macOS `~/Library/Application Support/Claude/claude_desktop_config.json`; Windows `%APPDATA%\Claude\claude_desktop_config.json`; key `mcpServers` | [Official local-server setup](https://modelcontextprotocol.io/docs/develop/connect-local-servers). Select by OS, preserve unrelated settings, and retain the documented local stdio contract. No verified Linux target selected; fail explicitly there. This does not enable any project target or Claude Code assets. |
+| Cline | Prompt: `~/.cline/rules/<name>.md`; Skill: `~/.cline/skills/<name>/SKILL.md` | [Configuration layout](https://docs.cline.bot/getting-started/config), [rules](https://docs.cline.bot/customization/cline-rules), [skills](https://docs.cline.bot/customization/skills). `CLINE_DIR` can relocate the root and needs explicit handling. MCP settings and standalone agents/workflows need their precise schema verified before adding targets. |
+| Amp CLI | MCP: `~/.config/amp/settings.json` / `settings.jsonc` → literal `amp.mcpServers`; Prompt: `~/.config/amp/AGENTS.md`; Skill: `~/.config/amp/skills/<name>/SKILL.md` | [Settings](https://ampcode.com/docs/cli/settings), [MCP](https://ampcode.com/docs/customize/mcp), [instructions](https://ampcode.com/docs/customize/agents-md), [skills](https://ampcode.com/docs/customize/skills). Config paths here are verified for macOS/Linux; verify the Windows config path separately. The host-specific skill target avoids changing the shared agent-agnostic skill root. |
+
+For `github-copilot`, `windsurf`, `tabnine`, `trae`, `zed`, `continue`, `aider` and `goose`, no global file target is selected in this proposal. Their project contracts below remain unchanged. Verify exact user paths, client/OS scope, schema and registration requirements before replacing `?` cells; historical paths, UI features and project support are insufficient evidence.
+
+### Scope Acceptance Criteria for the Later Implementation
+
+- With isolated project and user roots, run the same asset once without `--global` and once with it. Parse the native outputs and verify only the selected scope changed, including required registrations.
+- Cover differing contracts, not only directory copies: Claude Code user MCP versus project MCP, Codex user skills versus its config root, native TOML commands/subagents, and OS-specific Claude Desktop MCP.
+- Keep a same-name asset with different content in the other scope. It must not cause an installer conflict, skip, overwrite, migration or deletion in the selected scope.
+- Verify explicit unsupported assets fail before writes, pack-only unsupported assets skip in the selected scope, mixed pack/explicit flags use one scope, and no fallback destination is created.
+- Verify relative source/manifest paths still resolve from cwd, user config overrides are handled explicitly, and a global install works outside a repository. Preserve unrelated user settings and native prompt-file precedence.
+- Add these business behaviors to the existing Scenario Test feature groups; implementation and executable scenarios are deliberately **not** part of this documentation-only change.
+
+---
+
+## Project Host Configuration Details
 
 ### Cursor
 
