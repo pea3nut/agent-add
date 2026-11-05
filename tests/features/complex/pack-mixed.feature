@@ -24,16 +24,18 @@ Feature: Pack mixed skip/install and capability validation
     And the output mentions unsupported: grep -qi "does not support" "$SETUP_TMPDIR/out.txt"
 
   @P1
-  Scenario: Pack on Roo Code installs MCP, prompt as file-in-dir, and skill, skips command and subAgent
+  Scenario: Pack on Roo Code installs MCP, prompt, skill and command, skips only subAgent
     Given a temp working directory is created
     And all fixtures are copied: cp -r "$PROJECT_ROOT/tests/fixtures" "$SETUP_TMPDIR/fixtures"
     And a .roo directory exists: mkdir -p "$SETUP_TMPDIR/.roo"
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host roo-code --pack ./fixtures/pack/manifest.json > "$SETUP_TMPDIR/out.txt" 2>&1
-    Then the exit code is 0: echo $? > "$SETUP_TMPDIR/roo-exit.txt" || true
-    And the MCP is installed: grep -q '"playwright"' "$SETUP_TMPDIR/.roo/mcp.json"
-    And the prompt file is created in rules dir: test -f "$SETUP_TMPDIR/.roo/rules/my-prompt.md"
-    And the skill is installed: test -d "$SETUP_TMPDIR/.roo/skills/my-skill"
-    And command and subAgent are skipped: grep -qi "skipped" "$SETUP_TMPDIR/out.txt"
+    Then the exit code is 0
+    And the MCP matches the fixture semantically: node -e 'const a=require("node:assert/strict"),fs=require("node:fs");a.deepEqual(JSON.parse(fs.readFileSync(".roo/mcp.json")).mcpServers.playwright,JSON.parse(fs.readFileSync("fixtures/mcp/playwright.json")));'
+    And the prompt content is preserved in the rules directory: cmp "$SETUP_TMPDIR/fixtures/prompt/my-prompt.md" "$SETUP_TMPDIR/.roo/rules/my-prompt.md"
+    And the complete skill bundle is preserved: diff -r "$SETUP_TMPDIR/fixtures/skill/my-skill" "$SETUP_TMPDIR/.roo/skills/my-skill"
+    And the command content is preserved: cmp "$SETUP_TMPDIR/fixtures/command/my-command.md" "$SETUP_TMPDIR/.roo/commands/my-command.md"
+    And only the sub-agent is skipped: grep -E 'skipped[[:space:]]+subAgent/my-agent' "$SETUP_TMPDIR/out.txt" && grep -F '4 written · 1 skipped · 0 conflicts' "$SETUP_TMPDIR/out.txt"
+    And no unverified sub-agent directory is created: test ! -e "$SETUP_TMPDIR/.roo/agents"
 
   @P1
   Scenario: MCP conflict in single-asset install exits with code 1
