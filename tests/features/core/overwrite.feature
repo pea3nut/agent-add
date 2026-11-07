@@ -1,15 +1,31 @@
-Feature: Explicit overwrite with protected defaults and content idempotence
+Feature: Forced overwrite with protected defaults
 
   Background:
     Given the CLI is built and each scenario uses isolated project, HOME and TMPDIR directories
 
   @P0
-  Scenario: The overwrite flag is opt-in and identical assets remain untouched in both modes
+  Scenario: Default identical installs remain untouched while overwrite forces all five assets to be rewritten
     Given complete MCP, Skill, managed Prompt, Command and Sub-agent sources are installed on cursor
     And the installed bytes and modification times are recorded
-    When the identical five sources are installed with no overwrite option and then with --overwrite
-    Then both runs exit 0, report 5 exists and 0 written, updated or overwritten
-    And every installed byte and modification time remains unchanged
+    When the identical five sources are installed with no overwrite option
+    Then the run exits 0, reports 5 exists and preserves every installed byte and modification time
+    When the same sources are installed with --overwrite after setting target modification times to a known past value
+    Then the run exits 0, reports 5 overwritten and 0 exists, and every target modification time changes
+    And final content is unchanged with no duplicate MCP entries or Prompt blocks
+
+  @P0
+  Scenario: Claude Code forces all six identical assets in the combined README invocation
+    Given two MCPs, a complete Skill, a managed Prompt, a Command and a Sub-agent are installed on claude-code
+    And all installed files have a known past modification time
+    When the identical six sources are reinstalled together with --overwrite as the last CLI argument
+    Then all six items report overwritten, the summary has 6 overwritten and 0 exists, and every target is actually rewritten
+    And parsed MCP entries and full installed files match the source fixtures while unrelated configuration and user Prompt text are preserved
+
+  @P0
+  Scenario: Forced Skill refresh does not read installed file contents for comparison
+    Given an unprivileged user has a readable source Skill and an identical installed Skill whose helper file is unreadable
+    When that user installs the Skill with --overwrite
+    Then the run succeeds as overwritten, publishes a complete readable copy, and leaves no staging directory
 
   @P0
   Scenario: Different assets are protected by default and replaced only with overwrite
@@ -20,7 +36,7 @@ Feature: Explicit overwrite with protected defaults and content idempotence
     And the managed Prompt reports updated for only its own block and the overall CLI exits 1
     When the same invocation is run with --overwrite
     Then all final managed contents match the changed sources and the CLI exits 0
-    And a further identical --overwrite run reports exists without changing bytes or modification times
+    And a further identical --overwrite run reports overwritten and rewrites the targets while preserving final content
 
   @P0
   Scenario: Skill comparison includes supporting resources empty directories and binary content
@@ -29,7 +45,7 @@ Feature: Explicit overwrite with protected defaults and content idempotence
     Then it reports skipped and the complete installed tree is unchanged
     When it is reinstalled with --overwrite
     Then it reports overwritten and the full source tree is installed with no stale target-only entry
-    And the next identical run in either mode reports exists and leaves bytes and modification times unchanged
+    And the next identical default run reports exists and preserves bytes and modification times, while --overwrite reports overwritten and rewrites the bundle
 
   @P0
   Scenario: Incomplete Skill directories are not silently called identical
@@ -48,7 +64,7 @@ Feature: Explicit overwrite with protected defaults and content idempotence
     Then the CLI fails, the entire previous target is unchanged and no staging directory remains
     When the source permissions are repaired and the invocation is repeated
     Then the CLI reports overwritten and installs the entire new bundle
-    And a further identical run reports exists
+    And a further identical --overwrite run reports overwritten
 
   @P0
   Scenario: Publication failure during overwrite restores the previous Skill bundle
@@ -68,14 +84,15 @@ Feature: Explicit overwrite with protected defaults and content idempotence
     And repeating the same ordered invocation produces the same final bytes without duplicate entries or marker blocks
 
   @P0
-  Scenario: Native MCP semantic equality is preserved with and without overwrite
+  Scenario: Native MCP semantic equality avoids default writes but cannot suppress a forced overwrite
     Given JSON, JSONC, Codex table TOML and Vibe array TOML configs with unrelated settings and same-name MCP entries
     When sources have reordered object keys but equivalent native values
-    Then both modes report exists and preserve configuration bytes and modification times
+    Then default mode reports exists and preserves configuration bytes and modification times
+    And --overwrite reports overwritten, changes each target modification time, and preserves decoded entries and unrelated settings
     When sources change argument order, environment values or remote settings
     Then default mode reports conflict and preserves bytes
     And --overwrite replaces only the named entry, preserves unrelated values and produces no duplicate entries
-    And a further identical run reports exists
+    And a further identical --overwrite run reports overwritten
 
   @P0
   Scenario: Standalone Prompt protection and managed Prompt updates keep separate scopes
@@ -84,17 +101,18 @@ Feature: Explicit overwrite with protected defaults and content idempotence
     Then the standalone rule reports conflict and stays unchanged while the managed block reports updated
     When --overwrite is supplied
     Then the standalone rule is replaced and user text and the independent managed block remain exact
-    And repeated identical inputs report exists in both modes
+    And repeated identical default inputs report exists while --overwrite reports overwritten and rewrites both targets
     And malformed or duplicate markers still fail without writes even with --overwrite
 
   @P0
   Scenario: Native serialization precedes command and sub-agent content comparison
     Given Gemini commands and Cursor sub-agents have been installed
     When only ignored command frontmatter fields or other-host sub-agent hints change
-    Then final generated content remains equal and reports exists in both modes without writes
+    Then final generated content remains equal and default mode reports exists without writes
+    And --overwrite reports overwritten and rewrites the generated files even though their native content is unchanged
     When native description, active-host model or body changes
     Then default mode reports conflict and --overwrite installs the changed native content
-    And the subsequent identical run reports exists
+    And the subsequent identical default run reports exists while --overwrite reports overwritten
 
   @P0
   Scenario: Overwrite does not bypass malformed source configuration or path protection
@@ -109,7 +127,7 @@ Feature: Explicit overwrite with protected defaults and content idempotence
   Scenario: Unsupported Pack assets remain skipped without resolution while explicit unsupported flags fail
     Given a Pack contains unsupported missing sources plus a supported complete Skill
     When it is installed on cursor with --global in either mode
-    Then unsupported entries report skipped without attempting to resolve missing sources and the supported Skill installs or reports exists
+    Then unsupported entries report skipped without attempting to resolve missing sources and the supported Skill installs, reports exists only in default mode, or reports overwritten with --overwrite
     When an unsupported asset is requested explicitly with --overwrite
     Then the CLI exits 2 and neither supported nor unsupported destinations are written
 

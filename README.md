@@ -113,7 +113,7 @@ npx -y agent-add --mcp 'https://github.com/modelcontextprotocol/servers.git#.mcp
 
 Install [Node.js](https://nodejs.org/) (v18+), then run directly via `npx` — no separate install needed.
 
-Identical content is left unchanged. Add `--overwrite` to replace an existing same-name asset.
+By default, identical content is left unchanged. Add `--overwrite` to force rewriting an existing same-name asset, even if its content is identical.
 
 ### Project or global?
 
@@ -250,7 +250,7 @@ npx -y agent-add [OPTIONS]
 
 Options:
   --host <host>         Target AI tool ID
-  --overwrite          Replace existing same-name assets
+  --overwrite          Force rewriting same-name assets, even if identical
   --global              Install all supplied assets into the host's user scope
   --mcp <source>        Install an MCP Server config
   --skill <source>      Install a Skill directory

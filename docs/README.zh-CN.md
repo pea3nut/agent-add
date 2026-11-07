@@ -66,7 +66,7 @@ npx -y agent-add --mcp 'https://github.com/modelcontextprotocol/servers.git#.mcp
 
 安装 [Node.js](https://nodejs.org/)（v18+）后即可通过 `npx` 直接运行，无需额外安装。
 
-相同内容不会重复写入；如需替换已有的同名资产，加 `--overwrite`。
+默认不重复写入相同内容；加 `--overwrite` 可强制重写已有的同名资产，即使内容相同。
 
 ### 安装 MCP
 
@@ -163,7 +163,7 @@ npx -y agent-add [OPTIONS]
 
 Options:
   --host <host>         指定目标 AI Agent
-  --overwrite          覆盖已有的同名资产
+  --overwrite          强制重写同名资产，即使内容相同
   --mcp <source>        安装 MCP Server 配置
   --skill <source>      安装 Skill 目录
   --prompt <source>     安装 Prompt 文件

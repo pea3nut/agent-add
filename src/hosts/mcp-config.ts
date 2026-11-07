@@ -30,10 +30,10 @@ export function editTomlMcpConfig(
 
     const existingIdx = mcpServers.findIndex((server) => server['name'] === assetName);
     overwritten = existingIdx !== -1;
-    if (overwritten) {
+    if (overwritten && !overwrite) {
       const matches = mcpServers.filter((server) => server['name'] === assetName);
       if (matches.length === 1 && deepEqualIgnoringKeyOrder(matches[0], entry)) return { status: 'exists' };
-      if (!overwrite) return { status: 'conflict', reason: `Different or duplicate MCP entries already use the name '${assetName}'; use --overwrite to replace them` };
+      return { status: 'conflict', reason: `Different or duplicate MCP entries already use the name '${assetName}'; use --overwrite to replace them` };
     }
     const others = mcpServers.filter((server) => server['name'] !== assetName);
     others.splice(overwritten ? existingIdx : others.length, 0, entry);
@@ -48,9 +48,9 @@ export function editTomlMcpConfig(
     const entry = newServerConfig;
 
     overwritten = Object.hasOwn(mcpServers, assetName);
-    if (overwritten) {
+    if (overwritten && !overwrite) {
       if (deepEqualIgnoringKeyOrder(mcpServers[assetName], entry)) return { status: 'exists' };
-      if (!overwrite) return { status: 'conflict', reason: `MCP '${assetName}' already has different content; use --overwrite to replace it` };
+      return { status: 'conflict', reason: `MCP '${assetName}' already has different content; use --overwrite to replace it` };
     }
     Object.defineProperty(mcpServers, assetName, {
       value: entry,
@@ -99,9 +99,9 @@ function editJsonMcpConfig(
   }
 
   const overwritten = Object.hasOwn(mcpServers, assetName);
-  if (overwritten) {
+  if (overwritten && !overwrite) {
     if (deepEqualIgnoringKeyOrder(mcpServers[assetName], newServerConfig)) return { status: 'exists' };
-    if (!overwrite) return { status: 'conflict', reason: `MCP '${assetName}' already has different content; use --overwrite to replace it` };
+    return { status: 'conflict', reason: `MCP '${assetName}' already has different content; use --overwrite to replace it` };
   }
 
   return {

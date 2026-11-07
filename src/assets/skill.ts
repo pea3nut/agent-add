@@ -42,9 +42,9 @@ export const skillHandler: AssetHandler = {
       if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
     }
 
-    if (occupied) {
+    if (occupied && !job.overwrite) {
       if (await sameSkillBundle(resolvedSource.localPath, targetDir)) return { job, status: 'exists', targetPath: entryFile };
-      if (!job.overwrite) return { job, status: 'skipped', targetPath: entryFile,
+      return { job, status: 'skipped', targetPath: entryFile,
         reason: 'Same-name Skill has different or incomplete content; use --overwrite to replace it' };
     }
     await publishSkill(resolvedSource.localPath, targetDir, copyDirRecursive);

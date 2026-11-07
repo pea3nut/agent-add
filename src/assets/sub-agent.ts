@@ -47,7 +47,7 @@ export const subAgentHandler: AssetHandler = {
     }
 
     try {
-      if (existingContent === processedContent) return { job, status: 'exists', targetPath };
+      if (!job.overwrite && existingContent === processedContent) return { job, status: 'exists', targetPath };
       if (existingContent !== null && !job.overwrite) return { job, status: 'conflict', targetPath,
         reason: 'Destination has different content; use --overwrite to replace it' };
       await atomicWriteText(targetPath, processedContent);
