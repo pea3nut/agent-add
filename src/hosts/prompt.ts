@@ -2,6 +2,7 @@ import path from 'path';
 import yaml from 'yaml';
 import { isRecord, parseConfig, readTextOrNull, resolveConfigPath, setConfigValue } from '../utils/config.js';
 import type { AssetCapability, HostAdapter } from './types.js';
+import { updateYamlProperty } from '../utils/yaml-edit.js';
 
 export async function registerPromptFile(
   host: HostAdapter,
@@ -36,9 +37,13 @@ export async function registerPromptFile(
     else {
       const sequence = document.createNode([...items, relative]);
       if (yaml.isScalar(current) && typeof current.value === 'string') sequence.items[0] = current;
+      else if (yaml.isNode(current)) {
+        sequence.comment = current.comment;
+        sequence.commentBefore = current.commentBefore;
+      }
       document.set(key, sequence);
     }
-    return { file, content: document.toString() };
+    return { file, content: updateYamlProperty(existing, document, key) };
   }
   return { file, content: setConfigValue(existing, [key], [...items, relative], 'jsonc') };
 }

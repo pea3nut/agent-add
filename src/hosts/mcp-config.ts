@@ -1,7 +1,8 @@
-import { parse, stringify } from 'smol-toml';
+import { parse } from 'smol-toml';
 import { deepEqualIgnoringKeyOrder } from '../utils/deep-equal.js';
 import { isRecord, parseConfig, setConfigValue, type ConfigFormat } from '../utils/config.js';
 import type { AssetCapability, HostAdapter, McpConfigEdit } from './types.js';
+import { setTomlValue } from '../utils/toml-edit.js';
 
 export function editTomlMcpConfig(
   tomlContent: string | null,
@@ -20,6 +21,7 @@ export function editTomlMcpConfig(
   }
 
   let overwritten = false;
+  let content = tomlContent ?? '';
   if (layout === 'named-array') {
     // Named array entries use [[mcp_servers]].
     const mcpServers =
@@ -35,6 +37,10 @@ export function editTomlMcpConfig(
       if (matches.length === 1 && deepEqualIgnoringKeyOrder(matches[0], entry)) return { status: 'exists' };
       return { status: 'conflict', reason: `Different or duplicate MCP entries already use the name '${assetName}'; use --overwrite to replace them` };
     }
+    content = setTomlValue(content, ['mcp_servers', overwritten ? existingIdx : mcpServers.length], entry);
+    for (let index = mcpServers.length - 1; index > existingIdx && overwritten; index--)
+      if (mcpServers[index]!['name'] === assetName)
+        content = setTomlValue(content, ['mcp_servers', index], undefined);
     const others = mcpServers.filter((server) => server['name'] !== assetName);
     others.splice(overwritten ? existingIdx : others.length, 0, entry);
     mcpServers.splice(0, mcpServers.length, ...others);
@@ -52,6 +58,7 @@ export function editTomlMcpConfig(
       if (deepEqualIgnoringKeyOrder(mcpServers[assetName], entry)) return { status: 'exists' };
       return { status: 'conflict', reason: `MCP '${assetName}' already has different content; use --overwrite to replace it` };
     }
+    content = setTomlValue(content, ['mcp_servers', assetName], entry);
     Object.defineProperty(mcpServers, assetName, {
       value: entry,
       enumerable: true,
@@ -60,12 +67,9 @@ export function editTomlMcpConfig(
     });
   }
 
-  if (overwritten) return { status: 'overwritten', content: stringify(parsed) };
-  const addition = stringify({ mcp_servers: layout === 'named-array' ? [newServerConfig] : { [assetName]: newServerConfig } });
-  const appended = (tomlContent ?? '').trimEnd() + '\n\n' + addition;
-  try { parse(appended); return { status: 'written', content: appended }; }
-  catch { return { status: 'written', content: stringify(parsed) }; }
-
+  if (!deepEqualIgnoringKeyOrder(parse(content), parsed))
+    throw new Error('TOML edit did not preserve the planned configuration: ' + configFilePath);
+  return { status: overwritten ? 'overwritten' : 'written', content };
 }
 
 function editJsonMcpConfig(
