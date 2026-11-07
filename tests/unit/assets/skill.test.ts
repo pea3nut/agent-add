@@ -52,7 +52,7 @@ describe('skillHandler (regression)', () => {
     await fs.promises.rm(tmpDir, { recursive: true, force: true });
   });
 
-  it('reports exists when SKILL.md is already present in the target directory', async () => {
+  it('preserves a different same-name Skill and reports skipped', async () => {
     const tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'agent-add-skill-test-'));
     const sourceDir = path.join(tmpDir, 'source-skill');
     await fs.promises.mkdir(sourceDir, { recursive: true });
@@ -72,7 +72,8 @@ describe('skillHandler (regression)', () => {
     };
 
     const result = await skillHandler.handle(job);
-    expect(result.status).toBe('exists');
+    expect(result.status).toBe('skipped');
+    expect(result.reason).toContain('different or incomplete');
     const content = await fs.promises.readFile(path.join(targetDir, 'SKILL.md'), 'utf-8');
     expect(content).toBe('# Already installed\n');
 

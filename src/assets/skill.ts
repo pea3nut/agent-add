@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { hasRequiredSkillFiles, publishSkill } from './skill-publication.js';
+import { sameSkillBundle } from './skill-compare.js';
+import { publishSkill } from './skill-publication.js';
 import { assertNoSkillLinks, assertSafeSkillTree, resolveSkillDirectory } from './skill-safety.js';
 import { ensureDir } from '../utils/fs.js';
 import type { AssetHandler, InstallJob, InstallResult } from './types.js';
@@ -33,8 +34,10 @@ export const skillHandler: AssetHandler = {
 
     await assertNoSkillLinks(targetDir);
     await assertSafeSkillTree(resolvedSource.localPath);
+    let existing = false;
     try {
       await assertSafeSkillTree(targetDir);
+      existing = true;
     } catch (err) {
       if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
     }
@@ -46,10 +49,10 @@ export const skillHandler: AssetHandler = {
     } catch (err) {
       if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
     }
-    if (installed) {
-      if (!await hasRequiredSkillFiles(resolvedSource.localPath, targetDir)) {
-        return { job, status: 'error', targetPath: entryFile,
-          reason: 'Existing Skill is incomplete; preserve or remove it before reinstalling' };
+    if (existing && (installed || (await fs.promises.readdir(targetDir)).length > 0)) {
+      if (!await sameSkillBundle(resolvedSource.localPath, targetDir)) {
+        return { job, status: 'skipped', targetPath: entryFile,
+          reason: 'Same-name Skill has different or incomplete content; existing files were preserved' };
       }
       return { job, status: 'exists', targetPath: entryFile };
     }
