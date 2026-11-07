@@ -4,7 +4,7 @@ import os from 'os';
 import type { ResolvedSource } from '../assets/types.js';
 import { unwrapMcpServers } from '../utils/unwrap-mcp-servers.js';
 
-export async function resolveInlineJson(source: string, assetName: string): Promise<ResolvedSource> {
+export async function resolveInlineJson(source: string, _assetName: string): Promise<ResolvedSource> {
   let parsed: unknown;
   try {
     parsed = JSON.parse(source);
@@ -35,8 +35,14 @@ export async function resolveInlineJson(source: string, assetName: string): Prom
   }
 
   const tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'agent-add-inline-'));
-  const tmpFile = path.join(tmpDir, `${assetName}.json`);
-  await fs.promises.writeFile(tmpFile, JSON.stringify(value, null, 2));
+  // Logical asset names are untrusted data, never temporary path components.
+  const tmpFile = path.join(tmpDir, 'asset.json');
+  try {
+    await fs.promises.writeFile(tmpFile, JSON.stringify(value, null, 2), { flag: 'wx' });
+  } catch (err) {
+    await fs.promises.rm(tmpDir, { recursive: true, force: true });
+    throw err;
+  }
 
   return {
     type: 'inline-json',
@@ -46,10 +52,15 @@ export async function resolveInlineJson(source: string, assetName: string): Prom
   };
 }
 
-export async function resolveInlineMd(source: string, assetName: string): Promise<ResolvedSource> {
+export async function resolveInlineMd(source: string, _assetName: string): Promise<ResolvedSource> {
   const tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'agent-add-inline-'));
-  const tmpFile = path.join(tmpDir, `${assetName}.md`);
-  await fs.promises.writeFile(tmpFile, source);
+  const tmpFile = path.join(tmpDir, 'asset.md');
+  try {
+    await fs.promises.writeFile(tmpFile, source, { flag: 'wx' });
+  } catch (err) {
+    await fs.promises.rm(tmpDir, { recursive: true, force: true });
+    throw err;
+  }
 
   return {
     type: 'inline-md',
