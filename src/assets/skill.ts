@@ -1,9 +1,11 @@
 import fs from 'fs';
 import path from 'path';
+import { assertNoSkillLinks, assertSafeSkillTree, resolveSkillDirectory } from './skill-safety.js';
 import { ensureDir } from '../utils/fs.js';
 import type { AssetHandler, InstallJob, InstallResult } from './types.js';
 
 async function copyDirRecursive(src: string, dest: string): Promise<void> {
+  await assertNoSkillLinks(dest);
   await ensureDir(dest);
   const entries = await fs.promises.readdir(src, { withFileTypes: true });
   for (const entry of entries) {
@@ -12,7 +14,8 @@ async function copyDirRecursive(src: string, dest: string): Promise<void> {
     if (entry.isDirectory()) {
       await copyDirRecursive(srcPath, destPath);
     } else {
-      await fs.promises.copyFile(srcPath, destPath);
+      await assertNoSkillLinks(destPath);
+      await fs.promises.copyFile(srcPath, destPath, fs.constants.COPYFILE_EXCL);
     }
   }
 }
@@ -21,9 +24,19 @@ export const skillHandler: AssetHandler = {
   async handle(job: InstallJob): Promise<InstallResult> {
     const { host, assetName, resolvedSource } = job;
     const skillCapability = host.assets['skill'];
-    const installDir = skillCapability.installDir as string;
+    const installDir = await resolveSkillDirectory(
+      skillCapability.installDir as string, host.rootDir ?? process.cwd(),
+    );
     const targetDir = path.resolve(installDir, assetName);
     const entryFile = path.join(targetDir, skillCapability.entryFile ?? 'SKILL.md');
+
+    await assertNoSkillLinks(targetDir);
+    await assertSafeSkillTree(resolvedSource.localPath);
+    try {
+      await assertSafeSkillTree(targetDir);
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
+    }
 
     try {
       // Check the entry file, not just the directory: a directory that
