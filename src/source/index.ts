@@ -11,6 +11,11 @@ export { normalizeGitUrl, detectSourceType } from './detect.js';
 export type { SourceType } from './detect.js';
 
 export async function resolveSource(source: string, cwd: string, onProgress?: OnSourceProgress): Promise<ResolvedSource> {
+  // Inline Markdown is document content: preserve its whitespace and final newline.
+  // Only paths, URLs and structured JSON use the normalization below.
+  if (source.includes('\n') && !source.trimStart().startsWith('{')) {
+    return resolveInlineMd(source, inferName(source));
+  }
   const trimmed = source.trim(); // normalize: remove leading/trailing whitespace or BOM
   const normalizedSource = normalizeGitUrl(trimmed);
   const type = detectSourceType(normalizedSource);
