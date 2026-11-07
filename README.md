@@ -26,32 +26,6 @@ npx -y agent-add \
 
 ---
 
-## Existing assets and `--overwrite`
-
-By default, existing content is protected. Add `--overwrite` to replace different same-name assets. Identical generated content reports `exists` in either mode and is not rewritten; repeated installation is content-idempotent without unnecessary modification-time changes.
-
-| Asset | Same content, either mode | Different content, default | Different content with `--overwrite` |
-|---|---|---|---|
-| MCP | `exists` (native configuration comparison ignores object-key order) | `conflict`, preserve the server entry | `overwritten`, replace only the named entry |
-| Skill | `exists` (compare complete directory and file bytes) | `skipped` with a reason; preserve the bundle | `overwritten`, mirror the entire source directory and remove stale resources |
-| Command / Sub-agent / standalone Prompt | `exists` (compare generated native text) | `conflict`, preserve the file | `overwritten`, replace the file |
-| Marker-managed Prompt | `exists` (compare its own named block) | `updated`, replace that block only | Same managed-block behavior; never replace user text or other blocks |
-
-```bash
-# Protect existing content by default
-npx -y agent-add --host cursor --pack ./agent-pack.json
-# Explicitly permit replacement of different same-name content
-npx -y agent-add --host cursor --overwrite --pack ./agent-pack.json
-```
-
-Without the option, different same-name non-Skill sources in a batch block all writes during preflight. With `--overwrite`, Packs run in their supplied order, then explicit flags; the last same-type/name explicit source wins. Skill defaults are content-aware: identical complete bundles are `exists`; different or incomplete nonempty bundles are `skipped`; an empty interrupted target can be installed safely.
-
-Host-specific Prompt registration is part of installation: a missing registration can be repaired as `updated` without rewriting identical Prompt text.
-
-Overwrite is scoped to the selected host and project or `--global` target. MCP preserves unrelated settings and servers. TOML replacement may reserialize formatting/comments; unchanged entries are never rewritten, and JSONC comments outside a replaced entry are retained. Skill copies are staged before publication; a failed copy preserves the old bundle, and a failed publication attempts to restore it. Do not store independent local files inside a Skill you intend to overwrite.
-
-`--overwrite` does not bypass format validation, malformed Prompt markers, path safety, or Skill symlink checks. Explicit unsupported asset flags fail before writes; unsupported Pack entries remain `skipped` without resolving their sources in both modes. Source validation and default batch-collision checks finish before installation begins. Conflicts or errors make the final exit code nonzero; `exists` and `skipped` alone do not. Runtime filesystem errors are per asset, not a global batch rollback. There is no `--force` alias.
-
 ## Supported Hosts
 
 ### Project scope (default)
@@ -139,6 +113,8 @@ npx -y agent-add --mcp 'https://github.com/modelcontextprotocol/servers.git#.mcp
 
 Install [Node.js](https://nodejs.org/) (v18+), then run directly via `npx` — no separate install needed.
 
+Identical content is left unchanged. Add `--overwrite` to replace an existing same-name asset.
+
 ### Project or global?
 
 No flag: install into the current project. `--global`: install for your user, across projects. The two installations are separate.
@@ -193,6 +169,9 @@ npx -y agent-add \
 # From an HTTP URL
 npx -y agent-add \
   --mcp 'https://raw.githubusercontent.com/modelcontextprotocol/servers/main/.mcp.json'
+
+# Replace an existing MCP
+npx -y agent-add --host cursor --overwrite --mcp ./mcps/playwright.json
 ```
 
 ### Install Skill
@@ -271,8 +250,8 @@ npx -y agent-add [OPTIONS]
 
 Options:
   --host <host>         Target AI tool ID
+  --overwrite          Replace existing same-name assets
   --global              Install all supplied assets into the host's user scope
-  --overwrite          Replace different same-name assets; identical content stays unchanged
   --mcp <source>        Install an MCP Server config
   --skill <source>      Install a Skill directory
   --prompt <source>     Install a Prompt file
@@ -360,6 +339,7 @@ This skill does something useful.
 ```
 
 The entire directory is recursively copied to the host's skills directory (e.g. `.cursor/skills/my-skill/`).
+With `--overwrite`, the directory is replaced with the source, removing obsolete files.
 
 ### Prompt File (Rule file / System Prompt)
 
