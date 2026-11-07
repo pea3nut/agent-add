@@ -29,8 +29,9 @@ Feature: Pack installation on Cursor
     And the sub-agent has correct content: grep -q 'test sub-agent' "$SETUP_TMPDIR/.cursor/agents/my-agent.md"
 
   @P1
-  Scenario: An unsupported project Pack fails before writing any asset
-    Given an isolated project and HOME with all fixtures copied
-    When the complete fixture Pack is installed on claude-desktop without --global
-    Then the CLI exits 2 with an unsupported asset explanation
-    And no project or user destination is written and no skipped success is reported
+  Scenario: Pack install on Claude Desktop skips unsupported assets
+    Given a temp working directory is created
+    And all fixtures are copied: cp -r "$PROJECT_ROOT/tests/fixtures" "$SETUP_TMPDIR/fixtures"
+    When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host claude-desktop --pack ./fixtures/pack/manifest.json
+    Then the output contains "skipped"
+    And no project configuration is created: test ! -e "$SETUP_TMPDIR/.mcp.json" && test ! -e "$SETUP_TMPDIR/.claude"

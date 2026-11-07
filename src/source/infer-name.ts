@@ -1,4 +1,5 @@
 import path from 'path';
+import { markdownName } from './markdown-name.js';
 import { unwrapMcpServers } from '../utils/unwrap-mcp-servers.js';
 import { detectSourceType, normalizeGitUrl } from './detect.js';
 import { parseGitSource } from './git.js';
@@ -56,22 +57,8 @@ export function inferName(source: string, options: InferNameOptions = {}): strin
     return keys[0]!;
   }
 
-  // Inline Markdown: extract first `# Heading` and convert to kebab-case
-  if (s.includes('\n')) {
-    for (const line of s.split('\n')) {
-      const match = /^#\s+(.+)/.exec(line.trim());
-      if (match) {
-        return match[1]!
-          .trim()
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/^-|-$/g, '');
-      }
-    }
-    throw new Error(
-      `Inline Markdown must contain a level-1 heading (e.g. # My Prompt) to infer the asset name`,
-    );
-  }
+  // Parse real Markdown headings, then classify Unicode code points.
+  if (source.includes('\n')) return markdownName(s);
 
   // Remote and local paths: normalize and parse exactly the way resolveSource
   // does, so equivalent spellings of the same source get the same name.

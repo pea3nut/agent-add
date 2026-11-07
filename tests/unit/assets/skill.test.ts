@@ -44,7 +44,7 @@ describe('skillHandler (regression)', () => {
     };
 
     const result = await skillHandler.handle(job);
-    expect(result.status).toBe('overwritten');
+    expect(result.status).toBe('written');
 
     const installedSkillMd = await fs.promises.readFile(path.join(targetDir, 'SKILL.md'), 'utf-8');
     expect(installedSkillMd).toBe('# My Skill\n');
@@ -52,7 +52,7 @@ describe('skillHandler (regression)', () => {
     await fs.promises.rm(tmpDir, { recursive: true, force: true });
   });
 
-  it('overwrites an installed bundle with the complete source', async () => {
+  it('skips different complete Skill content without overwriting', async () => {
     const tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'agent-add-skill-test-'));
     const sourceDir = path.join(tmpDir, 'source-skill');
     await fs.promises.mkdir(sourceDir, { recursive: true });
@@ -72,9 +72,10 @@ describe('skillHandler (regression)', () => {
     };
 
     const result = await skillHandler.handle(job);
-    expect(result.status).toBe('overwritten');
+    expect(result.status).toBe('skipped');
+    expect(result.reason).toContain('--overwrite');
     const content = await fs.promises.readFile(path.join(targetDir, 'SKILL.md'), 'utf-8');
-    expect(content).toBe('# My Skill\n');
+    expect(content).toBe('# Already installed\n');
 
     await fs.promises.rm(tmpDir, { recursive: true, force: true });
   });

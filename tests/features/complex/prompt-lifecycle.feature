@@ -4,14 +4,14 @@ Feature: Prompt lifecycle and write strategies
     Given the project root is detected: PROJECT_ROOT=$(git rev-parse --show-toplevel)
 
   @P0
-  Scenario: Prompt update flow returns overwritten status on content change
+  Scenario: Prompt update flow returns updated status on content change
     Given a temp working directory is created
     And the prompt fixture is copied: cp "$PROJECT_ROOT/tests/fixtures/prompt/my-prompt.md" "$SETUP_TMPDIR/my-prompt.md"
     And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
     And the prompt is installed first time: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --prompt ./my-prompt.md
     And the source is replaced with v2: cp "$PROJECT_ROOT/tests/fixtures/prompt/my-prompt-v2.md" "$SETUP_TMPDIR/my-prompt.md"
     When the user reinstalls the prompt: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --prompt ./my-prompt.md > "$SETUP_TMPDIR/out.txt" 2>&1
-    Then the output contains overwritten: grep -qi "overwritten" "$SETUP_TMPDIR/out.txt"
+    Then the output contains updated: grep -F '↑ updated' "$SETUP_TMPDIR/out.txt"
     And the new content is present: grep -q "professionally" "$SETUP_TMPDIR/AGENTS.md"
 
   @P1
@@ -55,14 +55,12 @@ Feature: Prompt lifecycle and write strategies
     And Gemini rejects filenames outside the project without changing the external file
 
   @P0
-  Scenario: Prompt overwrites are deterministic while malformed markers remain protected
-    Given an installed managed prompt, a standalone rule and snapshots of their containing directories
-    When identical or changed sources are reinstalled
-    Then both managed and standalone content are overwritten and report overwritten
-    And managed prompt updates preserve user text and other named marker blocks
-    When same-name prompts are supplied together in one batch
-    Then the CLI exits 0 and the last supplied content wins without duplicate blocks
-    And duplicate or incomplete target markers still fail without modifying their existing content
+  Scenario: Prompt conflicts are reported before ambiguous markers or colliding batch names can overwrite content
+    Given an installed prompt and snapshots of its containing directory
+    When the same source is reinstalled, changed, or installed into a standalone rules file
+    Then unchanged content reports exists, managed content changes report updated, and differing standalone files report conflict
+    And duplicate or incomplete markers fail without modifying existing content
+    And same-batch non-skill name collisions are rejected before any asset is written
 
   @P1
   Scenario: Aider and Kilo register prompt files without losing existing configuration

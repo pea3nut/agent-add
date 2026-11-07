@@ -26,18 +26,31 @@ npx -y agent-add \
 
 ---
 
-## Idempotent installation: overwrite by default
+## Existing assets and `--overwrite`
 
-Every supported asset is synchronized to its supplied source on every run, including identical input. No overwrite flag is needed. New assets report `written`; existing assets report `overwritten`. There are no `exists`, `skipped`, or conflict outcomes.
+By default, existing content is protected. Add `--overwrite` to replace different same-name assets. Identical generated content reports `exists` in either mode and is not rewritten; repeated installation is content-idempotent without unnecessary modification-time changes.
 
-- MCP: replace the named server entry while preserving unrelated settings and servers. TOML is parsed and serialized and may be reformatted or lose comments; JSONC comments outside the replaced entry are retained.
-- Skill: replace the complete named directory, removing target-only stale files. Do not store independent user files inside an installed Skill. Copies are staged before publication; a failed copy preserves the previous bundle and a failed publication attempts to restore it.
-- Command, Sub-agent and standalone Prompt: overwrite the destination using the host's native format.
-- Marker-managed Prompt: replace only its named block, retaining user text and other blocks. Repeated runs never append duplicate blocks; malformed markers remain an error.
+| Asset | Same content, either mode | Different content, default | Different content with `--overwrite` |
+|---|---|---|---|
+| MCP | `exists` (native configuration comparison ignores object-key order) | `conflict`, preserve the server entry | `overwritten`, replace only the named entry |
+| Skill | `exists` (compare complete directory and file bytes) | `skipped` with a reason; preserve the bundle | `overwritten`, mirror the entire source directory and remove stale resources |
+| Command / Sub-agent / standalone Prompt | `exists` (compare generated native text) | `conflict`, preserve the file | `overwritten`, replace the file |
+| Marker-managed Prompt | `exists` (compare its own named block) | `updated`, replace that block only | Same managed-block behavior; never replace user text or other blocks |
 
-Pack descriptors run in Pack order, followed by explicit asset flags. Repeated sources with the same type and name overwrite in order, so the last explicit source wins. Unsupported assets (including Pack entries), malformed sources and unsafe paths are errors, not successful skips. All source validation finishes before installation begins. Filesystem failures are reported per asset; the batch is not a global transaction, and earlier successful writes are not rolled back.
+```bash
+# Protect existing content by default
+npx -y agent-add --host cursor --pack ./agent-pack.json
+# Explicitly permit replacement of different same-name content
+npx -y agent-add --host cursor --overwrite --pack ./agent-pack.json
+```
 
-Idempotence describes the resulting managed content and configuration: repeating the same inputs produces the same result. File modification times can change because existing assets are overwritten. Project and `--global` targets remain separate. Back up local changes before reinstalling, since the source is authoritative for the selected asset.
+Without the option, different same-name non-Skill sources in a batch block all writes during preflight. With `--overwrite`, Packs run in their supplied order, then explicit flags; the last same-type/name explicit source wins. Skill defaults are content-aware: identical complete bundles are `exists`; different or incomplete nonempty bundles are `skipped`; an empty interrupted target can be installed safely.
+
+Host-specific Prompt registration is part of installation: a missing registration can be repaired as `updated` without rewriting identical Prompt text.
+
+Overwrite is scoped to the selected host and project or `--global` target. MCP preserves unrelated settings and servers. TOML replacement may reserialize formatting/comments; unchanged entries are never rewritten, and JSONC comments outside a replaced entry are retained. Skill copies are staged before publication; a failed copy preserves the old bundle, and a failed publication attempts to restore it. Do not store independent local files inside a Skill you intend to overwrite.
+
+`--overwrite` does not bypass format validation, malformed Prompt markers, path safety, or Skill symlink checks. Explicit unsupported asset flags fail before writes; unsupported Pack entries remain `skipped` without resolving their sources in both modes. Source validation and default batch-collision checks finish before installation begins. Conflicts or errors make the final exit code nonzero; `exists` and `skipped` alone do not. Runtime filesystem errors are per asset, not a global batch rollback. There is no `--force` alias.
 
 ## Supported Hosts
 
@@ -259,6 +272,7 @@ npx -y agent-add [OPTIONS]
 Options:
   --host <host>         Target AI tool ID
   --global              Install all supplied assets into the host's user scope
+  --overwrite          Replace different same-name assets; identical content stays unchanged
   --mcp <source>        Install an MCP Server config
   --skill <source>      Install a Skill directory
   --prompt <source>     Install a Prompt file
@@ -399,8 +413,8 @@ For example, to use the fastest model on each host for a sub-agent:
 ---
 name: playwright-tester
 description: A playwright testing agent.
-agent-get/cursor/model: fast
-agent-get/claude-code/model: haiku
+agent-add/cursor/model: fast
+agent-add/claude-code/model: haiku
 ---
 
 # Playwright Test Agent
@@ -507,7 +521,7 @@ npm run build
 npm run install:vibe
 ```
 
-The last command installs dev assets via the pack manifest at `vibe/manifest.json`, including [scenario-test](https://github.com/pea3nut/scenario-test) (skill + command + sub-agent), a verify-host-readme command, and a system prompt. Every selected asset must be supported by the target host; unsupported Pack entries fail before installation.
+The last command installs dev assets via the pack manifest at `vibe/manifest.json`, including [scenario-test](https://github.com/pea3nut/scenario-test) (skill + command + sub-agent), a verify-host-readme command, and a system prompt. Explicit unsupported assets fail; unsupported Pack entries are skipped without resolving their sources.
 
 ### Running Tests
 

@@ -60,22 +60,50 @@ describe('formatSummary', () => {
     expect(formatSummary(summary)).toContain('✓ written');
   });
 
-  it('shows overwritten separately from written', () => {
-    const output = formatSummary({ host: mockHost, results: [makeResult('mcp', 'tool', 'overwritten')] });
-    expect(output).toContain('↻ overwritten');
-    expect(output).toContain('0 written · 1 overwritten · 0 errors');
+  it('should show ↑ updated for updated status', () => {
+    const summary: InstallSummary = {
+      host: mockHost,
+      results: [makeResult('mcp', 'playwright', 'updated')],
+    };
+    expect(formatSummary(summary)).toContain('↑ updated');
   });
 
-  it('does not advertise legacy skip exists or conflict statuses', () => {
-    const output = formatSummary({ host: mockHost, results: [makeResult('mcp', 'tool', 'written')] });
-    for (const legacy of ['skipped', 'exists', 'conflict']) expect(output).not.toContain(legacy);
+  it('should show ─ skipped (none) when there are no skipped results', () => {
+    const summary: InstallSummary = {
+      host: mockHost,
+      results: [makeResult('mcp', 'playwright', 'written')],
+    };
+    expect(formatSummary(summary)).toContain('0 skipped');
   });
 
-  it('reports actionable error reasons', () => {
-    const output = formatSummary({ host: mockHost, results: [makeResult('mcp', 'tool', 'error', { reason: 'Permission denied' })] });
-    expect(output).toContain('✗ error');
-    expect(output).toContain('Permission denied');
-    expect(output).toContain('0 written · 0 overwritten · 1 errors');
+  it('should show skipped asset name when a result is skipped', () => {
+    const summary: InstallSummary = {
+      host: mockHost,
+      results: [makeResult('mcp', 'playwright', 'skipped', { reason: 'not supported' })],
+    };
+    const output = formatSummary(summary);
+    expect(output).toContain('mcp/playwright');
+    expect(output).toContain('not supported');
+  });
+
+  it('should show ✗ conflict (none) when there are no conflicts', () => {
+    const summary: InstallSummary = {
+      host: mockHost,
+      results: [makeResult('mcp', 'playwright', 'written')],
+    };
+    expect(formatSummary(summary)).toContain('0 conflicts');
+  });
+
+  it('should show conflict details with reason', () => {
+    const summary: InstallSummary = {
+      host: mockHost,
+      results: [
+        makeResult('mcp', 'playwright', 'conflict', { reason: 'user has local changes' }),
+      ],
+    };
+    const output = formatSummary(summary);
+    expect(output).toContain('✗ conflict');
+    expect(output).toContain('user has local changes');
   });
 
   it('should truncate long assetName to 22 characters', () => {
@@ -90,11 +118,21 @@ describe('formatSummary', () => {
     expect(output).toContain('…');
   });
 
-  it('counts only actual result categories', () => {
-    const output = formatSummary({ host: mockHost, results: [
-      makeResult('mcp', 'new', 'written'), makeResult('skill', 'old', 'overwritten'),
-      makeResult('prompt', 'bad', 'error'),
-    ] });
-    expect(output).toContain('1 written · 1 overwritten · 1 errors');
+  it('should show correct counts in summary line', () => {
+    const summary: InstallSummary = {
+      host: mockHost,
+      results: [
+        makeResult('mcp', 'tool-a', 'written'),
+        makeResult('mcp', 'tool-b', 'exists'),
+        makeResult('skill', 'skill-b', 'skipped'),
+        makeResult('prompt', 'prompt-c', 'conflict'),
+      ],
+    };
+    const output = formatSummary(summary);
+    // Presence and updates must not inflate new writes.
+    expect(output).toContain('1 written');
+    expect(output).toContain('1 exists');
+    expect(output).toContain('1 skipped');
+    expect(output).toContain('1 conflicts');
   });
 });

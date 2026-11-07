@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { assertNoSkillLinks, assertSafeSkillTree, resolveSkillDirectory } from './skill-safety.js';
+import { sameSkillBundle } from './skill-compare.js';
 import { publishSkill } from './skill-publication.js';
 import { ensureDir } from '../utils/fs.js';
 import type { AssetHandler, InstallJob, InstallResult } from './types.js';
@@ -33,13 +34,20 @@ export const skillHandler: AssetHandler = {
 
     await assertNoSkillLinks(targetDir);
     await assertSafeSkillTree(resolvedSource.localPath);
+    let occupied = false;
     try {
       await assertSafeSkillTree(targetDir);
+      occupied = (await fs.promises.readdir(targetDir)).length > 0;
     } catch (err) {
       if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
     }
 
-    const overwritten = await publishSkill(resolvedSource.localPath, targetDir, copyDirRecursive);
-    return { job, status: overwritten ? 'overwritten' : 'written', targetPath: entryFile };
+    if (occupied) {
+      if (await sameSkillBundle(resolvedSource.localPath, targetDir)) return { job, status: 'exists', targetPath: entryFile };
+      if (!job.overwrite) return { job, status: 'skipped', targetPath: entryFile,
+        reason: 'Same-name Skill has different or incomplete content; use --overwrite to replace it' };
+    }
+    await publishSkill(resolvedSource.localPath, targetDir, copyDirRecursive);
+    return { job, status: occupied ? 'overwritten' : 'written', targetPath: entryFile };
   },
 };

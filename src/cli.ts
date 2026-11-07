@@ -19,6 +19,7 @@ export function createProgram(): Command {
     .version(pkg.version, '-V, --version')
     .addHelpText('after', `
 Rules:
+  Existing content is protected by default; --overwrite replaces different same-name assets.
   All flags can be combined freely. The same flag can be repeated to install multiple assets.
   If --host is not specified, an interactive selection will be shown (TTY only).
   In non-interactive environments (CI, pipes), --host is required.
@@ -52,6 +53,7 @@ Examples:
     .option('--prompt <source>', 'Install a Prompt (appends to host\'s base rules file)', collect, [])
     .option('--command <source>', 'Install a Command', collect, [])
     .option('--sub-agent <source>', 'Install a Sub-agent', collect, [])
+    .option('--overwrite', 'Replace different same-name assets; identical content is left unchanged')
     .option('--global', 'Install for the current OS user instead of the current project')
     .option('--host <host>', `Target host ID (${getValidHostIds().join(' | ')})`)
     .action(async (options: {
@@ -63,8 +65,10 @@ Examples:
       subAgent: string[];
       host?: string;
       global?: boolean;
+      overwrite?: boolean;
     }) => {
       const cliInput: CliInput = {
+        overwrite: options.overwrite ?? false,
         mcp: options.mcp,
         skill: options.skill,
         prompt: options.prompt,
@@ -137,7 +141,7 @@ Examples:
       }
       printSummary(summary);
 
-      const hasErrors = summary.results.some((r) => r.status === 'error');
+      const hasErrors = summary.results.some((r) => r.status === 'error' || r.status === 'conflict');
 
       if (hasErrors) {
         process.exit(1);

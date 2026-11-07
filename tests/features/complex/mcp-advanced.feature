@@ -100,7 +100,7 @@ Feature: MCP advanced installation scenarios
     When the fixtures are installed on Codex, Augment, Continue, Amp, opencode and Kilo
     Then decoded settings match each host's documented native schema, retaining commands, arguments, environments, URLs and headers where supported
     And Amp preserves its literal amp.mcpServers key and JSONC comments, and existing unrelated entries remain unchanged
-    And reinstalling identical entries reports overwritten without modifying configuration
+    And reinstalling identical entries reports exists without modifying configuration
     And Codex and OpenCode-family type and transport aliases produce the same native entry without leaking portable selectors
 
   @P0
@@ -108,7 +108,7 @@ Feature: MCP advanced installation scenarios
     Given isolated new and existing project configurations for Codex, opencode, Kilo, Gemini, Qwen, Roo and Kiro
     When native fields contain wrong scalar types, nulls, malformed nested OAuth or tool settings, invalid list elements or out-of-range timeouts
     Then installation fails without creating or changing any target or accompanying prompt
-    And unimplemented overwrite and dry-run flags are rejected without writes rather than treated as tested installation modes
+    And unimplemented force and dry-run flags are rejected without writes rather than treated as tested installation modes
     And native false values, empty lists and maps, valid timeout boundaries and nested field values are preserved without coercion
     And decoded Codex and opencode positive controls satisfy their independently fetched official schemas
 
@@ -125,7 +125,7 @@ Feature: MCP advanced installation scenarios
   Scenario: Configuration edits compare semantics and reject ambiguous or malformed input
     Given existing JSON, JSONC and TOML configurations with unrelated entries and comments
     When an MCP is reinstalled with reordered object keys or reordered argument arrays
-    Then object-key order reports overwritten and changed array order also reports overwritten with the supplied array order
+    Then object-key order reports exists while changed array order reports conflict
     And duplicate decoded keys in JSON and JSONC, including nested objects and arrays, fail without modifying any target
     And repeated keys in separate objects remain valid
     And malformed syntax, non-object roots and invalid nested MCP containers are rejected without writes

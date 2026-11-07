@@ -30,10 +30,10 @@ Feature: Sub-agent installation on Cursor
     And the claude-code name field is stripped: ! grep -q 'agent-add/claude-code/name' "$SETUP_TMPDIR/.cursor/agents/my-agent.md"
 
   @P1
-  Scenario: Repeated sub-agent install returns overwritten
+  Scenario: Repeated sub-agent install returns exists
     Given a temp working directory is created
     And the sub-agent fixture is copied: cp "$PROJECT_ROOT/tests/fixtures/sub-agent/my-agent.md" "$SETUP_TMPDIR/my-agent.md"
     And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
     And the sub-agent is already installed: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --sub-agent ./my-agent.md
     When the user installs again: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --sub-agent ./my-agent.md
-    Then the output contains "overwritten"
+    Then the item reports exists and the summary has a positive exists count with no written, updated or overwritten items

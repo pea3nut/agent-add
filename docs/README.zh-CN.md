@@ -49,18 +49,31 @@ npx -y agent-add \
 
 ---
 
-## 幂等安装：默认覆盖
+## 已有资产与 `--overwrite`
 
-每次运行都会将所有受支持的资产同步为输入来源的内容，内容相同也执行覆盖，不需要额外的 overwrite 参数。新资产显示 `written`，已有资产显示 `overwritten`；不再使用 `exists`、`skipped` 或冲突状态。
+默认保护已有内容。只有显式添加 `--overwrite`，才允许替换同名但内容不同的资产。无论是否加参数，生成内容完全相同均返回 `exists`，不重新写入、不刷新修改时间；重复安装保持内容幂等。
 
-- MCP：替换同名服务器配置，保留其他服务器和无关设置。TOML 会经解析后重新序列化，可能重新排版或丢失注释；JSONC 被替换条目之外的注释会保留。
-- Skill：用完整来源目录替换同名目标，删除仅存在于目标的旧资源。不要在已安装 Skill 内保存独立用户文件。先暂存再发布；复制失败保留旧目录，发布失败会尝试恢复旧目录。
-- Command、Sub-agent、独立 Prompt：按宿主原生格式覆盖目标文件。
-- 带标记的 Prompt：仅替换对应名称的托管块，保留用户正文及其他块，重复运行不追加重复块；损坏或重复的标记仍然报错。
+| 资产 | 相同内容，两种模式一致 | 内容不同，默认行为 | 内容不同，加 `--overwrite` |
+|---|---|---|---|
+| MCP | `exists`，原生配置语义比较忽略对象键顺序 | `conflict`，保留已有条目 | `overwritten`，只替换同名服务器 |
+| Skill | `exists`，比较完整目录、路径和文件字节 | `skipped`，显示原因并保留目录 | `overwritten`，完整同步来源并删除过期资源 |
+| Command / Sub-agent / 独立 Prompt | `exists`，比较生成后的原生文本 | `conflict`，保留原文件 | `overwritten`，替换文件 |
+| 标记块型 Prompt | `exists`，只比较自己的块 | `updated`，仅更新同名托管块 | 仍只处理自己的块，不覆盖用户正文或其他块 |
 
-先按 Pack 顺序处理描述符，再处理显式资产参数。同类型、同名称来源依次覆盖，最后一个显式来源优先。宿主不支持的资产（包括 Pack 条目）、非法来源和不安全路径都会报错，不会作为成功的 skip。所有来源验证结束后才开始安装。文件系统错误按资产报告；整个批次不提供全局事务回滚，已成功写入的其他资产不会撤销。
+```bash
+# 默认保护已有内容
+npx -y agent-add --host cursor --pack ./agent-pack.json
+# 显式允许替换不同内容
+npx -y agent-add --host cursor --overwrite --pack ./agent-pack.json
+```
 
-幂等指最终的托管内容与配置保持一致；由于每次都会覆盖，文件修改时间可能变化。项目与 `--global` 安装相互独立。输入来源是所选资产的最终依据，重新安装前请备份希望保留的本地修改。
+默认情况下，同一批次中不同内容的同名非 Skill 来源会在预检阶段阻止整批写入。加参数后，先按 Pack 顺序处理，再处理显式资产参数，同类型同名称的最后一个显式来源优先。Skill 会比较完整资源：相同才是 `exists`，不同或残缺的非空目录会 `skipped`；空的中断目录可安全完成安装。
+
+Prompt 的宿主注册信息也属于安装状态；若注册丢失，会修复并显示 `updated`，即使正文相同也可能更新注册文件。
+
+覆盖仅影响所选 host 和项目或 `--global` 作用域。MCP 保留其他服务器和无关设置；覆盖 TOML 时可能重新序列化格式或注释，相同配置不会重写，JSONC 被替换条目外的注释保留。Skill 先暂存完整目录再发布，复制失败保留旧目录，发布失败尝试恢复。准备覆盖 Skill 时，请勿在其中保存独立的本地文件。
+
+`--overwrite` 不会绕过格式验证、损坏的 Prompt 标记、路径或 Skill 符号链接保护。显式不支持的资产参数在写入前报错；Pack 内不支持的条目在两种模式下都 `skipped`，不会尝试解析来源。来源验证和默认批次冲突检查完成后才开始写入。存在 `conflict` 或 `error` 时最终退出码非零，只有 `exists` 或 `skipped` 不算失败。运行时错误按资产报告，不提供整个批次的事务回滚。不提供 `--force` 别名。
 
 ## 为什么需要 agent-add？
 
@@ -311,8 +324,8 @@ Markdown + YAML frontmatter。支持 **`agent-add/<host>/<key>` 宿主特化语�
 ---
 name: playwright-tester
 description: A playwright testing agent.
-agent-get/cursor/model: fast
-agent-get/claude-code/model: haiku
+agent-add/cursor/model: fast
+agent-add/claude-code/model: haiku
 ---
 
 # Playwright Test Agent
@@ -419,7 +432,7 @@ npm run build
 npm run install:vibe
 ```
 
-最后一条命令通过 `vibe/manifest.json` 包清单安装开发所需资产，包括 [scenario-test](https://github.com/pea3nut/scenario-test)（skill + command + sub-agent）、verify-host-readme 命令和系统提示词。所选资产都必须受目标宿主支持；Pack 内含不支持的条目时会在写入前报错。
+最后一条命令通过 `vibe/manifest.json` 包清单安装开发所需资产，包括 [scenario-test](https://github.com/pea3nut/scenario-test)（skill + command + sub-agent）、verify-host-readme 命令和系统提示词。显式不支持的资产参数会报错；Pack 内不支持的条目会跳过。
 
 ### 运行测试
 

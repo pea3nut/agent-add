@@ -21,6 +21,7 @@ import { unwrapMcpServers } from './utils/unwrap-mcp-servers.js';
 import { convertMcpServer } from './hosts/mcp-source.js';
 import { assertSafeSkillTree } from './assets/skill-safety.js';
 import { formatSubAgent } from './hosts/sub-agent.js';
+import { deepEqualIgnoringKeyOrder } from './utils/deep-equal.js';
 import { isRecord } from './utils/config.js';
 import type { InstallProgress } from './utils/progress.js';
 
@@ -29,6 +30,7 @@ const README_URL =
 const PR_URL = 'https://github.com/pea3nut/agent-add/pulls';
 
 export interface CliInput {
+  overwrite?: boolean;
   mcp: string[];
   skill: string[];
   prompt: string[];
@@ -123,10 +125,10 @@ export async function runInstaller(
   progress?: InstallProgress,
 ): Promise<InstallSummary> {
   host = selectHostScope(host, cliInput.scope ?? 'project', cwd);
-  const explicit: Array<{ type: AssetType; source: string }> = [];
+  const explicit: Array<{ type: AssetType; source: string; explicit: boolean }> = [];
   for (const type of ['mcp', 'skill', 'prompt', 'command', 'subAgent'] as const)
-    for (const source of cliInput[type]) explicit.push({ type, source });
-  const items: Array<{ type: AssetType; source: string }> = [];
+    for (const source of cliInput[type]) explicit.push({ type, source, explicit: true });
+  const items: Array<{ type: AssetType; source: string; explicit: boolean }> = [];
   const label = (type: AssetType | 'pack', source: string) =>
     `${type}/${inferName(source.endsWith('/*') ? source.slice(0, -2) : source, { isDirectorySource: type === 'skill' })}`;
   for (const source of cliInput.pack) {
@@ -136,24 +138,36 @@ export async function runInstaller(
     progress?.finish('ready');
     for (const asset of manifest.assets)
       for (const value of Array.isArray(asset.source) ? asset.source : [asset.source])
-        items.push({ type: asset.type, source: value });
+        items.push({ type: asset.type, source: value, explicit: false });
   }
   // Pack order is preserved; explicit flags override packs and repeated flags
   // overwrite in their supplied order. Every source is validated before writes.
   items.push(...explicit);
-  for (const item of items) {
+  for (const item of explicit) {
     if (!host.assets[item.type].supported) {
       process.stderr.write(`Error: Host "${host.id}" does not support asset type "${item.type}".\n` +
         `Reason: ${host.assets[item.type].reason ?? 'Unsupported asset'}\n` +
         `• View the full host capability matrix: ${README_URL}\n• Open a PR: ${PR_URL}\n`);
       process.exit(2);
     }
-    progress?.pending(label(item.type, item.source));
   }
+  const skipped: InstallResult[] = [];
+  const selected = items.filter((item) => {
+    if (host.assets[item.type].supported) {
+      progress?.pending(label(item.type, item.source));
+      return true;
+    }
+    let name = 'unsupported-asset';
+    try { name = inferName(item.source, { isDirectorySource: item.type === 'skill' }); } catch { /* unsupported sources are never resolved */ }
+    skipped.push({ job: { host, assetType: item.type, assetName: name,
+      resolvedSource: { type: 'local', localPath: '', originalSource: item.source } },
+      status: 'skipped', reason: host.assets[item.type].reason ?? 'Host does not support this Pack asset' });
+    return false;
+  });
   const temporary = new Set<string>();
   const jobs: InstallJob[] = [];
   try {
-    for (const item of items) {
+    for (const item of selected) {
       progress?.start(label(item.type, item.source));
       const glob = item.source.endsWith('/*');
       const source = glob ? item.source.slice(0, -2) : item.source;
@@ -171,7 +185,7 @@ export async function runInstaller(
           await cleanupTempDirs(temporary);
           process.exit(2);
         }
-        jobs.push({ host, assetType: item.type,
+        jobs.push({ host, overwrite: cliInput.overwrite ?? false, assetType: item.type,
           assetName: glob ? path.basename(resolved.localPath) + '/' + entry.assetName : entry.assetName,
           resolvedSource: expanded });
       }
@@ -179,6 +193,9 @@ export async function runInstaller(
     }
     progress?.start('batch', 'validating');
     const invalid = new Map<InstallJob, string>();
+    const incoming = new Map<string, unknown>();
+    const collisions = new Set<string>();
+    const key = (job: InstallJob) => job.assetType + ':' + job.assetName;
     for (const job of jobs) {
       try {
         if (job.assetType === 'skill') {
@@ -186,26 +203,35 @@ export async function runInstaller(
           continue;
         }
         const content = await fs.promises.readFile(job.resolvedSource.localPath, 'utf-8');
+        let comparable: unknown = content;
         if (job.assetType === 'mcp') {
           const parsed: unknown = JSON.parse(content);
           if (!isRecord(parsed)) throw new Error('MCP source must be a JSON object');
           const wrapped = unwrapMcpServers(parsed);
           if (wrapped) job.assetName = wrapped.name;
-          convertMcpServer(host, wrapped?.config ?? parsed, job.assetName);
+          comparable = convertMcpServer(host, wrapped?.config ?? parsed, job.assetName);
         } else if (job.assetType === 'command') {
-          host.serializeCommand?.(content);
+          comparable = host.serializeCommand?.(content) ?? content;
         } else if (job.assetType === 'subAgent') {
-          formatSubAgent(host, content, job.assetName);
+          comparable = formatSubAgent(host, content, job.assetName);
+        }
+        if (!cliInput.overwrite) {
+          const identity = key(job);
+          if (incoming.has(identity) && !deepEqualIgnoringKeyOrder(incoming.get(identity), comparable)) collisions.add(identity);
+          else if (!incoming.has(identity)) incoming.set(identity, comparable);
         }
       } catch (err) { invalid.set(job, (err as Error).message); }
     }
-    if (invalid.size) {
-      progress?.finish('error');
-      return { host, results: jobs.map((job) => ({ job, status: 'error',
-        reason: invalid.get(job) ?? 'Batch blocked by invalid source; nothing was written' })) };
+    if (invalid.size || collisions.size) {
+      progress?.finish(invalid.size ? 'error' : 'conflict');
+      return { host, results: [...skipped, ...jobs.map((job): InstallResult => ({ job,
+        status: invalid.has(job) ? 'error' : collisions.has(key(job)) ? 'conflict' : 'skipped',
+        reason: invalid.get(job) ?? (collisions.has(key(job))
+          ? 'Different sources share the same asset name; use --overwrite for last-source-wins replacement; nothing was written'
+          : 'Batch blocked by invalid sources or name collisions; nothing was written') }))] };
     }
     progress?.stop();
-    const results: InstallResult[] = [];
+    const results: InstallResult[] = [...skipped];
     for (const job of jobs) {
       progress?.start(`${job.assetType}/${job.assetName}`, 'installing');
       try {

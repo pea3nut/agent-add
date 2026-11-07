@@ -1,6 +1,6 @@
 import type { AssetType, HostConfig } from '../hosts/types.js';
 
-export type InstallStatus = 'written' | 'overwritten' | 'error';
+export type InstallStatus = 'written' | 'overwritten' | 'updated' | 'exists' | 'skipped' | 'conflict' | 'error';
 
 export interface ResolvedSource {
   type: 'local' | 'git-ssh' | 'git-https' | 'http-file' | 'inline-json' | 'inline-md';
@@ -10,6 +10,7 @@ export interface ResolvedSource {
 }
 
 export interface InstallJob {
+  overwrite?: boolean;
   assetType: AssetType;
   assetName: string;
   resolvedSource: ResolvedSource;

@@ -10,7 +10,7 @@ export function mergePrompt(
   existing: string,
   content: string,
   name: string,
-): { content: string; status: 'overwritten' | 'written' } {
+): { content: string; status: 'exists' | 'updated' | 'written' } {
   if (/\r|\n|-->/.test(name))
     throw new Error('Prompt name cannot be represented in an HTML marker');
   const open = '<!-- agent-add:' + name + ' -->';
@@ -36,10 +36,12 @@ export function mergePrompt(
       throw new Error(
         'Malformed or duplicate prompt markers; existing file was not modified',
       );
+    if (existing.slice(start, end + close.length) === block)
+      return { content: existing, status: 'exists' };
     return {
       content:
         existing.slice(0, start) + block + existing.slice(end + close.length),
-      status: 'overwritten',
+      status: 'updated',
     };
   }
   const separator =
@@ -70,16 +72,17 @@ export const promptHandler: AssetHandler = {
         capability.writeStrategy === 'create-file-in-dir'
           ? {
               content,
-              status: existing === null ? ('written' as const) : ('overwritten' as const),
+              status: existing === null ? ('written' as const) : existing === content ? ('exists' as const) : job.overwrite ? ('overwritten' as const) : ('conflict' as const),
             }
           : mergePrompt(existing ?? '', content, job.assetName);
+      if (merged.status === 'conflict') return { job, status: 'conflict', targetPath, reason: 'Prompt file has different content; use --overwrite to replace it' };
       const registration = await job.host.registerPrompt?.(job.host, targetPath);
-      await atomicWriteText(targetPath, merged.content);
+      if (merged.status !== 'exists') await atomicWriteText(targetPath, merged.content);
       if (registration)
         await atomicWriteText(registration.file, registration.content);
       return {
         job,
-        status: merged.status,
+        status: merged.status === 'exists' && registration ? 'updated' : merged.status,
         targetPath,
       };
     } catch (err) {

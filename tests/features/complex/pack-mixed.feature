@@ -4,11 +4,15 @@ Feature: Pack mixed skip/install and capability validation
     Given the project root is detected: PROJECT_ROOT=$(git rev-parse --show-toplevel)
 
   @P1
-  Scenario: Codex rejects an unsupported mixed Pack before any writes
-    Given an isolated project and HOME with the codex-manifest.json fixture and all its sources
-    When the Pack is installed on codex
-    Then the CLI exits 2 and identifies the unsupported command asset
-    And no Codex MCP, prompt, Skill or sub-agent is installed
+  Scenario: Pack on Codex installs MCP as TOML and prompt, skips unsupported types
+    Given a temp working directory is created
+    And all fixtures are copied: cp -r "$PROJECT_ROOT/tests/fixtures" "$SETUP_TMPDIR/fixtures"
+    And the codex config directory exists: mkdir -p "$SETUP_TMPDIR/.codex"
+    When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host codex --pack ./fixtures/pack/codex-manifest.json > "$SETUP_TMPDIR/out.txt" 2>&1
+    Then the TOML config exists: test -f "$SETUP_TMPDIR/.codex/config.toml"
+    And the MCP is installed in TOML: grep -q 'playwright' "$SETUP_TMPDIR/.codex/config.toml"
+    And the prompt is installed: grep -q 'agent-add:my-prompt' "$SETUP_TMPDIR/AGENTS.md"
+    And unsupported types are skipped: grep -qi "skipped" "$SETUP_TMPDIR/out.txt"
 
   @P1
   Scenario: Explicit flag for unsupported asset type exits with code 2
@@ -20,16 +24,25 @@ Feature: Pack mixed skip/install and capability validation
     And the output mentions unsupported: grep -qi "does not support" "$SETUP_TMPDIR/out.txt"
 
   @P1
-  Scenario: Roo accepts a supported Pack and rejects an unsupported mixed Pack
-    Given an isolated project and HOME with all fixture sources
-    When the complete fixture Pack including subAgent is installed on roo-code
-    Then the CLI exits 2 and no asset is written
-    When the subAgent descriptor is removed and the remaining Pack is installed
-    Then the CLI exits 0 and reports 4 written, 0 overwritten and 0 errors
-    And MCP decodes to its source fixture and prompt, Skill and command bytes match their sources
+  Scenario: Pack on Roo Code installs MCP, prompt, skill and command, skips only subAgent
+    Given a temp working directory is created
+    And all fixtures are copied: cp -r "$PROJECT_ROOT/tests/fixtures" "$SETUP_TMPDIR/fixtures"
+    And a .roo directory exists: mkdir -p "$SETUP_TMPDIR/.roo"
+    When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host roo-code --pack ./fixtures/pack/manifest.json > "$SETUP_TMPDIR/out.txt" 2>&1
+    Then the exit code is 0
+    And the MCP matches the fixture semantically: node -e 'const a=require("node:assert/strict"),fs=require("node:fs");a.deepEqual(JSON.parse(fs.readFileSync(".roo/mcp.json")).mcpServers.playwright,JSON.parse(fs.readFileSync("fixtures/mcp/playwright.json")));'
+    And the prompt content is preserved in the rules directory: cmp "$SETUP_TMPDIR/fixtures/prompt/my-prompt.md" "$SETUP_TMPDIR/.roo/rules/my-prompt.md"
+    And the complete skill bundle is preserved: diff -r "$SETUP_TMPDIR/fixtures/skill/my-skill" "$SETUP_TMPDIR/.roo/skills/my-skill"
+    And the command content is preserved: cmp "$SETUP_TMPDIR/fixtures/command/my-command.md" "$SETUP_TMPDIR/.roo/commands/my-command.md"
+    And only the sub-agent is skipped: grep -E 'skipped[[:space:]]+subAgent/my-agent' "$SETUP_TMPDIR/out.txt" && grep -F '4 written · 0 overwritten · 0 updated · 0 exists · 1 skipped · 0 conflicts · 0 errors' "$SETUP_TMPDIR/out.txt"
+    And no unverified sub-agent directory is created: test ! -e "$SETUP_TMPDIR/.roo/agents"
 
   @P1
-  Scenario: A same-name MCP is overwritten successfully
-    Given an isolated project and HOME with a different installed playwright entry
-    When the playwright fixture is installed on cursor
-    Then the CLI exits 0, reports overwritten and the decoded entry exactly matches the fixture
+  Scenario: MCP conflict in single-asset install exits with code 1
+    Given a temp working directory is created
+    And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
+    And a conflicting mcp.json exists: printf '{"mcpServers":{"playwright":{"command":"different-command"}}}' > "$SETUP_TMPDIR/.cursor/mcp.json"
+    And the MCP fixture is copied: cp "$PROJECT_ROOT/tests/fixtures/mcp/playwright.json" "$SETUP_TMPDIR/playwright.json"
+    When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --mcp ./playwright.json > "$SETUP_TMPDIR/out.txt" 2>&1; echo $? > "$SETUP_TMPDIR/exitcode.txt"; true
+    Then the exit code is non-zero: test "$(cat "$SETUP_TMPDIR/exitcode.txt")" -ne 0
+    And the output contains conflict: grep -qi "conflict" "$SETUP_TMPDIR/out.txt"

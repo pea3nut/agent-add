@@ -49,17 +49,26 @@ npx -y agent-add \
 
 ---
 
-## 冪等なインストール：既定で上書き
+## 既存アセットと `--overwrite`
 
-同じ内容でも、対応するすべてのアセットを毎回入力ソースに同期します。追加の overwrite フラグは不要です。新規は `written`、既存は `overwritten` と表示し、`exists`、`skipped`、競合による省略はありません。
+既定では既存内容を保護します。異なる同名アセットを置換するには `--overwrite` を指定します。どちらのモードでも生成内容が同じなら `exists` となり、ファイルも更新時刻も変更しません。
 
-- MCP は同名エントリを置換し、他のサーバーと無関係な設定を保持します。TOML は再シリアライズで書式やコメントが変わる場合があります。JSONC の置換対象外のコメントは保持します。
-- Skill はディレクトリ全体を置換し、ソースにない古いファイルを削除します。独立したユーザーファイルは保存しないでください。コピー完了まで公開せず、コピー失敗時は旧内容を維持し、公開失敗時は復元を試みます。
-- Command、Sub-agent、独立 Prompt はホスト形式でファイルを上書きします。マーカー付き Prompt は同名ブロックのみを置換し、ユーザー本文と他のブロックを保持します。壊れたマーカーはエラーです。
+| アセット | 同じ内容 | 異なる内容：既定 | `--overwrite` |
+|---|---|---|---|
+| MCP | ネイティブ設定の意味を比較して `exists` | `conflict`、既存値を維持 | 同名エントリだけ `overwritten` |
+| Skill | ディレクトリ全体とファイル内容を比較して `exists` | 理由付き `skipped` | ソース全体に同期し、古いリソースを削除 |
+| Command / Sub-agent / 独立 Prompt | 生成テキストが同じなら `exists` | `conflict` | ファイルを `overwritten` |
+| マーカー管理 Prompt | 同名ブロックが同じなら `exists` | 自分のブロックのみ `updated` | 同じ管理範囲を維持し、ユーザー本文は保護 |
 
-Pack の順序で処理した後、明示的なアセット引数を処理します。同じ種類と名前では最後の明示的ソースが優先します。未対応アセット（Pack 内も含む）、不正な入力や危険なパスは書き込み前にエラーとなり、成功扱いの skip はありません。ファイルシステムの失敗はアセット単位で報告し、バッチ全体のロールバックは行いません。
+例：`npx -y agent-add --host cursor --overwrite --pack ./agent-pack.json`
 
-冪等性は最終的な管理対象の内容と設定を意味し、更新時刻は変わる場合があります。プロジェクトと `--global` は別々です。再インストールでローカル変更が上書きされるため、必要な変更をバックアップしてください。
+既定ではバッチ内の同名・異内容の非 Skill ソースは書き込み前に競合として拒否します。上書き時は Pack 順、その後に明示的フラグを処理し、最後の同種・同名ソースが優先します。空の中断 Skill 先は安全に完成でき、異なる非空 Skill は既定で保護されます。
+
+Prompt の登録情報が欠けている場合、本文を変更せず登録だけ修復し、`updated` を返すことがあります。
+
+MCP の無関係な設定は維持します。TOML の置換では書式やコメントが変わる場合があり、JSONC の対象外コメントは保持します。Skill は完全コピー後に公開し、失敗時は旧内容を保護・復元します。上書きする Skill に独立したローカルファイルを保存しないでください。
+
+このオプションは形式検証、壊れたマーカー、危険なパスや Skill のリンク検査を迂回しません。明示的な未対応アセットはエラー、Pack 内の未対応項目は両モードとも取得せず `skipped` です。競合・エラーは非ゼロ終了、`exists`・`skipped` のみでは失敗しません。実行時のバッチ全体のロールバックと `--force` エイリアスはありません。
 
 ## なぜ agent-add？
 
@@ -312,8 +321,8 @@ Markdown + YAML フロントマター。**`agent-add/<host>/<key>` ホスト特�
 ---
 name: playwright-tester
 description: A playwright testing agent.
-agent-get/cursor/model: fast
-agent-get/claude-code/model: haiku
+agent-add/cursor/model: fast
+agent-add/claude-code/model: haiku
 ---
 
 # Playwright Test Agent
@@ -420,7 +429,7 @@ npm run build
 npm run install:vibe
 ```
 
-最後のコマンドは `vibe/manifest.json` パックマニフェストを通じて開発に必要なアセットをインストールします。[scenario-test](https://github.com/pea3nut/scenario-test)（skill + command + sub-agent）、verify-host-readme コマンド、システムプロンプトが含まれます。選択したすべてのアセットは対象ホストの対応が必要です。未対応の Pack エントリは書き込み前にエラーになります。
+最後のコマンドは `vibe/manifest.json` パックマニフェストを通じて開発に必要なアセットをインストールします。[scenario-test](https://github.com/pea3nut/scenario-test)（skill + command + sub-agent）、verify-host-readme コマンド、システムプロンプトが含まれます。明示的な未対応アセットはエラーとなり、Pack 内の未対応項目はスキップされます。
 
 ### テストの実行
 

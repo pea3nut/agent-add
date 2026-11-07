@@ -49,11 +49,12 @@ export const mcpHandler: AssetHandler = {
 
     try {
       const existing = await readTextOrNull(configFilePath);
-      const edit = editMcpConfig(host, existing, configFilePath, assetName, newServerConfig);
-      await atomicWriteText(configFilePath, edit.content);
+      const edit = editMcpConfig(host, existing, configFilePath, assetName, newServerConfig, job.overwrite);
+      if ('content' in edit) await atomicWriteText(configFilePath, edit.content);
       return {
         job,
         status: edit.status,
+        ...('reason' in edit ? { reason: edit.reason } : {}),
         targetPath: configFilePath,
       };
     } catch (err) {

@@ -8,7 +8,8 @@ export interface InstallSummary {
 }
 
 const symbols: Record<InstallStatus, string> = {
-  written: '✓ written', overwritten: '↻ overwritten', error: '✗ error',
+  written: '✓ written', overwritten: '↻ overwritten', updated: '↑ updated', exists: '≡ exists',
+  skipped: '─ skipped', conflict: '✗ conflict', error: '✗ error',
 };
 
 export function formatSummary({ host, results }: InstallSummary): string {
@@ -18,10 +19,10 @@ export function formatSummary({ host, results }: InstallSummary): string {
     const label = `${result.job.assetType}/${result.job.assetName}`;
     const short = label.length > 22 ? label.slice(0, 21) + '…' : label;
     lines.push(`  ${symbols[result.status].padEnd(15)} ${short}${result.targetPath ? ' → ' + result.targetPath : ''}`);
-    if (result.reason) lines.push('    ! error: ' + label + ' — ' + result.reason);
+    if (result.reason) lines.push('    ! ' + result.status + ': ' + label + ' — ' + result.reason);
   }
   const count = (status: InstallStatus) => results.filter((result) => result.status === status).length;
-  lines.push('', `${count('written')} written · ${count('overwritten')} overwritten · ${count('error')} errors`);
+  lines.push('', `${count('written')} written · ${count('overwritten')} overwritten · ${count('updated')} updated · ${count('exists')} exists · ${count('skipped')} skipped · ${count('conflict')} conflicts · ${count('error')} errors`);
   return lines.join('\n');
 }
 

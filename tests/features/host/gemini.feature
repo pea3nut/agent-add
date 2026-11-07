@@ -55,29 +55,32 @@ Feature: Gemini command installation and host-specific formats
     And none of the five target command files exists
 
   @P1
-  Scenario: Reinstall an unchanged Gemini command with stable final content
+  Scenario: Reinstall an unchanged Gemini command without modifying it
     Given a command is copied: cp "$PROJECT_ROOT/tests/fixtures/command/gemini-review.md" "$SETUP_TMPDIR/review.md"
     And it is installed and saved for comparison: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host gemini --command ./review.md && cp .gemini/commands/review.toml before.toml
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host gemini --command ./review.md
     Then the exit code is 0
-    And the output reports overwritten for command/review
+    And the output reports exists for command/review
     And the installed file is byte-for-byte unchanged from before.toml
 
   @P1
-  Scenario: Overwrite an installed Gemini command when its source changes
-    Given an isolated project and HOME with the gemini-review.md fixture installed as review
-    And the source body is changed while its description is preserved
-    When review is installed again on gemini
-    Then the CLI exits 0 and reports overwritten
-    And parsed review.toml has the new exact Markdown body and original description
+  Scenario: Preserve an installed Gemini command when its source changes
+    Given a command is copied: cp "$PROJECT_ROOT/tests/fixtures/command/gemini-review.md" "$SETUP_TMPDIR/review.md"
+    And it is installed and saved for comparison: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host gemini --command ./review.md && cp .gemini/commands/review.toml before.toml
+    And the source changes: printf '%s\n' 'Changed instructions.' >> "$SETUP_TMPDIR/review.md"
+    When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host gemini --command ./review.md > "$SETUP_TMPDIR/out.txt" 2>&1; echo $? > "$SETUP_TMPDIR/exitcode.txt"; true
+    Then the recorded CLI exit code is 1
+    And the output reports conflict for command/review
+    And the installed file is byte-for-byte unchanged from before.toml
 
   @P1
-  Scenario: Replace a legacy raw Markdown Gemini command with usable TOML
-    Given an isolated project and HOME with raw Markdown in .gemini/commands/review.toml
-    And review.md contains the gemini-review.md fixture
-    When review.md is installed on gemini
-    Then the CLI exits 0 and reports overwritten
-    And the target parses as TOML with the fixture description and exact Markdown body
+  Scenario: Protect a raw Markdown command left by an older Gemini installation
+    Given a command is copied: cp "$PROJECT_ROOT/tests/fixtures/command/gemini-review.md" "$SETUP_TMPDIR/review.md"
+    And an old installation contains raw Markdown: mkdir -p "$SETUP_TMPDIR/.gemini/commands" && cp "$SETUP_TMPDIR/review.md" "$SETUP_TMPDIR/.gemini/commands/review.toml"
+    When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host gemini --command ./review.md > "$SETUP_TMPDIR/out.txt" 2>&1; echo $? > "$SETUP_TMPDIR/exitcode.txt"; true
+    Then the recorded CLI exit code is 1
+    And the output reports conflict for command/review rather than exists
+    And the existing target remains byte-for-byte identical to review.md
 
   @P1
   Scenario: Keep Markdown unchanged for a host that does not use TOML commands

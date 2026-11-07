@@ -36,6 +36,9 @@ export const commandHandler: AssetHandler = {
 
     try {
       const existing = await readTextOrNull(targetPath);
+      if (existing === newContent) return { job, status: 'exists', targetPath };
+      if (existing !== null && !job.overwrite) return { job, status: 'conflict', targetPath,
+        reason: 'Destination has different content; use --overwrite to replace it' };
       await atomicWriteText(targetPath, newContent);
       return { job, status: existing === null ? 'written' : 'overwritten', targetPath };
     } catch (err) {
