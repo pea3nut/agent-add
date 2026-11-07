@@ -300,8 +300,8 @@ Markdown + YAML フロントマター。**`agent-add/<host>/<key>` ホスト特�
 ---
 name: playwright-tester
 description: A playwright testing agent.
-agent-get/cursor/model: fast
-agent-get/claude-code/model: haiku
+agent-add/cursor/model: fast
+agent-add/claude-code/model: haiku
 ---
 
 # Playwright Test Agent

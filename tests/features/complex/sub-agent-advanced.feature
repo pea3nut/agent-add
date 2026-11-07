@@ -11,7 +11,7 @@ Feature: Sub-agent frontmatter processing and conflict detection
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --sub-agent ./my-agent.md
     Then the exit code is 0
     And the cursor name field is expanded: grep -q 'cursor-agent' "$SETUP_TMPDIR/.cursor/agents/my-agent.md"
-    And no agent-get prefixed fields remain: ! grep -q 'agent-add/' "$SETUP_TMPDIR/.cursor/agents/my-agent.md"
+    And no agent-add prefixed fields remain: ! grep -q 'agent-add/' "$SETUP_TMPDIR/.cursor/agents/my-agent.md"
     And the description field is preserved: grep -q 'test sub-agent' "$SETUP_TMPDIR/.cursor/agents/my-agent.md"
 
   @P0
@@ -22,7 +22,7 @@ Feature: Sub-agent frontmatter processing and conflict detection
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host claude-code --sub-agent ./my-agent.md
     Then the exit code is 0
     And the claude-code name field is expanded: grep -q 'claude-agent' "$SETUP_TMPDIR/.claude/agents/my-agent.md"
-    And no agent-get prefixed fields remain: ! grep -q 'agent-add/' "$SETUP_TMPDIR/.claude/agents/my-agent.md"
+    And no agent-add prefixed fields remain: ! grep -q 'agent-add/' "$SETUP_TMPDIR/.claude/agents/my-agent.md"
     And the description field is preserved: grep -q 'test sub-agent' "$SETUP_TMPDIR/.claude/agents/my-agent.md"
 
   @P1
