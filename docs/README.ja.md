@@ -68,6 +68,8 @@ npx -y agent-add --mcp 'https://github.com/modelcontextprotocol/servers.git#.mcp
 
 [Node.js](https://nodejs.org/)（v18+）をインストールすれば、`npx` で直接実行できます。別途インストールは不要です。
 
+同じ内容は再書き込みしません。既存の同名アセットを置き換えるには `--overwrite` を追加します。
+
 ### MCP のインストール
 
 ```bash
@@ -82,6 +84,9 @@ npx -y agent-add \
 # HTTP URL からインストール
 npx -y agent-add \
   --mcp 'https://raw.githubusercontent.com/modelcontextprotocol/servers/main/.mcp.json'
+
+# 既存の同名 MCP を上書き
+npx -y agent-add --host cursor --overwrite --mcp ./mcps/playwright.json
 ```
 
 ### Skill のインストール
@@ -160,6 +165,7 @@ npx -y agent-add [OPTIONS]
 
 Options:
   --host <host>         対象の AI ツール ID
+  --overwrite          既存の同名アセットを上書き
   --mcp <source>        MCP Server 設定をインストール
   --skill <source>      Skill ディレクトリをインストール
   --prompt <source>     Prompt ファイルをインストール
@@ -247,6 +253,7 @@ This skill does something useful.
 ```
 
 インストール時、ディレクトリ全体がホストの skills ディレクトリに再帰的にコピーされます（例：`.cursor/skills/my-skill/`）。
+`--overwrite` を指定すると、ディレクトリ全体をソースに置き換え、古いファイルを削除します。
 
 ### Prompt ファイル（ルールファイル / System Prompt）
 
@@ -408,7 +415,7 @@ npm run build
 npm run install:vibe
 ```
 
-最後のコマンドは `vibe/manifest.json` パックマニフェストを通じて開発に必要なアセットをインストールします。[scenario-test](https://github.com/pea3nut/scenario-test)（skill + command + sub-agent）、verify-host-readme コマンド、システムプロンプトが含まれます。検出されたホストがサポートしないアセットは自動的にスキップされます。
+最後のコマンドは `vibe/manifest.json` パックマニフェストを通じて開発に必要なアセットをインストールします。[scenario-test](https://github.com/pea3nut/scenario-test)（skill + command + sub-agent）、verify-host-readme コマンド、システムプロンプトが含まれます。明示的な未対応アセットはエラーとなり、Pack 内の未対応項目はスキップされます。
 
 ### テストの実行
 

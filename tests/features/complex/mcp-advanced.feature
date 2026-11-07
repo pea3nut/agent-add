@@ -108,7 +108,7 @@ Feature: MCP advanced installation scenarios
     Given isolated new and existing project configurations for Codex, opencode, Kilo, Gemini, Qwen, Roo and Kiro
     When native fields contain wrong scalar types, nulls, malformed nested OAuth or tool settings, invalid list elements or out-of-range timeouts
     Then installation fails without creating or changing any target or accompanying prompt
-    And unimplemented overwrite and dry-run flags are rejected without writes rather than treated as tested installation modes
+    And unimplemented force and dry-run flags are rejected without writes rather than treated as tested installation modes
     And native false values, empty lists and maps, valid timeout boundaries and nested field values are preserved without coercion
     And decoded Codex and opencode positive controls satisfy their independently fetched official schemas
 

@@ -34,7 +34,7 @@ Feature: Pack mixed skip/install and capability validation
     And the prompt content is preserved in the rules directory: cmp "$SETUP_TMPDIR/fixtures/prompt/my-prompt.md" "$SETUP_TMPDIR/.roo/rules/my-prompt.md"
     And the complete skill bundle is preserved: diff -r "$SETUP_TMPDIR/fixtures/skill/my-skill" "$SETUP_TMPDIR/.roo/skills/my-skill"
     And the command content is preserved: cmp "$SETUP_TMPDIR/fixtures/command/my-command.md" "$SETUP_TMPDIR/.roo/commands/my-command.md"
-    And only the sub-agent is skipped: grep -E 'skipped[[:space:]]+subAgent/my-agent' "$SETUP_TMPDIR/out.txt" && grep -F '4 written · 1 skipped · 0 conflicts' "$SETUP_TMPDIR/out.txt"
+    And only the sub-agent is skipped: grep -E 'skipped[[:space:]]+subAgent/my-agent' "$SETUP_TMPDIR/out.txt" && grep -F '4 written · 0 overwritten · 0 updated · 0 exists · 1 skipped · 0 conflicts · 0 errors' "$SETUP_TMPDIR/out.txt"
     And no unverified sub-agent directory is created: test ! -e "$SETUP_TMPDIR/.roo/agents"
 
   @P1

@@ -73,7 +73,7 @@ export interface McpServerInput {
 }
 
 export type McpConfigEdit =
-  | { status: 'written'; content: string }
+  | { status: 'written' | 'overwritten'; content: string }
   | { status: 'exists' | 'conflict'; reason?: string };
 
 export interface McpAdapter {
@@ -84,6 +84,7 @@ export interface McpAdapter {
     file: string,
     name: string,
     server: Record<string, unknown>,
+    overwrite?: boolean,
   ) => McpConfigEdit;
   convert: (input: McpServerInput, name: string) => Record<string, unknown>;
 }

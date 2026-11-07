@@ -28,7 +28,7 @@ Feature: MCP installation on Cursor
     And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
     And the MCP is already installed: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --mcp ./playwright.json
     When the user runs again: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --mcp ./playwright.json
-    Then the output contains "exists"
+    Then the item reports exists and the summary has a positive exists count with no written, updated or overwritten items
 
   @P1
   Scenario: Install with conflicting key returns conflict
@@ -63,4 +63,4 @@ Feature: MCP installation on Cursor
     And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
     And the MCP is already installed: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp@latest"]}}'
     When the user runs again: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp@latest"]}}' > "$SETUP_TMPDIR/out.txt" 2>&1
-    Then the output contains "exists": grep -qi "exists" "$SETUP_TMPDIR/out.txt"
+    Then the item reports exists and the summary has a positive exists count with no written, updated or overwritten items: grep -F '≡ exists' "$SETUP_TMPDIR/out.txt"

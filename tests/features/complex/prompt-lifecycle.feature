@@ -11,7 +11,7 @@ Feature: Prompt lifecycle and write strategies
     And the prompt is installed first time: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --prompt ./my-prompt.md
     And the source is replaced with v2: cp "$PROJECT_ROOT/tests/fixtures/prompt/my-prompt-v2.md" "$SETUP_TMPDIR/my-prompt.md"
     When the user reinstalls the prompt: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --prompt ./my-prompt.md > "$SETUP_TMPDIR/out.txt" 2>&1
-    Then the output contains updated: grep -qi "updated" "$SETUP_TMPDIR/out.txt"
+    Then the output contains updated: grep -F '↑ updated' "$SETUP_TMPDIR/out.txt"
     And the new content is present: grep -q "professionally" "$SETUP_TMPDIR/AGENTS.md"
 
   @P1

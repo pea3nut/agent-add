@@ -1,6 +1,6 @@
 import { parse, stringify } from 'smol-toml';
-import { isRecord, parseConfig, setConfigValue, type ConfigFormat } from '../utils/config.js';
 import { deepEqualIgnoringKeyOrder } from '../utils/deep-equal.js';
+import { isRecord, parseConfig, setConfigValue, type ConfigFormat } from '../utils/config.js';
 import type { AssetCapability, HostAdapter, McpConfigEdit } from './types.js';
 
 export function editTomlMcpConfig(
@@ -10,6 +10,7 @@ export function editTomlMcpConfig(
   newServerConfig: Record<string, unknown>,
   layout: 'table' | 'named-array',
   displayName: string,
+  overwrite = false,
 ): McpConfigEdit {
   let parsed: Record<string, unknown>;
   try {
@@ -18,6 +19,7 @@ export function editTomlMcpConfig(
     throw new Error(`Failed to parse TOML config file: ${configFilePath}`);
   }
 
+  let overwritten = false;
   if (layout === 'named-array') {
     // Named array entries use [[mcp_servers]].
     const mcpServers =
@@ -26,17 +28,16 @@ export function editTomlMcpConfig(
       throw new Error(displayName + ' mcp_servers must be an array of tables');
     const entry = newServerConfig;
 
-    const existingIdx = mcpServers.findIndex((s) => s['name'] === assetName);
-    if (existingIdx !== -1) {
-      if (deepEqualIgnoringKeyOrder(mcpServers[existingIdx], entry)) {
-        return { status: 'exists' };
-      }
-      return {
-        status: 'conflict',
-        reason: `${configFilePath} already has an mcp_servers entry named '${assetName}' with different content`,
-      };
+    const existingIdx = mcpServers.findIndex((server) => server['name'] === assetName);
+    overwritten = existingIdx !== -1;
+    if (overwritten) {
+      const matches = mcpServers.filter((server) => server['name'] === assetName);
+      if (matches.length === 1 && deepEqualIgnoringKeyOrder(matches[0], entry)) return { status: 'exists' };
+      if (!overwrite) return { status: 'conflict', reason: `Different or duplicate MCP entries already use the name '${assetName}'; use --overwrite to replace them` };
     }
-    mcpServers.push(entry);
+    const others = mcpServers.filter((server) => server['name'] !== assetName);
+    others.splice(overwritten ? existingIdx : others.length, 0, entry);
+    mcpServers.splice(0, mcpServers.length, ...others);
     parsed['mcp_servers'] = mcpServers;
   } else {
     if (parsed['mcp_servers'] === undefined) {
@@ -46,14 +47,10 @@ export function editTomlMcpConfig(
     if (!isRecord(mcpServers)) throw new Error('mcp_servers must be a table');
     const entry = newServerConfig;
 
-    if (Object.hasOwn(mcpServers, assetName)) {
-      if (deepEqualIgnoringKeyOrder(mcpServers[assetName], entry)) {
-        return { status: 'exists' };
-      }
-      return {
-        status: 'conflict',
-        reason: `${configFilePath} already has a '${assetName}' key with different content`,
-      };
+    overwritten = Object.hasOwn(mcpServers, assetName);
+    if (overwritten) {
+      if (deepEqualIgnoringKeyOrder(mcpServers[assetName], entry)) return { status: 'exists' };
+      if (!overwrite) return { status: 'conflict', reason: `MCP '${assetName}' already has different content; use --overwrite to replace it` };
     }
     Object.defineProperty(mcpServers, assetName, {
       value: entry,
@@ -63,17 +60,12 @@ export function editTomlMcpConfig(
     });
   }
 
-  const addition = stringify({
-    mcp_servers:
-      layout === 'named-array' ? [newServerConfig] : { [assetName]: newServerConfig },
-  });
-  let newToml = (tomlContent ?? '').trimEnd() + '\n\n' + addition;
-  try {
-    parse(newToml);
-  } catch {
-    newToml = stringify(parsed);
-  }
-  return { status: 'written', content: newToml };
+  if (overwritten) return { status: 'overwritten', content: stringify(parsed) };
+  const addition = stringify({ mcp_servers: layout === 'named-array' ? [newServerConfig] : { [assetName]: newServerConfig } });
+  const appended = (tomlContent ?? '').trimEnd() + '\n\n' + addition;
+  try { parse(appended); return { status: 'written', content: appended }; }
+  catch { return { status: 'written', content: stringify(parsed) }; }
+
 }
 
 function editJsonMcpConfig(
@@ -82,6 +74,7 @@ function editJsonMcpConfig(
   assetName: string,
   newServerConfig: Record<string, unknown>,
   mcpCapability: AssetCapability,
+  overwrite = false,
 ): McpConfigEdit {
   const keyPath = [mcpCapability.configKey ?? 'mcpServers'];
   const format: ConfigFormat =
@@ -105,18 +98,14 @@ function editJsonMcpConfig(
     mcpServers = next;
   }
 
-  if (Object.hasOwn(mcpServers, assetName)) {
-    if (deepEqualIgnoringKeyOrder(mcpServers[assetName], newServerConfig)) {
-      return { status: 'exists' };
-    }
-    return {
-      status: 'conflict',
-      reason: `${configFilePath} already has a '${assetName}' key with different content`,
-    };
+  const overwritten = Object.hasOwn(mcpServers, assetName);
+  if (overwritten) {
+    if (deepEqualIgnoringKeyOrder(mcpServers[assetName], newServerConfig)) return { status: 'exists' };
+    if (!overwrite) return { status: 'conflict', reason: `MCP '${assetName}' already has different content; use --overwrite to replace it` };
   }
 
   return {
-    status: 'written',
+    status: overwritten ? 'overwritten' : 'written',
     content: setConfigValue(existingContent, [...keyPath, assetName], newServerConfig, format),
   };
 }
@@ -127,8 +116,9 @@ export function editMcpConfig(
   file: string,
   name: string,
   server: Record<string, unknown>,
+  overwrite = false,
 ): McpConfigEdit {
   return host.mcp?.editConfig
-    ? host.mcp.editConfig(current, file, name, server)
-    : editJsonMcpConfig(current, file, name, server, host.assets.mcp);
+    ? host.mcp.editConfig(current, file, name, server, overwrite)
+    : editJsonMcpConfig(current, file, name, server, host.assets.mcp, overwrite);
 }

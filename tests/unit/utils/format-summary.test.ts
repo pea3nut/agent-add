@@ -73,7 +73,7 @@ describe('formatSummary', () => {
       host: mockHost,
       results: [makeResult('mcp', 'playwright', 'written')],
     };
-    expect(formatSummary(summary)).toContain('─ skipped   (none)');
+    expect(formatSummary(summary)).toContain('0 skipped');
   });
 
   it('should show skipped asset name when a result is skipped', () => {
@@ -91,7 +91,7 @@ describe('formatSummary', () => {
       host: mockHost,
       results: [makeResult('mcp', 'playwright', 'written')],
     };
-    expect(formatSummary(summary)).toContain('✗ conflict  (none)');
+    expect(formatSummary(summary)).toContain('0 conflicts');
   });
 
   it('should show conflict details with reason', () => {
@@ -129,8 +129,9 @@ describe('formatSummary', () => {
       ],
     };
     const output = formatSummary(summary);
-    // writtenCount = written + updated + exists
-    expect(output).toContain('2 written');
+    // Presence and updates must not inflate new writes.
+    expect(output).toContain('1 written');
+    expect(output).toContain('1 exists');
     expect(output).toContain('1 skipped');
     expect(output).toContain('1 conflicts');
   });

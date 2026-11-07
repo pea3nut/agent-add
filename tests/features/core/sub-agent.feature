@@ -36,4 +36,4 @@ Feature: Sub-agent installation on Cursor
     And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
     And the sub-agent is already installed: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --sub-agent ./my-agent.md
     When the user installs again: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --sub-agent ./my-agent.md
-    Then the output contains "exists"
+    Then the item reports exists and the summary has a positive exists count with no written, updated or overwritten items

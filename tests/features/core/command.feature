@@ -27,4 +27,4 @@ Feature: Command installation on Cursor
     And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
     And the command is already installed: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --command ./my-command.md
     When the user installs again: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --command ./my-command.md
-    Then the output contains "exists"
+    Then the item reports exists and the summary has a positive exists count with no written, updated or overwritten items

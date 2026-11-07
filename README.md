@@ -113,6 +113,8 @@ npx -y agent-add --mcp 'https://github.com/modelcontextprotocol/servers.git#.mcp
 
 Install [Node.js](https://nodejs.org/) (v18+), then run directly via `npx` — no separate install needed.
 
+Identical content is left unchanged. Add `--overwrite` to replace an existing same-name asset.
+
 ### Project or global?
 
 No flag: install into the current project. `--global`: install for your user, across projects. The two installations are separate.
@@ -167,6 +169,9 @@ npx -y agent-add \
 # From an HTTP URL
 npx -y agent-add \
   --mcp 'https://raw.githubusercontent.com/modelcontextprotocol/servers/main/.mcp.json'
+
+# Replace an existing MCP
+npx -y agent-add --host cursor --overwrite --mcp ./mcps/playwright.json
 ```
 
 ### Install Skill
@@ -245,6 +250,7 @@ npx -y agent-add [OPTIONS]
 
 Options:
   --host <host>         Target AI tool ID
+  --overwrite          Replace existing same-name assets
   --global              Install all supplied assets into the host's user scope
   --mcp <source>        Install an MCP Server config
   --skill <source>      Install a Skill directory
@@ -333,6 +339,7 @@ This skill does something useful.
 ```
 
 The entire directory is recursively copied to the host's skills directory (e.g. `.cursor/skills/my-skill/`).
+With `--overwrite`, the directory is replaced with the source, removing obsolete files.
 
 ### Prompt File (Rule file / System Prompt)
 
@@ -494,7 +501,7 @@ npm run build
 npm run install:vibe
 ```
 
-The last command installs dev assets via the pack manifest at `vibe/manifest.json`, including [scenario-test](https://github.com/pea3nut/scenario-test) (skill + command + sub-agent), a verify-host-readme command, and a system prompt. Assets unsupported by the detected host are automatically skipped.
+The last command installs dev assets via the pack manifest at `vibe/manifest.json`, including [scenario-test](https://github.com/pea3nut/scenario-test) (skill + command + sub-agent), a verify-host-readme command, and a system prompt. Explicit unsupported assets fail; unsupported Pack entries are skipped without resolving their sources.
 
 ### Running Tests
 

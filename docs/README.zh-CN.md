@@ -66,6 +66,8 @@ npx -y agent-add --mcp 'https://github.com/modelcontextprotocol/servers.git#.mcp
 
 安装 [Node.js](https://nodejs.org/)（v18+）后即可通过 `npx` 直接运行，无需额外安装。
 
+相同内容不会重复写入；如需替换已有的同名资产，加 `--overwrite`。
+
 ### 安装 MCP
 
 ```bash
@@ -80,6 +82,9 @@ npx -y agent-add \
 # 从 HTTP URL 直接安装
 npx -y agent-add \
   --mcp 'https://raw.githubusercontent.com/modelcontextprotocol/servers/main/.mcp.json'
+
+# 覆盖已有的同名 MCP
+npx -y agent-add --host cursor --overwrite --mcp ./mcps/playwright.json
 ```
 
 ### 安装 Skill
@@ -158,6 +163,7 @@ npx -y agent-add [OPTIONS]
 
 Options:
   --host <host>         指定目标 AI Agent
+  --overwrite          覆盖已有的同名资产
   --mcp <source>        安装 MCP Server 配置
   --skill <source>      安装 Skill 目录
   --prompt <source>     安装 Prompt 文件
@@ -245,6 +251,7 @@ This skill does something useful.
 ```
 
 安装时整个目录会被递归复制到宿主的 skills 目录下（如 `.cursor/skills/my-skill/`）。
+使用 `--overwrite` 时会按来源替换整个目录，并清理过期文件。
 
 ### Prompt 文件（Rule 文件 / System Prompt）
 
@@ -406,7 +413,7 @@ npm run build
 npm run install:vibe
 ```
 
-最后一条命令通过 `vibe/manifest.json` 包清单安装开发所需资产，包括 [scenario-test](https://github.com/pea3nut/scenario-test)（skill + command + sub-agent）、verify-host-readme 命令和系统提示词。当前宿主不支持的资产会被自动跳过。
+最后一条命令通过 `vibe/manifest.json` 包清单安装开发所需资产，包括 [scenario-test](https://github.com/pea3nut/scenario-test)（skill + command + sub-agent）、verify-host-readme 命令和系统提示词。显式不支持的资产参数会报错；Pack 内不支持的条目会跳过。
 
 ### 运行测试
 
