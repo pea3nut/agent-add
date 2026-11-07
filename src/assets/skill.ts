@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { hasRequiredSkillFiles, publishSkill } from './skill-publication.js';
 import { assertNoSkillLinks, assertSafeSkillTree, resolveSkillDirectory } from './skill-safety.js';
 import { ensureDir } from '../utils/fs.js';
 import type { AssetHandler, InstallJob, InstallResult } from './types.js';
@@ -38,18 +39,22 @@ export const skillHandler: AssetHandler = {
       if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
     }
 
+    let installed = false;
     try {
-      // Check the entry file, not just the directory: a directory that
-      // exists without SKILL.md means a previous install was interrupted
-      // partway through copyDirRecursive, and should be retried rather
-      // than permanently reported as already installed.
       await fs.promises.access(entryFile);
+      installed = true;
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
+    }
+    if (installed) {
+      if (!await hasRequiredSkillFiles(resolvedSource.localPath, targetDir)) {
+        return { job, status: 'error', targetPath: entryFile,
+          reason: 'Existing Skill is incomplete; preserve or remove it before reinstalling' };
+      }
       return { job, status: 'exists', targetPath: entryFile };
-    } catch {
-      // target doesn't exist or is an incomplete install, proceed with install
     }
 
-    await copyDirRecursive(resolvedSource.localPath, targetDir);
+    await publishSkill(resolvedSource.localPath, targetDir, copyDirRecursive);
 
     return { job, status: 'written', targetPath: entryFile };
   },
