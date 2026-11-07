@@ -129,8 +129,11 @@ describe('formatSummary', () => {
       ],
     };
     const output = formatSummary(summary);
-    // writtenCount = written + updated + exists
-    expect(output).toContain('2 written');
+    // Already-present assets must not inflate the number of writes.
+    expect(output).toContain('1 written');
+    expect(output).toContain('1 exists');
+    expect(output).toContain('0 updated');
+    expect(output).toContain('0 errors');
     expect(output).toContain('1 skipped');
     expect(output).toContain('1 conflicts');
   });

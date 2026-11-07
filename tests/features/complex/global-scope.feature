@@ -40,7 +40,7 @@ Feature: User installation scope and project isolation
   Scenario: Unsupported pack-only user assets are skipped without resolving their sources
     Given unsupported pack sources do not exist: printf '{"name":"test/mixed","assets":[{"type":"prompt","source":"./missing.md"},{"type":"command","source":"./missing-command.md"},{"type":"skill","source":"./fixtures/skill/my-skill"}]}' > "$SETUP_TMPDIR/pack.json"
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --global --host cursor --pack ./pack.json > out.txt
-    Then supported assets install and the other two are skipped: test -f "$HOME/.cursor/skills/my-skill/SKILL.md" && grep -F '1 written · 2 skipped' out.txt
+    Then supported assets install and the other two are skipped: test -f "$HOME/.cursor/skills/my-skill/SKILL.md" && grep -F '1 written · 0 updated · 0 exists · 2 skipped · 0 conflicts · 0 errors' out.txt
     And the project remains untouched: test ! -e .cursor
 
   @P0

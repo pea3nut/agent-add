@@ -56,10 +56,13 @@ export function formatSummary(summary: InstallSummary): string {
 
   lines.push('');
 
-  const writtenCount = results.filter((r) => r.status === 'written' || r.status === 'updated' || r.status === 'exists').length;
+  const count = (status: InstallStatus) => results.filter((r) => r.status === status).length;
+  const writtenCount = count('written');
+  const updatedCount = count('updated');
+  const existsCount = count('exists');
   const skippedCount = skipped.length;
   const conflictCount = conflicts.length;
-  lines.push(`${writtenCount} written · ${skippedCount} skipped · ${conflictCount} conflicts`);
+  lines.push(`${writtenCount} written · ${updatedCount} updated · ${existsCount} exists · ${skippedCount} skipped · ${conflictCount} conflicts · ${count('error')} errors`);
 
   for (const result of conflicts) {
     lines.push('');
