@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import type { AssetType, HostConfig, InstallScope } from './hosts/types.js';
 import { selectHostScope } from './hosts/scope.js';
-import type { AssetDescriptor } from './manifest/schema.js';
 import type {
   InstallJob,
   InstallResult,
@@ -20,7 +19,8 @@ import { subAgentHandler } from './assets/sub-agent.js';
 import type { InstallSummary } from './utils/summary.js';
 import { unwrapMcpServers } from './utils/unwrap-mcp-servers.js';
 import { convertMcpServer } from './hosts/mcp-source.js';
-import { deepEqualIgnoringKeyOrder } from './utils/deep-equal.js';
+import { assertSafeSkillTree } from './assets/skill-safety.js';
+import { formatSubAgent } from './hosts/sub-agent.js';
 import { isRecord } from './utils/config.js';
 import type { InstallProgress } from './utils/progress.js';
 
@@ -123,253 +123,98 @@ export async function runInstaller(
   progress?: InstallProgress,
 ): Promise<InstallSummary> {
   host = selectHostScope(host, cliInput.scope ?? 'project', cwd);
-  const explicitDescriptors: Array<{ type: AssetType; source: string }> = [];
-  const packDescriptors: AssetDescriptor[] = [];
-
-  for (const source of cliInput.mcp) {
-    explicitDescriptors.push({ type: 'mcp', source });
-  }
-  for (const source of cliInput.skill) {
-    explicitDescriptors.push({ type: 'skill', source });
-  }
-  for (const source of cliInput.prompt) {
-    explicitDescriptors.push({ type: 'prompt', source });
-  }
-  for (const source of cliInput.command) {
-    explicitDescriptors.push({ type: 'command', source });
-  }
-  for (const source of cliInput.subAgent) {
-    explicitDescriptors.push({ type: 'subAgent', source });
-  }
-
+  const explicit: Array<{ type: AssetType; source: string }> = [];
+  for (const type of ['mcp', 'skill', 'prompt', 'command', 'subAgent'] as const)
+    for (const source of cliInput[type]) explicit.push({ type, source });
+  const items: Array<{ type: AssetType; source: string }> = [];
   const label = (type: AssetType | 'pack', source: string) =>
-    `${type}/${inferName(source.endsWith('/*') ? source.slice(0, -2) : source, {
-      isDirectorySource: type === 'skill',
-    })}`;
-  for (const item of explicitDescriptors) progress?.pending(label(item.type, item.source));
-  for (const source of cliInput.pack) progress?.pending(label('pack', source));
-
-  for (const packSource of cliInput.pack) {
-    progress?.start(label('pack', packSource), 'loading manifest');
-    const manifest = await loadManifest(packSource, cwd, progress);
+    `${type}/${inferName(source.endsWith('/*') ? source.slice(0, -2) : source, { isDirectorySource: type === 'skill' })}`;
+  for (const source of cliInput.pack) {
+    progress?.pending(label('pack', source));
+    progress?.start(label('pack', source), 'loading manifest');
+    const manifest = await loadManifest(source, cwd, progress);
     progress?.finish('ready');
-    for (const asset of manifest.assets) {
-      packDescriptors.push(asset);
-    }
+    for (const asset of manifest.assets)
+      for (const value of Array.isArray(asset.source) ? asset.source : [asset.source])
+        items.push({ type: asset.type, source: value });
   }
-
-  // Check explicit flags against host capabilities before doing any work
-  for (const item of explicitDescriptors) {
-    const capability = host.assets[item.type];
-    if (!capability.supported) {
-      const reason =
-        capability.reason ?? 'This asset type is not supported by this host.';
-      process.stderr.write(
-        `Error: Host "${host.id}" does not support asset type "${item.type}".\n\n` +
-          `Reason: ${reason}\n\n` +
-          `• View the full host capability matrix: ${README_URL}\n` +
-          `• If you believe ${host.displayName} now supports this, feel free to open a PR: ${PR_URL}\n`,
-      );
+  // Pack order is preserved; explicit flags override packs and repeated flags
+  // overwrite in their supplied order. Every source is validated before writes.
+  items.push(...explicit);
+  for (const item of items) {
+    if (!host.assets[item.type].supported) {
+      process.stderr.write(`Error: Host "${host.id}" does not support asset type "${item.type}".\n` +
+        `Reason: ${host.assets[item.type].reason ?? 'Unsupported asset'}\n` +
+        `• View the full host capability matrix: ${README_URL}\n• Open a PR: ${PR_URL}\n`);
       process.exit(2);
     }
+    progress?.pending(label(item.type, item.source));
   }
-
-  const expandedItems: Array<{ assetType: AssetType; source: string }> = [];
-
-  for (const item of explicitDescriptors) {
-    expandedItems.push({ assetType: item.type, source: item.source });
-  }
-
-  for (const desc of packDescriptors) {
-    const sources = Array.isArray(desc.source) ? desc.source : [desc.source];
-    for (const src of sources) {
-      expandedItems.push({ assetType: desc.type, source: src });
-      progress?.pending(label(desc.type, src));
-    }
-  }
-
-  const resolvedItems: Array<{
-    assetType: AssetType;
-    assetName: string;
-    resolved: ResolvedSource;
-    fromExplicitFlag: boolean;
-  }> = [];
-
-  const tempDirsToClean = new Set<string>();
-  const skippedResults: InstallResult[] = [];
-
-  // process.exit() skips `finally`, so every exit path below cleans up
-  // explicitly; the `finally` covers normal returns and thrown errors.
+  const temporary = new Set<string>();
+  const jobs: InstallJob[] = [];
   try {
-    let explicitCount = explicitDescriptors.length;
-    let idx = 0;
-    for (const item of expandedItems) {
-      progress?.start(label(item.assetType, item.source));
-      const isGlob = item.source.endsWith('/*');
-      const cleanSource = isGlob ? item.source.slice(0, -2) : item.source;
-      const fromExplicitFlag = idx++ < explicitCount;
-      if (!fromExplicitFlag && !host.assets[item.assetType].supported) {
-        skippedResults.push({
-          job: {
-            assetType: item.assetType, assetName: inferName(cleanSource), host,
-            resolvedSource: { type: 'local', localPath: '', originalSource: item.source },
-          },
-          status: 'skipped', reason: host.assets[item.assetType].reason,
-        });
-        progress?.finish('skipped');
-        continue;
-      }
-      const resolved = await resolveSource(cleanSource, cwd, progress?.source);
-      if (resolved.tempDir) {
-        tempDirsToClean.add(resolved.tempDir);
-      }
-
-      if (isGlob) {
-        const entries = await expandDirectory(
-          resolved.localPath,
-          item.assetType,
-        );
-        if (entries.length === 0) {
-          progress?.finish('error');
-          process.stderr.write(
-            `agent-add error: No matching files found in directory for ${item.assetType}\n` +
-              `  Source: ${item.source}\n`,
-          );
-          await cleanupTempDirs(tempDirsToClean);
+    for (const item of items) {
+      progress?.start(label(item.type, item.source));
+      const glob = item.source.endsWith('/*');
+      const source = glob ? item.source.slice(0, -2) : item.source;
+      const resolved = await resolveSource(source, cwd, progress?.source);
+      if (resolved.tempDir) temporary.add(resolved.tempDir);
+      const entries = glob
+        ? await expandDirectory(resolved.localPath, item.type)
+        : [{ assetName: inferName(source, { isDirectorySource: item.type === 'skill' }), localPath: resolved.localPath }];
+      if (!entries.length) throw new Error('No matching files found in directory for ' + item.type);
+      for (const entry of entries) {
+        const expanded = { ...resolved, localPath: entry.localPath };
+        const validation = await validateAsset(item.type, expanded);
+        if (validation) {
+          process.stderr.write(`agent-add error: ${validation}\n  Source: ${source}\n`);
+          await cleanupTempDirs(temporary);
           process.exit(2);
         }
-        const dirName = path.basename(resolved.localPath);
-        for (const entry of entries) {
-          resolvedItems.push({
-            assetType: item.assetType,
-            assetName: `${dirName}/${entry.assetName}`,
-            resolved: { ...resolved, localPath: entry.localPath },
-            fromExplicitFlag,
-          });
-        }
-      } else {
-        const assetName = inferName(cleanSource, {
-          isDirectorySource: item.assetType === 'skill',
-        });
-        resolvedItems.push({
-          assetType: item.assetType,
-          assetName,
-          resolved,
-          fromExplicitFlag,
-        });
+        jobs.push({ host, assetType: item.type,
+          assetName: glob ? path.basename(resolved.localPath) + '/' + entry.assetName : entry.assetName,
+          resolvedSource: expanded });
       }
       progress?.finish('ready');
     }
-
     progress?.start('batch', 'validating');
-    for (const item of resolvedItems) {
-      const validationError = await validateAsset(
-        item.assetType,
-        item.resolved,
-      );
-      if (validationError) {
-        progress?.finish('error');
-        process.stderr.write(`agent-add error: ${validationError}\n`);
-        process.stderr.write(`  Source: ${item.resolved.originalSource}\n`);
-        await cleanupTempDirs(tempDirsToClean);
-        process.exit(2);
-      }
-    }
-
-    const jobs: InstallJob[] = [];
-
-    for (const item of resolvedItems) {
-      const capability = host.assets[item.assetType];
-      if (!capability.supported) {
-        skippedResults.push({
-          job: {
-            assetType: item.assetType,
-            assetName: item.assetName,
-            resolvedSource: item.resolved,
-            host,
-          },
-          status: 'skipped',
-          reason:
-            capability.reason ??
-            `${host.displayName} does not support ${item.assetType}`,
-        });
-      } else {
-        jobs.push({
-          assetType: item.assetType,
-          assetName: item.assetName,
-          resolvedSource: item.resolved,
-          host,
-        });
-      }
-    }
-
-    const incoming = new Map<string, { job: InstallJob; content: unknown }>();
-    const collisions = new Set<InstallJob>();
-    const invalid: InstallResult[] = [];
-    progress?.update('preflight');
+    const invalid = new Map<InstallJob, string>();
     for (const job of jobs) {
-      if (job.assetType === 'skill') continue;
       try {
-        let content: unknown = await fs.promises.readFile(
-          job.resolvedSource.localPath,
-          'utf-8',
-        );
+        if (job.assetType === 'skill') {
+          await assertSafeSkillTree(job.resolvedSource.localPath);
+          continue;
+        }
+        const content = await fs.promises.readFile(job.resolvedSource.localPath, 'utf-8');
         if (job.assetType === 'mcp') {
-          const parsed: unknown = JSON.parse(content as string);
-          if (!isRecord(parsed))
-            throw new Error('MCP source must be a JSON object');
+          const parsed: unknown = JSON.parse(content);
+          if (!isRecord(parsed)) throw new Error('MCP source must be a JSON object');
           const wrapped = unwrapMcpServers(parsed);
           if (wrapped) job.assetName = wrapped.name;
-          content = convertMcpServer(
-            host,
-            wrapped?.config ?? parsed,
-            job.assetName,
-          );
+          convertMcpServer(host, wrapped?.config ?? parsed, job.assetName);
+        } else if (job.assetType === 'command') {
+          host.serializeCommand?.(content);
+        } else if (job.assetType === 'subAgent') {
+          formatSubAgent(host, content, job.assetName);
         }
-        const key = job.assetType + ':' + job.assetName;
-        const previous = incoming.get(key);
-        if (previous && !deepEqualIgnoringKeyOrder(previous.content, content)) {
-          collisions.add(previous.job);
-          collisions.add(job);
-        } else if (!previous) incoming.set(key, { job, content });
-      } catch (err) {
-        invalid.push({ job, status: 'error', reason: (err as Error).message });
-      }
+      } catch (err) { invalid.set(job, (err as Error).message); }
     }
-    if (collisions.size || invalid.length) {
-      progress?.finish(collisions.size ? 'conflict' : 'error');
-      return {
-        host,
-        results: [
-          ...skippedResults,
-          ...jobs.map((job) => {
-            const error = invalid.find((result) => result.job === job);
-            if (error) return error;
-            return {
-              job,
-              status: collisions.has(job) ? 'conflict' : 'skipped',
-              reason: collisions.has(job)
-                ? `Different sources share the ${job.assetType} name '${job.assetName}'; nothing was written`
-                : 'Batch blocked by preflight errors or name collisions',
-            } as InstallResult;
-          }),
-        ],
-      };
+    if (invalid.size) {
+      progress?.finish('error');
+      return { host, results: jobs.map((job) => ({ job, status: 'error',
+        reason: invalid.get(job) ?? 'Batch blocked by invalid source; nothing was written' })) };
     }
-
-    const results: InstallResult[] = [...skippedResults];
     progress?.stop();
-
+    const results: InstallResult[] = [];
     for (const job of jobs) {
       progress?.start(`${job.assetType}/${job.assetName}`, 'installing');
-      const handler = getHandler(job.assetType);
-      const result = await handler.handle(job);
-      results.push(result);
-      progress?.finish(result.status);
+      try {
+        results.push(await getHandler(job.assetType).handle(job));
+      } catch (err) {
+        results.push({ job, status: 'error', reason: (err as Error).message });
+      }
+      progress?.finish(results[results.length - 1]!.status);
     }
-
     return { host, results };
-  } finally {
-    await cleanupTempDirs(tempDirsToClean);
-  }
+  } finally { await cleanupTempDirs(temporary); }
 }

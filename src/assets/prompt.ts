@@ -10,7 +10,7 @@ export function mergePrompt(
   existing: string,
   content: string,
   name: string,
-): { content: string; status: 'exists' | 'updated' | 'written' } {
+): { content: string; status: 'overwritten' | 'written' } {
   if (/\r|\n|-->/.test(name))
     throw new Error('Prompt name cannot be represented in an HTML marker');
   const open = '<!-- agent-add:' + name + ' -->';
@@ -36,12 +36,10 @@ export function mergePrompt(
       throw new Error(
         'Malformed or duplicate prompt markers; existing file was not modified',
       );
-    if (existing.slice(start, end + close.length) === block)
-      return { content: existing, status: 'exists' };
     return {
       content:
         existing.slice(0, start) + block + existing.slice(end + close.length),
-      status: 'updated',
+      status: 'overwritten',
     };
   }
   const separator =
@@ -72,32 +70,16 @@ export const promptHandler: AssetHandler = {
         capability.writeStrategy === 'create-file-in-dir'
           ? {
               content,
-              status:
-                existing === null
-                  ? ('written' as const)
-                  : existing === content
-                    ? ('exists' as const)
-                    : ('conflict' as const),
+              status: existing === null ? ('written' as const) : ('overwritten' as const),
             }
           : mergePrompt(existing ?? '', content, job.assetName);
-      if (merged.status === 'conflict')
-        return {
-          job,
-          status: 'conflict',
-          targetPath,
-          reason: targetPath + ' already exists with different content',
-        };
       const registration = await job.host.registerPrompt?.(job.host, targetPath);
-      if (merged.status !== 'exists')
-        await atomicWriteText(targetPath, merged.content);
+      await atomicWriteText(targetPath, merged.content);
       if (registration)
         await atomicWriteText(registration.file, registration.content);
       return {
         job,
-        status:
-          merged.status === 'exists' && registration
-            ? 'updated'
-            : merged.status,
+        status: merged.status,
         targetPath,
       };
     } catch (err) {

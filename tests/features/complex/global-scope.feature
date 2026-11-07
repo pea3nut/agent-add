@@ -16,11 +16,11 @@ Feature: User installation scope and project isolation
     And no project or invented user MCP file exists: test ! -e .mcp.json && test ! -e "$HOME/.claude/.mcp.json"
 
   @P0
-  Scenario: Same-name MCP installations and conflicts stay in the selected scope
-    When project and user installations run: cd "$SETUP_TMPDIR/project" && node "$PROJECT_ROOT/bin/agent-add.js" --host claude-code --mcp '{"same":{"command":"project"}}' && node "$PROJECT_ROOT/bin/agent-add.js" --global --host claude-code --mcp '{"same":{"command":"user"}}'
-    Then both scopes retain their own semantic values: node -e 'const a=require("node:assert/strict"),fs=require("node:fs");a.equal(JSON.parse(fs.readFileSync(".mcp.json")).mcpServers.same.command,"project");a.equal(JSON.parse(fs.readFileSync(process.env.HOME+"/.claude.json")).mcpServers.same.command,"user");'
-    When a changed user entry is requested: node "$PROJECT_ROOT/bin/agent-add.js" --global --host claude-code --mcp '{"same":{"command":"changed"}}' > "$SETUP_TMPDIR/out.txt" 2>&1; code=$?; test "$code" -eq 1
-    Then neither scope changed: node -e 'const a=require("node:assert/strict"),fs=require("node:fs");a.equal(JSON.parse(fs.readFileSync(".mcp.json")).mcpServers.same.command,"project");a.equal(JSON.parse(fs.readFileSync(process.env.HOME+"/.claude.json")).mcpServers.same.command,"user");'
+  Scenario: Same-name MCP overwrites stay in the selected scope
+    Given project and user MCP entries named same have command project and user respectively
+    When --global installs same with command changed on claude-code
+    Then the CLI exits 0 and reports overwritten
+    And the project entry remains project while the user entry becomes changed
 
   @P0
   Scenario: Global pack and repeated extra flags resolve sources from invocation cwd
@@ -37,11 +37,11 @@ Feature: User installation scope and project isolation
     And neither scope has destinations: test ! -e "$HOME/.cursor" && test ! -e .cursor
 
   @P0
-  Scenario: Unsupported pack-only user assets are skipped without resolving their sources
-    Given unsupported pack sources do not exist: printf '{"name":"test/mixed","assets":[{"type":"prompt","source":"./missing.md"},{"type":"command","source":"./missing-command.md"},{"type":"skill","source":"./fixtures/skill/my-skill"}]}' > "$SETUP_TMPDIR/pack.json"
-    When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --global --host cursor --pack ./pack.json > out.txt
-    Then supported assets install and the other two are skipped: test -f "$HOME/.cursor/skills/my-skill/SKILL.md" && grep -F '1 written · 2 skipped' out.txt
-    And the project remains untouched: test ! -e .cursor
+  Scenario: Unsupported Pack assets fail before resolving sources or writing destinations
+    Given a cursor user Pack contains missing prompt and command sources plus a valid Skill
+    When the Pack is installed with --global
+    Then the CLI exits 2 identifying unsupported user assets rather than a missing source
+    And neither project nor user Skill targets are written and no skipped success is reported
 
   @P0
   Scenario: Codex home relocation does not relocate user skills and respects prompt override
@@ -75,7 +75,7 @@ Feature: User installation scope and project isolation
     And the summary names the actual user destination and project state is unchanged: grep -F "$QWEN_HOME/settings.json" out.txt && grep -F 'Scope: user (--global)' out.txt && cmp .qwen/settings.json project-before.json && test ! -e .qwen/skills && test ! -e .qwen/commands && test ! -e .qwen/agents && test ! -e "$HOME/.qwen"
     Given installed files are fingerprinted: find "$QWEN_HOME" -type f -exec sha256sum {} + | sort > before.sha256
     When the same installation is repeated: node "$PROJECT_ROOT/bin/agent-add.js" --global --host qwen-code --pack ./pack.json --command ./fixtures/command/my-command.md --sub-agent ./fixtures/sub-agent/my-agent.md > repeat.txt
-    Then reinstall changes no files and still avoids default targets: find "$QWEN_HOME" -type f -exec sha256sum {} + | sort > after.sha256; cmp before.sha256 after.sha256 && grep -F 'exists' repeat.txt && test ! -e "$HOME/.qwen"
+    Then reinstall changes no files and still avoids default targets: find "$QWEN_HOME" -type f -exec sha256sum {} + | sort > after.sha256; cmp before.sha256 after.sha256 && grep -F 'overwritten' repeat.txt && test ! -e "$HOME/.qwen"
 
   @P0
   Scenario: Relative and tilde-prefixed Qwen home overrides fail before any asset writes
@@ -88,7 +88,7 @@ Feature: User installation scope and project isolation
     Then every asset uses the default user root: node -e 'const fs=require("node:fs"),a=require("node:assert/strict"),c=JSON.parse(fs.readFileSync(process.env.HOME+"/.qwen/settings.json"));a.deepEqual(c.mcpServers.playwright,JSON.parse(fs.readFileSync("fixtures/mcp/playwright.json")));' && diff -r fixtures/skill/my-skill "$HOME/.qwen/skills/my-skill" && cmp fixtures/command/my-command.md "$HOME/.qwen/commands/my-command.md" && test -f "$HOME/.qwen/agents/my-agent.md" && test ! -e .qwen
     Given installed files are fingerprinted: find "$HOME/.qwen" -type f -exec sha256sum {} + | sort > before.sha256
     When Qwen home is explicitly empty: QWEN_HOME='' node "$PROJECT_ROOT/bin/agent-add.js" --global --host qwen-code --mcp ./fixtures/mcp/playwright.json --skill ./fixtures/skill/my-skill --command ./fixtures/command/my-command.md --sub-agent ./fixtures/sub-agent/my-agent.md > out.txt
-    Then the same assets already exist without changing any files: find "$HOME/.qwen" -type f -exec sha256sum {} + | sort > after.sha256; cmp before.sha256 after.sha256 && grep -F 'exists' out.txt && test ! -e .qwen
+    Then the same assets already exist without changing any files: find "$HOME/.qwen" -type f -exec sha256sum {} + | sort > after.sha256; cmp before.sha256 after.sha256 && grep -F 'overwritten' out.txt && test ! -e .qwen
 
   @P0
   Scenario: Qwen project installation ignores user root overrides
@@ -141,4 +141,4 @@ Feature: User installation scope and project isolation
   @P0
   Scenario: User skills with the same name coexist and reinstall independently
     When both scopes are installed and reinstalled: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host claude-code --skill ./fixtures/skill/my-skill && node "$PROJECT_ROOT/bin/agent-add.js" --global --host claude-code --skill ./fixtures/skill/my-skill && node "$PROJECT_ROOT/bin/agent-add.js" --global --host claude-code --skill ./fixtures/skill/my-skill > out.txt
-    Then both complete bundles exist and user reinstall is idempotent: diff -r fixtures/skill/my-skill .claude/skills/my-skill && diff -r fixtures/skill/my-skill "$HOME/.claude/skills/my-skill" && grep -F '≡ exists' out.txt
+    Then both complete bundles exist and user reinstall is idempotent: diff -r fixtures/skill/my-skill .claude/skills/my-skill && diff -r fixtures/skill/my-skill "$HOME/.claude/skills/my-skill" && grep -F 'overwritten' out.txt

@@ -49,6 +49,19 @@ npx -y agent-add \
 
 ---
 
+## 幂等安装：默认覆盖
+
+每次运行都会将所有受支持的资产同步为输入来源的内容，内容相同也执行覆盖，不需要额外的 overwrite 参数。新资产显示 `written`，已有资产显示 `overwritten`；不再使用 `exists`、`skipped` 或冲突状态。
+
+- MCP：替换同名服务器配置，保留其他服务器和无关设置。TOML 会经解析后重新序列化，可能重新排版或丢失注释；JSONC 被替换条目之外的注释会保留。
+- Skill：用完整来源目录替换同名目标，删除仅存在于目标的旧资源。不要在已安装 Skill 内保存独立用户文件。先暂存再发布；复制失败保留旧目录，发布失败会尝试恢复旧目录。
+- Command、Sub-agent、独立 Prompt：按宿主原生格式覆盖目标文件。
+- 带标记的 Prompt：仅替换对应名称的托管块，保留用户正文及其他块，重复运行不追加重复块；损坏或重复的标记仍然报错。
+
+先按 Pack 顺序处理描述符，再处理显式资产参数。同类型、同名称来源依次覆盖，最后一个显式来源优先。宿主不支持的资产（包括 Pack 条目）、非法来源和不安全路径都会报错，不会作为成功的 skip。所有来源验证结束后才开始安装。文件系统错误按资产报告；整个批次不提供全局事务回滚，已成功写入的其他资产不会撤销。
+
+幂等指最终的托管内容与配置保持一致；由于每次都会覆盖，文件修改时间可能变化。项目与 `--global` 安装相互独立。输入来源是所选资产的最终依据，重新安装前请备份希望保留的本地修改。
+
 ## 为什么需要 agent-add？
 
 各个 AI 工具配置不尽相同，agent-add 可以帮您抹平它们的不同之处，用一条命令就能安装到所有 AI 工具中的任意一个：
@@ -406,7 +419,7 @@ npm run build
 npm run install:vibe
 ```
 
-最后一条命令通过 `vibe/manifest.json` 包清单安装开发所需资产，包括 [scenario-test](https://github.com/pea3nut/scenario-test)（skill + command + sub-agent）、verify-host-readme 命令和系统提示词。当前宿主不支持的资产会被自动跳过。
+最后一条命令通过 `vibe/manifest.json` 包清单安装开发所需资产，包括 [scenario-test](https://github.com/pea3nut/scenario-test)（skill + command + sub-agent）、verify-host-readme 命令和系统提示词。所选资产都必须受目标宿主支持；Pack 内含不支持的条目时会在写入前报错。
 
 ### 运行测试
 

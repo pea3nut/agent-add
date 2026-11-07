@@ -22,23 +22,20 @@ Feature: MCP installation on Cursor
     And the command value is correct: grep -q '"command": "npx"' "$SETUP_TMPDIR/.cursor/mcp.json"
 
   @P1
-  Scenario: Repeated install of same content returns exists
+  Scenario: Repeated install of same content returns overwritten
     Given a temp working directory is created
     And the MCP fixture is copied: cp "$PROJECT_ROOT/tests/fixtures/mcp/playwright.json" "$SETUP_TMPDIR/playwright.json"
     And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
     And the MCP is already installed: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --mcp ./playwright.json
     When the user runs again: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --mcp ./playwright.json
-    Then the output contains "exists"
+    Then the output contains "overwritten"
 
   @P1
-  Scenario: Install with conflicting key returns conflict
-    Given a temp working directory is created
-    And the MCP fixture is copied: cp "$PROJECT_ROOT/tests/fixtures/mcp/playwright.json" "$SETUP_TMPDIR/playwright.json"
-    And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
-    And a conflicting mcp.json exists: printf '{"mcpServers":{"playwright":{"command":"different"}}}' > "$SETUP_TMPDIR/.cursor/mcp.json"
-    When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --mcp ./playwright.json > "$SETUP_TMPDIR/out.txt" 2>&1; echo $? > "$SETUP_TMPDIR/exitcode.txt"; true
-    Then the output contains "conflict": grep -qi "conflict" "$SETUP_TMPDIR/out.txt"
-    And the exit code is non-zero: [ "$(cat "$SETUP_TMPDIR/exitcode.txt")" -ne 0 ]
+  Scenario: Installing a changed same-name MCP overwrites its entry
+    Given an isolated project and HOME with .cursor/mcp.json containing playwright command old and an unrelated server
+    When the playwright MCP fixture is installed on cursor
+    Then the CLI exits 0 and reports overwritten
+    And decoded playwright exactly matches the source fixture and the unrelated server is unchanged
 
   @P1
   Scenario: Install from non-existent path returns error
@@ -58,9 +55,9 @@ Feature: MCP installation on Cursor
     And the command value is correct: grep -q '"command": "npx"' "$SETUP_TMPDIR/.cursor/mcp.json"
 
   @P1
-  Scenario: Repeated inline MCP install returns exists
+  Scenario: Repeated inline MCP install returns overwritten
     Given a temp working directory is created
     And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
     And the MCP is already installed: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp@latest"]}}'
     When the user runs again: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp@latest"]}}' > "$SETUP_TMPDIR/out.txt" 2>&1
-    Then the output contains "exists": grep -qi "exists" "$SETUP_TMPDIR/out.txt"
+    Then the output contains "overwritten": grep -qi "overwritten" "$SETUP_TMPDIR/out.txt"

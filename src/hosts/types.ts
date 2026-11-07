@@ -72,9 +72,7 @@ export interface McpServerInput {
   nativeHttp: boolean;
 }
 
-export type McpConfigEdit =
-  | { status: 'written'; content: string }
-  | { status: 'exists' | 'conflict'; reason?: string };
+export type McpConfigEdit = { status: 'written' | 'overwritten'; content: string };
 
 export interface McpAdapter {
   validateSource?: (source: Record<string, unknown>) => void;

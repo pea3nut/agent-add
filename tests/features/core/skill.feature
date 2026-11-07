@@ -22,13 +22,13 @@ Feature: Skill installation on Cursor
     And the SKILL.md has correct content: grep -q 'test skill' "$SETUP_TMPDIR/.cursor/skills/my-skill/SKILL.md"
 
   @P1
-  Scenario: Repeated skill install returns exists
+  Scenario: Repeated skill install returns overwritten
     Given a temp working directory is created
     And the skill fixture is copied: cp -r "$PROJECT_ROOT/tests/fixtures/skill/my-skill" "$SETUP_TMPDIR/my-skill"
     And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
     And the skill is already installed: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --skill ./my-skill
     When the user installs again: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --skill ./my-skill
-    Then the output contains "exists"
+    Then the output contains "overwritten"
 
   @P1
   Scenario: Install invalid skill (missing SKILL.md) returns error

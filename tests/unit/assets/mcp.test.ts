@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'fs';
+import { parse } from 'smol-toml';
 import os from 'os';
 import path from 'path';
 import { mcpHandler } from '../../../src/assets/mcp.js';
@@ -64,7 +65,7 @@ describe('mcpHandler - TOML hosts (regression)', () => {
     await cleanup(tmpDir);
   });
 
-  it('reports conflict (not exists) when a differently-configured entry already exists at the same name', async () => {
+  it('reports overwritten when a differently-configured entry already exists at the same name', async () => {
     const tmpDir = await makeTmpDir();
     const sourcePath = path.join(tmpDir, 'playwright.json');
     await fs.promises.writeFile(sourcePath, JSON.stringify({ command: 'npx', args: ['-y', '@playwright/mcp'] }));
@@ -80,12 +81,12 @@ describe('mcpHandler - TOML hosts (regression)', () => {
     };
 
     const result = await mcpHandler.handle(job);
-    expect(result.status).toBe('conflict');
+    expect(result.status).toBe('overwritten');
 
     await cleanup(tmpDir);
   });
 
-  it('reports exists (not conflict) once the identical entry has already been written', async () => {
+  it('reports overwritten once the identical entry has already been written', async () => {
     const tmpDir = await makeTmpDir();
     const sourcePath = path.join(tmpDir, 'playwright.json');
     await fs.promises.writeFile(sourcePath, JSON.stringify({ command: 'npx' }));
@@ -102,12 +103,12 @@ describe('mcpHandler - TOML hosts (regression)', () => {
     expect(first.status).toBe('written');
 
     const second = await mcpHandler.handle(job);
-    expect(second.status).toBe('exists');
+    expect(second.status).toBe('overwritten');
 
     await cleanup(tmpDir);
   });
 
-  it('vibe array format: reports conflict for a same-name entry with different content', async () => {
+  it('vibe array format: reports overwritten for a same-name entry with different content', async () => {
     const tmpDir = await makeTmpDir();
     const sourcePath = path.join(tmpDir, 'playwright.json');
     await fs.promises.writeFile(sourcePath, JSON.stringify({ command: 'npx' }));
@@ -125,12 +126,12 @@ describe('mcpHandler - TOML hosts (regression)', () => {
     };
 
     const result = await mcpHandler.handle(job);
-    expect(result.status).toBe('conflict');
+    expect(result.status).toBe('overwritten');
 
     await cleanup(tmpDir);
   });
 
-  it('vibe array format: reports exists once the identical entry has already been written', async () => {
+  it('vibe array format: reports overwritten once the identical entry has already been written', async () => {
     const tmpDir = await makeTmpDir();
     const sourcePath = path.join(tmpDir, 'playwright.json');
     await fs.promises.writeFile(sourcePath, JSON.stringify({ command: 'npx' }));
@@ -146,13 +147,13 @@ describe('mcpHandler - TOML hosts (regression)', () => {
     const first = await mcpHandler.handle(job);
     expect(first.status).toBe('written');
     const second = await mcpHandler.handle(job);
-    expect(second.status).toBe('exists');
+    expect(second.status).toBe('overwritten');
 
     await cleanup(tmpDir);
   });
 });
 
-describe('mcpHandler - TOML content comparison ignores key order', () => {
+describe('mcpHandler - TOML overwrites TOML using source semantics', () => {
   async function runAgainstExisting(
     hostId: HostId.Codex | HostId.Vibe,
     source: Record<string, unknown>,
@@ -184,7 +185,7 @@ describe('mcpHandler - TOML content comparison ignores key order', () => {
     env: { API_KEY: 'k', NESTED_ORDER: 'x', DEBUG: '1' },
   };
 
-  it('codex: reordered top-level keys are exists, file untouched', async () => {
+  it('codex: reordered top-level keys are overwritten with equivalent content', async () => {
     const toml = [
       '[mcp_servers.playwright]',
       'args = ["-y", "@playwright/mcp"]',
@@ -197,11 +198,11 @@ describe('mcpHandler - TOML content comparison ignores key order', () => {
       '',
     ].join('\n');
     const { status, before, after } = await runAgainstExisting(HostId.Codex, source, toml);
-    expect(status).toBe('exists');
-    expect(after).toBe(before);
+    expect(status).toBe('overwritten');
+    expect(parse(after).mcp_servers).toEqual(expect.objectContaining({ playwright: source }));
   });
 
-  it('codex: reordered nested env keys are exists, file untouched', async () => {
+  it('codex: reordered nested env keys are overwritten with equivalent content', async () => {
     const toml = [
       '[mcp_servers.playwright]',
       'command = "npx"',
@@ -214,11 +215,11 @@ describe('mcpHandler - TOML content comparison ignores key order', () => {
       '',
     ].join('\n');
     const { status, before, after } = await runAgainstExisting(HostId.Codex, source, toml);
-    expect(status).toBe('exists');
-    expect(after).toBe(before);
+    expect(status).toBe('overwritten');
+    expect(parse(after).mcp_servers).toEqual(expect.objectContaining({ playwright: source }));
   });
 
-  it('codex: a changed env value is a conflict, file untouched', async () => {
+  it('codex: a changed env value is overwritten from source', async () => {
     const toml = [
       '[mcp_servers.playwright]',
       'command = "npx"',
@@ -231,11 +232,11 @@ describe('mcpHandler - TOML content comparison ignores key order', () => {
       '',
     ].join('\n');
     const { status, before, after } = await runAgainstExisting(HostId.Codex, source, toml);
-    expect(status).toBe('conflict');
-    expect(after).toBe(before);
+    expect(status).toBe('overwritten');
+    expect(parse(after).mcp_servers).toEqual(expect.objectContaining({ playwright: source }));
   });
 
-  it('codex: reordered args are a conflict (array order is significant), file untouched', async () => {
+  it('codex: reordered args are overwritten in source order', async () => {
     const toml = [
       '[mcp_servers.playwright]',
       'command = "npx"',
@@ -248,13 +249,13 @@ describe('mcpHandler - TOML content comparison ignores key order', () => {
       '',
     ].join('\n');
     const { status, before, after } = await runAgainstExisting(HostId.Codex, source, toml);
-    expect(status).toBe('conflict');
-    expect(after).toBe(before);
+    expect(status).toBe('overwritten');
+    expect(parse(after).mcp_servers).toEqual(expect.objectContaining({ playwright: source }));
   });
 
   const vibeSource = { command: 'npx', args: ['-y', '@playwright/mcp'] };
 
-  it('vibe: reordered name/transport/command fields are exists, file untouched', async () => {
+  it('vibe: reordered name/transport/command fields are overwritten with equivalent content', async () => {
     const toml = [
       '[[mcp_servers]]',
       'command = "npx"',
@@ -264,11 +265,11 @@ describe('mcpHandler - TOML content comparison ignores key order', () => {
       '',
     ].join('\n');
     const { status, before, after } = await runAgainstExisting(HostId.Vibe, vibeSource, toml);
-    expect(status).toBe('exists');
-    expect(after).toBe(before);
+    expect(status).toBe('overwritten');
+    expect(parse(after).mcp_servers).toEqual([{ name: 'playwright', transport: 'stdio', ...vibeSource }]);
   });
 
-  it('vibe: a changed command is a conflict, file untouched', async () => {
+  it('vibe: a changed command is overwritten from source', async () => {
     const toml = [
       '[[mcp_servers]]',
       'transport = "stdio"',
@@ -278,11 +279,11 @@ describe('mcpHandler - TOML content comparison ignores key order', () => {
       '',
     ].join('\n');
     const { status, before, after } = await runAgainstExisting(HostId.Vibe, vibeSource, toml);
-    expect(status).toBe('conflict');
-    expect(after).toBe(before);
+    expect(status).toBe('overwritten');
+    expect(parse(after).mcp_servers).toEqual([{ name: 'playwright', transport: 'stdio', ...vibeSource }]);
   });
 
-  it('vibe: reordered args are a conflict, file untouched', async () => {
+  it('vibe: reordered args are overwritten in source order', async () => {
     const toml = [
       '[[mcp_servers]]',
       'name = "playwright"',
@@ -292,8 +293,8 @@ describe('mcpHandler - TOML content comparison ignores key order', () => {
       '',
     ].join('\n');
     const { status, before, after } = await runAgainstExisting(HostId.Vibe, vibeSource, toml);
-    expect(status).toBe('conflict');
-    expect(after).toBe(before);
+    expect(status).toBe('overwritten');
+    expect(parse(after).mcp_servers).toEqual([{ name: 'playwright', transport: 'stdio', ...vibeSource }]);
   });
 });
 

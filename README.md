@@ -26,6 +26,19 @@ npx -y agent-add \
 
 ---
 
+## Idempotent installation: overwrite by default
+
+Every supported asset is synchronized to its supplied source on every run, including identical input. No overwrite flag is needed. New assets report `written`; existing assets report `overwritten`. There are no `exists`, `skipped`, or conflict outcomes.
+
+- MCP: replace the named server entry while preserving unrelated settings and servers. TOML is parsed and serialized and may be reformatted or lose comments; JSONC comments outside the replaced entry are retained.
+- Skill: replace the complete named directory, removing target-only stale files. Do not store independent user files inside an installed Skill. Copies are staged before publication; a failed copy preserves the previous bundle and a failed publication attempts to restore it.
+- Command, Sub-agent and standalone Prompt: overwrite the destination using the host's native format.
+- Marker-managed Prompt: replace only its named block, retaining user text and other blocks. Repeated runs never append duplicate blocks; malformed markers remain an error.
+
+Pack descriptors run in Pack order, followed by explicit asset flags. Repeated sources with the same type and name overwrite in order, so the last explicit source wins. Unsupported assets (including Pack entries), malformed sources and unsafe paths are errors, not successful skips. All source validation finishes before installation begins. Filesystem failures are reported per asset; the batch is not a global transaction, and earlier successful writes are not rolled back.
+
+Idempotence describes the resulting managed content and configuration: repeating the same inputs produces the same result. File modification times can change because existing assets are overwritten. Project and `--global` targets remain separate. Back up local changes before reinstalling, since the source is authoritative for the selected asset.
+
 ## Supported Hosts
 
 ### Project scope (default)
@@ -494,7 +507,7 @@ npm run build
 npm run install:vibe
 ```
 
-The last command installs dev assets via the pack manifest at `vibe/manifest.json`, including [scenario-test](https://github.com/pea3nut/scenario-test) (skill + command + sub-agent), a verify-host-readme command, and a system prompt. Assets unsupported by the detected host are automatically skipped.
+The last command installs dev assets via the pack manifest at `vibe/manifest.json`, including [scenario-test](https://github.com/pea3nut/scenario-test) (skill + command + sub-agent), a verify-host-readme command, and a system prompt. Every selected asset must be supported by the target host; unsupported Pack entries fail before installation.
 
 ### Running Tests
 

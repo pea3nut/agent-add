@@ -137,10 +137,9 @@ Examples:
       }
       printSummary(summary);
 
-      const hasConflicts = summary.results.some((r) => r.status === 'conflict');
       const hasErrors = summary.results.some((r) => r.status === 'error');
 
-      if (hasErrors || hasConflicts) {
+      if (hasErrors) {
         process.exit(1);
       }
     });

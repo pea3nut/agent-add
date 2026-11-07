@@ -100,7 +100,7 @@ Feature: MCP advanced installation scenarios
     When the fixtures are installed on Codex, Augment, Continue, Amp, opencode and Kilo
     Then decoded settings match each host's documented native schema, retaining commands, arguments, environments, URLs and headers where supported
     And Amp preserves its literal amp.mcpServers key and JSONC comments, and existing unrelated entries remain unchanged
-    And reinstalling identical entries reports exists without modifying configuration
+    And reinstalling identical entries reports overwritten without modifying configuration
     And Codex and OpenCode-family type and transport aliases produce the same native entry without leaking portable selectors
 
   @P0
@@ -125,7 +125,7 @@ Feature: MCP advanced installation scenarios
   Scenario: Configuration edits compare semantics and reject ambiguous or malformed input
     Given existing JSON, JSONC and TOML configurations with unrelated entries and comments
     When an MCP is reinstalled with reordered object keys or reordered argument arrays
-    Then object-key order reports exists while changed array order reports conflict
+    Then object-key order reports overwritten and changed array order also reports overwritten with the supplied array order
     And duplicate decoded keys in JSON and JSONC, including nested objects and arrays, fail without modifying any target
     And repeated keys in separate objects remain valid
     And malformed syntax, non-object roots and invalid nested MCP containers are rejected without writes

@@ -44,7 +44,7 @@ describe('skillHandler (regression)', () => {
     };
 
     const result = await skillHandler.handle(job);
-    expect(result.status).toBe('written');
+    expect(result.status).toBe('overwritten');
 
     const installedSkillMd = await fs.promises.readFile(path.join(targetDir, 'SKILL.md'), 'utf-8');
     expect(installedSkillMd).toBe('# My Skill\n');
@@ -52,7 +52,7 @@ describe('skillHandler (regression)', () => {
     await fs.promises.rm(tmpDir, { recursive: true, force: true });
   });
 
-  it('reports exists when SKILL.md is already present in the target directory', async () => {
+  it('overwrites an installed bundle with the complete source', async () => {
     const tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'agent-add-skill-test-'));
     const sourceDir = path.join(tmpDir, 'source-skill');
     await fs.promises.mkdir(sourceDir, { recursive: true });
@@ -72,9 +72,9 @@ describe('skillHandler (regression)', () => {
     };
 
     const result = await skillHandler.handle(job);
-    expect(result.status).toBe('exists');
+    expect(result.status).toBe('overwritten');
     const content = await fs.promises.readFile(path.join(targetDir, 'SKILL.md'), 'utf-8');
-    expect(content).toBe('# Already installed\n');
+    expect(content).toBe('# My Skill\n');
 
     await fs.promises.rm(tmpDir, { recursive: true, force: true });
   });
