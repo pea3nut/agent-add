@@ -46,19 +46,14 @@ export const subAgentHandler: AssetHandler = {
       };
     }
 
-    if (existingContent !== null) {
-      if (existingContent === processedContent) {
-        return { job, status: 'exists', targetPath };
-      }
-      return {
-        job,
-        status: 'conflict',
-        targetPath,
-        reason: `${targetPath} already exists with different content`,
-      };
+    try {
+      if (existingContent === processedContent) return { job, status: 'exists', targetPath };
+      if (existingContent !== null && !job.overwrite) return { job, status: 'conflict', targetPath,
+        reason: 'Destination has different content; use --overwrite to replace it' };
+      await atomicWriteText(targetPath, processedContent);
+      return { job, status: existingContent === null ? 'written' : 'overwritten', targetPath };
+    } catch (err) {
+      return { job, status: 'error', targetPath, reason: (err as Error).message };
     }
-
-    await atomicWriteText(targetPath, processedContent);
-    return { job, status: 'written', targetPath };
   },
 };

@@ -72,32 +72,17 @@ export const promptHandler: AssetHandler = {
         capability.writeStrategy === 'create-file-in-dir'
           ? {
               content,
-              status:
-                existing === null
-                  ? ('written' as const)
-                  : existing === content
-                    ? ('exists' as const)
-                    : ('conflict' as const),
+              status: existing === null ? ('written' as const) : existing === content ? ('exists' as const) : job.overwrite ? ('overwritten' as const) : ('conflict' as const),
             }
           : mergePrompt(existing ?? '', content, job.assetName);
-      if (merged.status === 'conflict')
-        return {
-          job,
-          status: 'conflict',
-          targetPath,
-          reason: targetPath + ' already exists with different content',
-        };
+      if (merged.status === 'conflict') return { job, status: 'conflict', targetPath, reason: 'Prompt file has different content; use --overwrite to replace it' };
       const registration = await job.host.registerPrompt?.(job.host, targetPath);
-      if (merged.status !== 'exists')
-        await atomicWriteText(targetPath, merged.content);
+      if (merged.status !== 'exists') await atomicWriteText(targetPath, merged.content);
       if (registration)
         await atomicWriteText(registration.file, registration.content);
       return {
         job,
-        status:
-          merged.status === 'exists' && registration
-            ? 'updated'
-            : merged.status,
+        status: merged.status === 'exists' && registration ? 'updated' : merged.status,
         targetPath,
       };
     } catch (err) {

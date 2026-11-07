@@ -28,7 +28,7 @@ Feature: Prompt installation on Cursor
     And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
     And the prompt is already installed: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --prompt ./my-prompt.md
     When the user installs again: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --prompt ./my-prompt.md
-    Then the output contains "exists"
+    Then the item reports exists and the summary has a positive exists count with no written, updated or overwritten items
 
   @P0
   Scenario: Install prompt from inline Markdown source
@@ -45,4 +45,4 @@ Feature: Prompt installation on Cursor
     And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
     And the prompt is already installed: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --prompt $'# My Inline Prompt\n\nYou are a helpful assistant.'
     When the user installs again: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --prompt $'# My Inline Prompt\n\nYou are a helpful assistant.' > "$SETUP_TMPDIR/out.txt" 2>&1
-    Then the output contains "exists": grep -qi "exists" "$SETUP_TMPDIR/out.txt"
+    Then the item reports exists and the summary has a positive exists count with no written, updated or overwritten items: grep -F '≡ exists' "$SETUP_TMPDIR/out.txt"

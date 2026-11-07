@@ -27,8 +27,8 @@ export class VibeAdapter implements HostAdapter {
     paths: ['.vibe/'],
   };
   readonly mcp: McpAdapter = {
-    editConfig: (current, file, name, server) =>
-      editTomlMcpConfig(current, file, name, server, 'named-array', this.displayName),
+    editConfig: (current, file, name, server, overwrite) =>
+      editTomlMcpConfig(current, file, name, server, 'named-array', this.displayName, overwrite),
     convert: (input, name) => {
       const { url } = input;
       const entry = standardMcpServer(input, this.id);

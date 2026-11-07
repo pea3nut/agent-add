@@ -32,8 +32,8 @@ export class CodexAdapter implements HostAdapter {
     paths: ['.codex/'],
   };
   readonly mcp: McpAdapter = {
-    editConfig: (current, file, name, server) =>
-      editTomlMcpConfig(current, file, name, server, 'table', this.displayName),
+    editConfig: (current, file, name, server, overwrite) =>
+      editTomlMcpConfig(current, file, name, server, 'table', this.displayName, overwrite),
     convert: (input) => {
       rejectLegacySse(input, this.id);
       const { source, command, url } = input;

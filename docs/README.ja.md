@@ -49,6 +49,27 @@ npx -y agent-add \
 
 ---
 
+## 既存アセットと `--overwrite`
+
+既定では既存内容を保護します。異なる同名アセットを置換するには `--overwrite` を指定します。どちらのモードでも生成内容が同じなら `exists` となり、ファイルも更新時刻も変更しません。
+
+| アセット | 同じ内容 | 異なる内容：既定 | `--overwrite` |
+|---|---|---|---|
+| MCP | ネイティブ設定の意味を比較して `exists` | `conflict`、既存値を維持 | 同名エントリだけ `overwritten` |
+| Skill | ディレクトリ全体とファイル内容を比較して `exists` | 理由付き `skipped` | ソース全体に同期し、古いリソースを削除 |
+| Command / Sub-agent / 独立 Prompt | 生成テキストが同じなら `exists` | `conflict` | ファイルを `overwritten` |
+| マーカー管理 Prompt | 同名ブロックが同じなら `exists` | 自分のブロックのみ `updated` | 同じ管理範囲を維持し、ユーザー本文は保護 |
+
+例：`npx -y agent-add --host cursor --overwrite --pack ./agent-pack.json`
+
+既定ではバッチ内の同名・異内容の非 Skill ソースは書き込み前に競合として拒否します。上書き時は Pack 順、その後に明示的フラグを処理し、最後の同種・同名ソースが優先します。空の中断 Skill 先は安全に完成でき、異なる非空 Skill は既定で保護されます。
+
+Prompt の登録情報が欠けている場合、本文を変更せず登録だけ修復し、`updated` を返すことがあります。
+
+MCP の無関係な設定は維持します。TOML の置換では書式やコメントが変わる場合があり、JSONC の対象外コメントは保持します。Skill は完全コピー後に公開し、失敗時は旧内容を保護・復元します。上書きする Skill に独立したローカルファイルを保存しないでください。
+
+このオプションは形式検証、壊れたマーカー、危険なパスや Skill のリンク検査を迂回しません。明示的な未対応アセットはエラー、Pack 内の未対応項目は両モードとも取得せず `skipped` です。競合・エラーは非ゼロ終了、`exists`・`skipped` のみでは失敗しません。実行時のバッチ全体のロールバックと `--force` エイリアスはありません。
+
 ## なぜ agent-add？
 
 AI ツールはそれぞれ独自の設定形式を持っています — Cursor は `.cursor/mcp.json`、Claude Code は `.mcp.json`、Windsurf はグローバルパス、Codex は TOML……
@@ -408,7 +429,7 @@ npm run build
 npm run install:vibe
 ```
 
-最後のコマンドは `vibe/manifest.json` パックマニフェストを通じて開発に必要なアセットをインストールします。[scenario-test](https://github.com/pea3nut/scenario-test)（skill + command + sub-agent）、verify-host-readme コマンド、システムプロンプトが含まれます。検出されたホストがサポートしないアセットは自動的にスキップされます。
+最後のコマンドは `vibe/manifest.json` パックマニフェストを通じて開発に必要なアセットをインストールします。[scenario-test](https://github.com/pea3nut/scenario-test)（skill + command + sub-agent）、verify-host-readme コマンド、システムプロンプトが含まれます。明示的な未対応アセットはエラーとなり、Pack 内の未対応項目はスキップされます。
 
 ### テストの実行
 

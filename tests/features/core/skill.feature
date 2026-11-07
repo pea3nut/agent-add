@@ -28,7 +28,7 @@ Feature: Skill installation on Cursor
     And a .cursor directory exists: mkdir -p "$SETUP_TMPDIR/.cursor"
     And the skill is already installed: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --skill ./my-skill
     When the user installs again: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --skill ./my-skill
-    Then the output contains "exists"
+    Then the item reports exists and the summary has a positive exists count with no written, updated or overwritten items
 
   @P1
   Scenario: Install invalid skill (missing SKILL.md) returns error

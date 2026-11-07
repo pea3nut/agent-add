@@ -40,7 +40,7 @@ Feature: User installation scope and project isolation
   Scenario: Unsupported pack-only user assets are skipped without resolving their sources
     Given unsupported pack sources do not exist: printf '{"name":"test/mixed","assets":[{"type":"prompt","source":"./missing.md"},{"type":"command","source":"./missing-command.md"},{"type":"skill","source":"./fixtures/skill/my-skill"}]}' > "$SETUP_TMPDIR/pack.json"
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --global --host cursor --pack ./pack.json > out.txt
-    Then supported assets install and the other two are skipped: test -f "$HOME/.cursor/skills/my-skill/SKILL.md" && grep -F '1 written · 2 skipped' out.txt
+    Then supported assets install and the other two are skipped: test -f "$HOME/.cursor/skills/my-skill/SKILL.md" && grep -F '1 written · 0 overwritten · 0 updated · 0 exists · 2 skipped · 0 conflicts · 0 errors' out.txt
     And the project remains untouched: test ! -e .cursor
 
   @P0
@@ -75,7 +75,7 @@ Feature: User installation scope and project isolation
     And the summary names the actual user destination and project state is unchanged: grep -F "$QWEN_HOME/settings.json" out.txt && grep -F 'Scope: user (--global)' out.txt && cmp .qwen/settings.json project-before.json && test ! -e .qwen/skills && test ! -e .qwen/commands && test ! -e .qwen/agents && test ! -e "$HOME/.qwen"
     Given installed files are fingerprinted: find "$QWEN_HOME" -type f -exec sha256sum {} + | sort > before.sha256
     When the same installation is repeated: node "$PROJECT_ROOT/bin/agent-add.js" --global --host qwen-code --pack ./pack.json --command ./fixtures/command/my-command.md --sub-agent ./fixtures/sub-agent/my-agent.md > repeat.txt
-    Then reinstall changes no files and still avoids default targets: find "$QWEN_HOME" -type f -exec sha256sum {} + | sort > after.sha256; cmp before.sha256 after.sha256 && grep -F 'exists' repeat.txt && test ! -e "$HOME/.qwen"
+    Then reinstall changes no files and still avoids default targets: find "$QWEN_HOME" -type f -exec sha256sum {} + | sort > after.sha256; cmp before.sha256 after.sha256 && grep -F '≡ exists' repeat.txt && test ! -e "$HOME/.qwen"
 
   @P0
   Scenario: Relative and tilde-prefixed Qwen home overrides fail before any asset writes
@@ -88,7 +88,7 @@ Feature: User installation scope and project isolation
     Then every asset uses the default user root: node -e 'const fs=require("node:fs"),a=require("node:assert/strict"),c=JSON.parse(fs.readFileSync(process.env.HOME+"/.qwen/settings.json"));a.deepEqual(c.mcpServers.playwright,JSON.parse(fs.readFileSync("fixtures/mcp/playwright.json")));' && diff -r fixtures/skill/my-skill "$HOME/.qwen/skills/my-skill" && cmp fixtures/command/my-command.md "$HOME/.qwen/commands/my-command.md" && test -f "$HOME/.qwen/agents/my-agent.md" && test ! -e .qwen
     Given installed files are fingerprinted: find "$HOME/.qwen" -type f -exec sha256sum {} + | sort > before.sha256
     When Qwen home is explicitly empty: QWEN_HOME='' node "$PROJECT_ROOT/bin/agent-add.js" --global --host qwen-code --mcp ./fixtures/mcp/playwright.json --skill ./fixtures/skill/my-skill --command ./fixtures/command/my-command.md --sub-agent ./fixtures/sub-agent/my-agent.md > out.txt
-    Then the same assets already exist without changing any files: find "$HOME/.qwen" -type f -exec sha256sum {} + | sort > after.sha256; cmp before.sha256 after.sha256 && grep -F 'exists' out.txt && test ! -e .qwen
+    Then the same assets already exist without changing any files: find "$HOME/.qwen" -type f -exec sha256sum {} + | sort > after.sha256; cmp before.sha256 after.sha256 && grep -F '≡ exists' out.txt && test ! -e .qwen
 
   @P0
   Scenario: Qwen project installation ignores user root overrides

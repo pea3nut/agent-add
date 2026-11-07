@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { ensureDir } from '../utils/fs.js';
+import { atomicWriteText, readTextOrNull } from '../utils/config.js';
 import type { AssetHandler, InstallJob, InstallResult } from './types.js';
 
 export const commandHandler: AssetHandler = {
@@ -34,28 +34,15 @@ export const commandHandler: AssetHandler = {
       }
     }
 
-    await ensureDir(path.dirname(targetPath));
-
-    let existingContent: string | null = null;
     try {
-      existingContent = await fs.promises.readFile(targetPath, 'utf-8');
-    } catch {
-      // file doesn't exist
+      const existing = await readTextOrNull(targetPath);
+      if (existing === newContent) return { job, status: 'exists', targetPath };
+      if (existing !== null && !job.overwrite) return { job, status: 'conflict', targetPath,
+        reason: 'Destination has different content; use --overwrite to replace it' };
+      await atomicWriteText(targetPath, newContent);
+      return { job, status: existing === null ? 'written' : 'overwritten', targetPath };
+    } catch (err) {
+      return { job, status: 'error', targetPath, reason: (err as Error).message };
     }
-
-    if (existingContent !== null) {
-      if (existingContent === newContent) {
-        return { job, status: 'exists', targetPath };
-      }
-      return {
-        job,
-        status: 'conflict',
-        targetPath,
-        reason: `${targetPath} already exists with different content`,
-      };
-    }
-
-    await fs.promises.writeFile(targetPath, newContent, 'utf-8');
-    return { job, status: 'written', targetPath };
   },
 };
