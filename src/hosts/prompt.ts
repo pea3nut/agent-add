@@ -2,7 +2,7 @@ import path from 'path';
 import yaml from 'yaml';
 import { isRecord, parseConfig, readTextOrNull, resolveConfigPath, setConfigValue } from '../utils/config.js';
 import type { AssetCapability, HostAdapter } from './types.js';
-import { updateYamlProperty } from '../utils/yaml-edit.js';
+import { deepEqualIgnoringKeyOrder } from '../utils/deep-equal.js';
 
 export async function registerPromptFile(
   host: HostAdapter,
@@ -43,7 +43,12 @@ export async function registerPromptFile(
       }
       document.set(key, sequence);
     }
-    return { file, content: updateYamlProperty(existing, document, key) };
+    const content = document.toString({ lineWidth: 0 });
+    const checked = yaml.parseDocument(content);
+    const expected = { ...config, [key]: [...items, relative] };
+    if (checked.errors.length || !deepEqualIgnoringKeyOrder(checked.toJS(), expected))
+      throw new Error('YAML registration would change unrelated configuration; check aliases');
+    return { file, content };
   }
   return { file, content: setConfigValue(existing, [key], [...items, relative], 'jsonc') };
 }

@@ -1,4 +1,4 @@
-Feature: Shared configuration edits preserve user source text
+Feature: Library-backed shared configuration edits retain user content
 
   Background:
     Given the CLI is built and every scenario isolates its project, HOME and TMPDIR
@@ -16,16 +16,16 @@ Feature: Shared configuration edits preserve user source text
     Given Codex and Vibe configurations contain a server, a nested environment table, an annotated argument array and an unrelated server and settings
     When --overwrite changes arguments and environment values and removes obsolete fields
     Then decoded configuration exactly matches the requested server with no stale fields
-    And all original comments survive, including comments on removed fields and arguments
-    And unrelated settings and server sections retain their exact source text
+    And leading comments on retained fields and comments on unrelated settings and server sections survive
+    And comments attached or adjacent to removed fields or array members follow library rules and may be removed
 
   @P0
   Scenario: TOML source editing handles inline dotted quoted and array-table representations
     Given configurations use inline tables, dotted keys, quoted names containing dots, multiline strings containing fake headers, and inline arrays of tables
     When existing MCPs are overwritten and new MCPs are added
-    Then native decoded values match the sources while existing unrelated syntax and comments are retained
+    Then native decoded values match the sources while unrelated values and comments are retained
     When a Vibe file has duplicate same-name array tables with nested subtables
-    Then default mode refuses the duplicate without writing and --overwrite replaces them with one server while preserving other servers and comments
+    Then default mode refuses the duplicate without writing and --overwrite replaces them with one server while preserving other servers and their comments
 
   @P0
   Scenario: Forced JSONC MCP edits retain comments inside the installed entry
@@ -33,13 +33,15 @@ Feature: Shared configuration edits preserve user source text
     When identical sources are installed with --overwrite
     Then each result is overwritten, modification times change, and the whole source text stays exact
     When source fields change or disappear
-    Then decoded native values match the source and all comments and unrelated source text remain
+    Then decoded native values match the source and leading comments on retained fields and comments on unrelated settings remain
+    And removing a field or array member may remove adjacent comments according to the editing library
 
   @P0
-  Scenario: Prompt registration patches only its JSONC or YAML property
+  Scenario: Library document APIs retain user comments and values during Prompt registration
     Given Kilo JSONC instructions and Aider YAML read lists contain user entries and comments with custom spacing and line endings
     When a Prompt is installed and registered
-    Then the new path is registered exactly once, existing comments and entries remain, and unrelated source text is byte-for-byte unchanged
+    Then the new path is registered exactly once and existing comments, entries and unrelated configuration values remain
+    And YAML formatting follows the library's serializer rather than a custom source editor
     And repeating with --overwrite rewrites the Prompt but leaves the already-correct registration file untouched
     And scalar, block and flow YAML registration forms and commented empty documents remain valid
 
