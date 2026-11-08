@@ -55,6 +55,7 @@
     "jsonc-parser": "3.3.1",
     "marked": "^15.0.12",
     "smol-toml": "^1.9.1",
+    "toml-patch-lite": "npm:@decimalturn/toml-patch@3.3.2-lite",
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",

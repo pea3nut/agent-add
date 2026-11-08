@@ -19,7 +19,7 @@ Feature: MCP installation on Cursor
     When the user runs: cd "$SETUP_TMPDIR" && node "$PROJECT_ROOT/bin/agent-add.js" --host cursor --mcp ./playwright.json
     Then the config file exists: test -f "$SETUP_TMPDIR/.cursor/mcp.json"
     And the MCP key exists: grep -q '"playwright"' "$SETUP_TMPDIR/.cursor/mcp.json"
-    And the command value is correct: grep -q '"command": "npx"' "$SETUP_TMPDIR/.cursor/mcp.json"
+    And the command value is correct: node -e 'const fs=require("node:fs"),a=require("node:assert/strict"),c=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));a.equal(c.mcpServers.playwright.command,"npx");a.deepEqual(c.mcpServers.playwright,JSON.parse(fs.readFileSync(process.argv[2],"utf8")));' "$SETUP_TMPDIR/.cursor/mcp.json" "$SETUP_TMPDIR/playwright.json"
 
   @P1
   Scenario: Repeated install of same content returns exists
@@ -55,7 +55,7 @@ Feature: MCP installation on Cursor
     Then the exit code is 0
     And the config file exists: test -f "$SETUP_TMPDIR/.cursor/mcp.json"
     And the MCP key exists: grep -q '"playwright"' "$SETUP_TMPDIR/.cursor/mcp.json"
-    And the command value is correct: grep -q '"command": "npx"' "$SETUP_TMPDIR/.cursor/mcp.json"
+    And the command value is correct: node -e 'const fs=require("node:fs"),a=require("node:assert/strict"),c=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));a.equal(c.mcpServers.playwright.command,"npx");a.deepEqual(c.mcpServers.playwright.args,["-y","@playwright/mcp@latest"]);' "$SETUP_TMPDIR/.cursor/mcp.json"
 
   @P1
   Scenario: Repeated inline MCP install returns exists

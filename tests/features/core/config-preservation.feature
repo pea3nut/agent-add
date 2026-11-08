@@ -51,3 +51,51 @@ Feature: Library-backed shared configuration edits retain user content
     When an MCP overwrite or Prompt registration is attempted
     Then the CLI reports an error and preserves the original configuration exactly
     And no Prompt or partial configuration is written when registration would alter an unrelated alias value
+
+  @P0
+  Scenario: Aider Prompt registration preserves integers beyond JavaScript safe integer precision
+    Given YAML contains positive and negative integers beyond Number.MAX_SAFE_INTEGER and 64-bit limits in root settings, nested mappings, sequences and anchors
+    And read uses scalar, sequence, flow or empty registration syntax with user comments
+    When a Prompt is installed and registered
+    Then every unrelated integer retains its exact mathematical value when parsed with intAsBigInt
+    And existing paths and comments survive and CONVENTIONS.md is registered exactly once
+    And default reinstall leaves files untouched while --overwrite refreshes only the Prompt
+
+  @P0
+  Scenario: Precise YAML validation still refuses alias side effects before writing
+    Given YAML contains arbitrary-size integers and a read sequence referenced by an unrelated alias
+    When a Prompt registration would mutate the shared sequence
+    Then the CLI fails and preserves the original YAML and Prompt bytes and modification times
+    And independent registration through an alias retains unrelated values and exact integers
+
+  @P0
+  Scenario: TOML MCP overwrite preserves requested string line endings independently of document line endings
+    Given Codex tables and Vibe array tables use LF or CRLF with existing literal or basic strings and user comments
+    And unrelated multiline strings and safe-integer boundary settings are present
+    When --overwrite installs changed arguments and environment values containing LF, CRLF, bare CR or leading and trailing newlines
+    Then native parsed values exactly match the requested strings and every unrelated value remains unchanged
+    And retained-field and unrelated comments survive without normalizing the document line endings
+    And default differing installs still conflict without writing and identical forced installs refresh exact source bytes
+    And later structural environment edits preserve the already-installed mixed-newline strings
+
+  @P0
+  Scenario: New multiline TOML fields and duplicate Vibe entries use safe library editing
+    Given TOML has missing namespaces, inline containers or duplicate same-name Vibe servers with literal strings
+    When a multiline MCP is added or forced over duplicate entries
+    Then decoded new strings retain their exact line endings and duplicate entries become one requested server
+    And unrelated servers, multiline values and comments remain intact
+
+  @P0
+  Scenario: Annotated TOML arrays support shorter strings and structural member changes
+    Given Codex and Vibe configurations have argument arrays with several existing members and trailing member comments
+    When --overwrite changes string widths and adds, removes or empties array members
+    Then every requested argument survives native decoding and unrelated configuration values and field comments remain intact
+    And an array that needs rebuilding uses the library's documented deletion rules for member comments
+    And repeating the identical force writes the exact resulting source again
+
+  @P0
+  Scenario: TOML string editing rejects invalid output encoding before writing
+    Given Codex and Vibe contain valid installed MCPs
+    When --overwrite requests an unpaired UTF-16 surrogate in an existing string or a new field
+    Then the CLI fails before writing and preserves the original target bytes and modification times
+    And valid paired Unicode and control-character escapes still install correctly

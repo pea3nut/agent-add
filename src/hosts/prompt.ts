@@ -13,7 +13,7 @@ export async function registerPromptFile(
 ): Promise<{ file: string; content: string; } | null> {
   const file = await resolveConfigPath(configCapability);
   const existing = (await readTextOrNull(file)) ?? '{}\n';
-  const document = format === 'yaml' ? yaml.parseDocument(existing) : null;
+  const document = format === 'yaml' ? yaml.parseDocument(existing, { intAsBigInt: true }) : null;
   if (document?.errors.length) throw new Error(document.errors[0]!.message);
   const config: unknown = document
     ? document.contents === null ? {} : document.toJS()
@@ -44,7 +44,7 @@ export async function registerPromptFile(
       document.set(key, sequence);
     }
     const content = document.toString({ lineWidth: 0 });
-    const checked = yaml.parseDocument(content);
+    const checked = yaml.parseDocument(content, { intAsBigInt: true });
     const expected = { ...config, [key]: [...items, relative] };
     if (checked.errors.length || !deepEqualIgnoringKeyOrder(checked.toJS(), expected))
       throw new Error('YAML registration would change unrelated configuration; check aliases');
