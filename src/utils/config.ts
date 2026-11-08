@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-import { applyEdits, modify, parse, visit, type ParseError } from 'jsonc-parser';
+import { applyEdits, format as formatJson, modify, parse, visit, type ParseError, type JSONPath } from 'jsonc-parser';
 import { ensureDir } from './fs.js';
 import { deepEqualIgnoringKeyOrder } from './deep-equal.js';
+import { compare, unescapePathComponent } from 'fast-json-patch';
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -98,15 +99,35 @@ export function setConfigValue(
 ): string {
   keyPath.forEach(assertSafeConfigKey);
   if (!keyPath.length) throw new Error('Configuration key path must not be empty');
-  parseConfig(content, format);
-  const result = applyEdits(content, modify(content, keyPath, value, {
-    formattingOptions: { insertSpaces: true, tabSize: 2, eol: content.includes('\r\n') ? '\r\n' : '\n' },
-  }));
-  let actual: unknown = parseConfig(result, format);
-  for (const key of keyPath)
-    actual =
-      isRecord(actual) && Object.hasOwn(actual, key) ? actual[key] : undefined;
-  if (!deepEqualIgnoringKeyOrder(actual, value))
+  const original = parseConfig(content, format);
+  const expected = parseConfig(content, format);
+  let parent = expected;
+  for (const key of keyPath.slice(0, -1)) {
+    if (!Object.hasOwn(parent, key)) parent[key] = {};
+    if (!isRecord(parent[key])) throw new Error('Configuration parent must be an object');
+    parent = parent[key];
+  }
+  Object.defineProperty(parent, keyPath[keyPath.length - 1]!, { value, enumerable: true, writable: true, configurable: true });
+  let result = content;
+  for (const operation of compare(original, expected)) {
+    const path: JSONPath = [];
+    let parent: unknown = parseConfig(result, format);
+    for (const component of operation.path.split('/').slice(1)) {
+      const key = unescapePathComponent(component);
+      const segment = Array.isArray(parent) ? (key === '-' ? parent.length : Number(key)) : key;
+      path.push(segment);
+      parent = parent !== null && typeof parent === 'object' && Object.hasOwn(parent, segment)
+        ? (parent as Record<string | number, unknown>)[segment] : undefined;
+    }
+    if (operation.op !== 'add' && operation.op !== 'replace' && operation.op !== 'remove')
+      throw new Error('Unsupported configuration change');
+    // The library's last-array-item removal needs whitespace before the closing
+    // bracket. Its formatter provides that without regenerating unrelated values.
+    if (operation.op === 'remove' && typeof path[path.length - 1] === 'number')
+      result = applyEdits(result, formatJson(result, undefined, { insertSpaces: true, tabSize: 2 }));
+    result = applyEdits(result, modify(result, path, operation.op === 'remove' ? undefined : operation.value, {}));
+  }
+  if (!deepEqualIgnoringKeyOrder(parseConfig(result, format), expected))
     throw new Error('Configuration edit did not preserve the planned value');
   return result;
 }

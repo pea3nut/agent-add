@@ -68,7 +68,7 @@ npx -y agent-add --mcp 'https://github.com/modelcontextprotocol/servers.git#.mcp
 
 [Node.js](https://nodejs.org/)（v18+）をインストールすれば、`npx` で直接実行できます。別途インストールは不要です。
 
-同じ内容は再書き込みしません。既存の同名アセットを置き換えるには `--overwrite` を追加します。
+既定では同じ内容を再書き込みしません。`--overwrite` を追加すると、内容が同じでも既存の同名アセットを強制的に再書き込みします。
 
 ### MCP のインストール
 
@@ -165,7 +165,7 @@ npx -y agent-add [OPTIONS]
 
 Options:
   --host <host>         対象の AI ツール ID
-  --overwrite          既存の同名アセットを上書き
+  --overwrite          内容が同じでも同名アセットを強制的に再書き込み
   --mcp <source>        MCP Server 設定をインストール
   --skill <source>      Skill ディレクトリをインストール
   --prompt <source>     Prompt ファイルをインストール
