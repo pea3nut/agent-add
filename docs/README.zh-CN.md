@@ -7,6 +7,8 @@
 [![npm](https://img.shields.io/npm/v/agent-add)](https://www.npmjs.com/package/agent-add)
 [![License: MPL-2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](LICENSE)
 [![Scenario Tests](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/pea3nut/agent-add/master/tests/test-results/badge.json)](tests/test-results/)
+[![Publish to npm](https://github.com/pea3nut/agent-add/actions/workflows/publish.yml/badge.svg)](https://github.com/pea3nut/agent-add/actions/workflows/publish.yml)
+[![npm provenance](https://img.shields.io/badge/npm_provenance-view_source-blue)](https://www.npmjs.com/package/agent-add#provenance)
 
 [English](../README.md) | **中文** | [日本語](./README.ja.md)
 
@@ -24,7 +26,9 @@ npx -y agent-add \
   --sub-agent 'https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md'
 ```
 
-**担心安全？** [查看安全说明](./security.zh-CN.md)，了解文件与网络访问、发布来源验证和安全检查报告。
+**发布来源：** 自 1.3.1 起，npm 包由 GitHub Actions 从本仓库构建并发布；[查看源码提交和构建记录](https://www.npmjs.com/package/agent-add#provenance)。
+
+**包分析：** [Socket 的 1.3.1 报告](https://socket.dev/npm/package/agent-add/alerts/1.3.1)仅列出两项 MPL-2.0 许可证提示，未报告恶意软件告警（2026-11-09 核查）。自动扫描不保证绝对安全。
 
 ---
 

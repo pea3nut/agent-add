@@ -7,6 +7,8 @@
 [![npm](https://img.shields.io/npm/v/agent-add)](https://www.npmjs.com/package/agent-add)
 [![License: MPL-2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](LICENSE)
 [![Scenario Tests](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/pea3nut/agent-add/master/tests/test-results/badge.json)](tests/test-results/)
+[![Publish to npm](https://github.com/pea3nut/agent-add/actions/workflows/publish.yml/badge.svg)](https://github.com/pea3nut/agent-add/actions/workflows/publish.yml)
+[![npm provenance](https://img.shields.io/badge/npm_provenance-view_source-blue)](https://www.npmjs.com/package/agent-add#provenance)
 
 **English** | [中文](./docs/README.zh-CN.md) | [日本語](./docs/README.ja.md)
 
@@ -24,7 +26,9 @@ npx -y agent-add \
   --sub-agent 'https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md'
 ```
 
-**Concerned about safety?** [Read the security notes](./docs/security.md) for file and network access, release provenance, and security reports.
+**Release provenance:** From 1.3.1, npm releases are built and published from this repository by GitHub Actions. [Verify the source commit and build](https://www.npmjs.com/package/agent-add#provenance).
+
+**Package analysis:** [Socket's 1.3.1 report](https://socket.dev/npm/package/agent-add/alerts/1.3.1) lists two MPL-2.0 license alerts and no malware alerts (checked 2026-11-09). Automated findings are not a safety guarantee.
 
 ---
 
