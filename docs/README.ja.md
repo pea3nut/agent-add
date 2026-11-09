@@ -24,6 +24,8 @@ npx -y agent-add \
   --sub-agent 'https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md'
 ```
 
+**安全性が気になりますか？** [セキュリティ説明（英語）](./security.md)で、ファイル・ネットワークへのアクセス、リリースの出所、検査レポートを確認できます。
+
 ---
 
 | AI ツール | MCP | Prompt | Skill | コマンド | サブエージェント |
