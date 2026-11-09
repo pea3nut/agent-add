@@ -1,0 +1,178 @@
+name: Publish to npm
+
+on:
+  push:
+    tags: ['[0-9]*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: npm-publish-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  RELEASE_NODE: '24.22.2'
+  RELEASE_NPM: '11.9.0'
+
+jobs:
+  build:
+    name: Validate, build and pack
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    outputs:
+      version: ${{ steps.pack.outputs.version }}
+      filename: ${{ steps.pack.outputs.filename }}
+      sha512: ${{ steps.pack.outputs.sha512 }}
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.RELEASE_NODE }}
+      - name: Pin publishing npm
+        run: npm install --global --ignore-scripts npm@"$RELEASE_NPM"
+      - name: Fetch reviewed master history
+        run: git fetch --no-tags origin master:refs/remotes/origin/master
+      - name: Reject wrong tags, versions and unmerged commits
+        run: node .github/scripts/release.mjs validate "$RUNNER_TEMP/npm-release"
+      - name: Test and build
+        run: |
+          npm ci
+          npm run lint
+          npm test
+          npm run test:release
+          npm run build
+          npm run test:contract
+      - name: Validate tag and pack once
+        id: pack
+        run: node .github/scripts/release.mjs prepare "$RUNNER_TEMP/npm-release"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        id: upload
+        with:
+          name: npm-release
+          path: ${{ runner.temp }}/npm-release/
+          if-no-files-found: error
+          retention-days: 30
+
+  runtime:
+    name: Test packed CLI (Node ${{ matrix.node }})
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        node: ['18.0.0', '18.x', '20.x', '22.x', '24.x']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          artifact-ids: ${{ needs.build.outputs.artifact-id }}
+          merge-multiple: true
+          path: ${{ runner.temp }}/npm-release
+      - name: Verify archive and run packed runtime tests
+        env:
+          RELEASE_FILE: ${{ needs.build.outputs.filename }}
+        run: |
+          node .github/scripts/release.mjs check "$RUNNER_TEMP/npm-release"
+          package_dir=$(mktemp -d "$RUNNER_TEMP/agent-add-runtime.XXXXXX")
+          tar -xzf "$RUNNER_TEMP/npm-release/$RELEASE_FILE" -C "$package_dir"
+          AGENT_ADD_BIN="$package_dir/package/bin/agent-add.js" node tests/runtime/cli.test.cjs
+
+  publish:
+    name: Publish tested tarball with OIDC
+    needs: [build, runtime]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: npm-publish
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.RELEASE_NODE }}
+          registry-url: https://registry.npmjs.org
+      - name: Pin publishing npm
+        run: npm install --global --ignore-scripts npm@"$RELEASE_NPM"
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          artifact-ids: ${{ needs.build.outputs.artifact-id }}
+          merge-multiple: true
+          path: ${{ runner.temp }}/npm-release
+      # No checkout, dependency install or repository scripts in this privileged job.
+      - name: Recheck identity and digest, then publish the same tarball
+        env:
+          RELEASE_VERSION: ${{ needs.build.outputs.version }}
+          RELEASE_SHA512: ${{ needs.build.outputs.sha512 }}
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import fs from 'node:fs';
+          import path from 'node:path';
+          import { createHash } from 'node:crypto';
+          import { execFileSync } from 'node:child_process';
+          assert.equal(process.env.GITHUB_REPOSITORY, 'pea3nut/agent-add');
+          assert.equal(process.env.GITHUB_REF, 'refs/tags/' + process.env.RELEASE_VERSION);
+          const name = `agent-add-${process.env.RELEASE_VERSION}.tgz`;
+          assert.equal(path.basename(name), name);
+          const file = path.join(process.env.RUNNER_TEMP, 'npm-release', name);
+          assert.equal(createHash('sha512').update(fs.readFileSync(file)).digest('hex'), process.env.RELEASE_SHA512);
+          const pkg = JSON.parse(execFileSync('tar', ['-xOf', file, 'package/package.json'], { encoding: 'utf8' }));
+          assert.equal(pkg.name, 'agent-add');
+          assert.equal(pkg.version, process.env.RELEASE_VERSION);
+          assert.ok(['https://github.com/pea3nut/agent-add.git', 'git+https://github.com/pea3nut/agent-add.git'].includes(pkg.repository.url));
+          execFileSync('npm', ['publish', file, '--ignore-scripts', '--access', 'public', '--provenance', '--registry', 'https://registry.npmjs.org'], { stdio: 'inherit' });
+          JS
+
+  verify:
+    name: Verify npm archive and attestations
+    needs: [build, publish]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.RELEASE_NODE }}
+          registry-url: https://registry.npmjs.org
+      - name: Pin verification npm
+        run: npm install --global --ignore-scripts npm@"$RELEASE_NPM"
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          artifact-ids: ${{ needs.build.outputs.artifact-id }}
+          merge-multiple: true
+          path: ${{ runner.temp }}/npm-release
+      - name: Download from npm and compare the tested bytes
+        run: node .github/scripts/release.mjs verify-registry "$RUNNER_TEMP/npm-release"
+      - name: Cryptographically verify registry signatures and provenance
+        env:
+          RELEASE_VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          verification_dir=$(mktemp -d "$RUNNER_TEMP/agent-add-signatures.XXXXXX")
+          cd "$verification_dir"
+          printf '{"name":"agent-add-release-verification","version":"0.0.0","private":true}\n' > package.json
+          npm install --ignore-scripts --no-audit --no-fund --save-exact "agent-add@$RELEASE_VERSION"
+          npm audit signatures | tee "$RUNNER_TEMP/npm-release/signature-verification.txt"
+          printf '\nRegistry signatures and provenance cryptographically verified.\n' >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: npm-release-verification
+          path: ${{ runner.temp }}/npm-release/
+          retention-days: 90

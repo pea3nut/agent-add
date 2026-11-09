@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [master]
 
+permissions:
+  contents: read
+
 jobs:
   test:
     name: Lint & Test (Node ${{ matrix.node-version }})
@@ -31,6 +34,9 @@ jobs:
 
       - name: Run unit & integration tests
         run: npm test
+
+      - name: Test publishing guards
+        run: npm run test:release
 
       - name: Build
         run: npm run build

@@ -14,6 +14,8 @@
 
 ---
 
+**パッケージの出所：** [npm trusted publishing とリリース検証（英語）](./publishing.md)。初回設定が必要です。`1.3.0` は手動公開で、npm provenance はありません。
+
 ```bash
 npx -y agent-add \
   --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}' \

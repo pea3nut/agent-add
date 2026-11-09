@@ -14,6 +14,8 @@
 
 ---
 
+**发布来源：** [npm 可信发布与版本核验](./publishing.zh-CN.md)。首次使用需要维护者配置；`1.3.0` 为人工发布版本，没有 npm 来源证明。
+
 ```bash
 npx -y agent-add \
   --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}' \

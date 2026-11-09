@@ -14,6 +14,8 @@
 
 ---
 
+**Package source:** [npm trusted publishing and release verification](./docs/publishing.md). Maintainer setup is required; `1.3.0` was published manually without npm provenance.
+
 ```bash
 npx -y agent-add \
   --mcp '{"playwright":{"command":"npx","args":["-y","@playwright/mcp"]}}' \
