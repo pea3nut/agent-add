@@ -57,6 +57,8 @@ The following checks are recommended next. No completed Socket, CodeQL, or Score
 | First | [GitHub CodeQL](https://docs.github.com/en/code-security/concepts/code-scanning/codeql/codeql-code-scanning) | JavaScript/TypeScript source vulnerabilities. Enable code scanning, review its findings, and link the exact Actions run plus a reviewed report or summary that readers can access. |
 | Optional | [OpenSSF Scorecard](https://scorecard.dev/) | Repository and supply-chain practices, such as workflow permissions, dependency pinning, and review rules. A score describes these practices; it does not certify the absence of malicious code. |
 
+Socket's [repository integration reads manifests and lockfiles](https://socket.dev/security) to analyze dependencies. Connecting the repository alone does not constitute a review of agent-add's own published bundle; obtain a version-specific package report and confirm its coverage separately.
+
 For every report, record its public link or raw output, package version/commit, UTC date, tool version, scope/rules, findings, and unresolved limitations. Check that the link is readable without maintainer access. Link badges to this evidence and update it when the reviewed code changes.
 
 ## ChatGPT or other AI-assisted reviews

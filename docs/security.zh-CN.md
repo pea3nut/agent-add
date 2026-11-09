@@ -57,6 +57,8 @@ npm audit --package-lock-only --include=dev --json --registry=https://registry.n
 | 优先 | [GitHub CodeQL](https://docs.github.com/en/code-security/concepts/code-scanning/codeql/codeql-code-scanning) | JavaScript/TypeScript 源码漏洞。启用 Code scanning、审查发现，再提供确切的 Actions 记录，以及读者可访问的报告或审查摘要。 |
 | 可选 | [OpenSSF Scorecard](https://scorecard.dev/) | 工作流权限、依赖固定、代码审查等仓库和供应链实践。评分反映这些实践，不代表“代码无恶意”认证。 |
 
+Socket 的[仓库集成通过读取清单和 lockfile 分析依赖](https://socket.dev/security)。仅接入仓库，不代表 agent-add 自身发布的 bundle 已经过审查；还需单独获取具体包版本的报告并确认覆盖范围。
+
 每份报告应附上公开链接或原始输出、包版本或提交、UTC 日期、工具版本、扫描范围和规则、发现及尚未解决的局限。确认读者无需维护者权限即可打开；徽章应链接到这些证据，代码变化后也要更新报告。
 
 ## ChatGPT 等 AI 辅助审查
