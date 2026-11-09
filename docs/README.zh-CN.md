@@ -4,11 +4,10 @@
 
 **一条命令，将 MCP、Skill、斜杆命令、子代理等安装到任意 AI 工具，如 Claude Code、Cursor 等**
 
-[![npm](https://img.shields.io/npm/v/agent-add)](https://www.npmjs.com/package/agent-add)
+[![Npm provenance](https://img.shields.io/npm/v/agent-add?label=Npm%20provenance)](https://www.npmjs.com/package/agent-add#provenance)
 [![License: MPL-2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](LICENSE)
 [![Scenario Tests](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/pea3nut/agent-add/master/tests/test-results/badge.json)](tests/test-results/)
-[![Publish to npm](https://github.com/pea3nut/agent-add/actions/workflows/publish.yml/badge.svg)](https://github.com/pea3nut/agent-add/actions/workflows/publish.yml)
-[![npm provenance](https://img.shields.io/badge/npm_provenance-view_source-blue)](https://www.npmjs.com/package/agent-add#provenance)
+[![Socket score](https://badge.socket.dev/npm/package/agent-add)](https://socket.dev/npm/package/agent-add)
 
 [English](../README.md) | **中文** | [日本語](./README.ja.md)
 
@@ -26,9 +25,9 @@ npx -y agent-add \
   --sub-agent 'https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md'
 ```
 
-**发布来源：** 自 1.3.1 起，npm 包由 GitHub Actions 从本仓库构建并发布；[查看源码提交和构建记录](https://www.npmjs.com/package/agent-add#provenance)。
-
-**包分析：** [Socket 的 1.3.1 报告](https://socket.dev/npm/package/agent-add/alerts/1.3.1)仅列出两项 MPL-2.0 许可证提示，未报告恶意软件告警（2026-11-09 核查）。自动扫描不保证绝对安全。
+> **npm provenance：** 自 1.3.1 起，npm 包由 GitHub Actions 从本仓库构建并发布；[查看源码提交和构建记录](https://www.npmjs.com/package/agent-add#provenance)。
+>
+> **Socket Security：** [1.3.1 安全报告](https://socket.dev/npm/package/agent-add/alerts/1.3.1)仅列出两项 MPL-2.0 许可证提示，未报告恶意软件告警（2026-11-09 核查）。
 
 ---
 

@@ -4,11 +4,10 @@
 
 **MCP、Skill、スラッシュコマンド、サブエージェントなどを Claude Code や Cursor などの AI ツールにワンコマンドでインストール**
 
-[![npm](https://img.shields.io/npm/v/agent-add)](https://www.npmjs.com/package/agent-add)
+[![Npm provenance](https://img.shields.io/npm/v/agent-add?label=Npm%20provenance)](https://www.npmjs.com/package/agent-add#provenance)
 [![License: MPL-2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](LICENSE)
 [![Scenario Tests](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/pea3nut/agent-add/master/tests/test-results/badge.json)](tests/test-results/)
-[![Publish to npm](https://github.com/pea3nut/agent-add/actions/workflows/publish.yml/badge.svg)](https://github.com/pea3nut/agent-add/actions/workflows/publish.yml)
-[![npm provenance](https://img.shields.io/badge/npm_provenance-view_source-blue)](https://www.npmjs.com/package/agent-add#provenance)
+[![Socket score](https://badge.socket.dev/npm/package/agent-add)](https://socket.dev/npm/package/agent-add)
 
 [English](../README.md) | [中文](./README.zh-CN.md) | **日本語**
 
@@ -26,9 +25,9 @@ npx -y agent-add \
   --sub-agent 'https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md'
 ```
 
-**リリースの出所：** 1.3.1 以降、npm パッケージは本リポジトリから GitHub Actions でビルド・公開します。[ソースコミットとビルド記録を確認](https://www.npmjs.com/package/agent-add#provenance)。
-
-**パッケージ分析：** [Socket の 1.3.1 レポート](https://socket.dev/npm/package/agent-add/alerts/1.3.1)では、MPL-2.0 に関するライセンス警告 2 件が報告され、マルウェア警告はありませんでした（2026-11-09 確認）。自動解析は安全性を保証するものではありません。
+> **npm provenance：** 1.3.1 以降、npm パッケージは本リポジトリから GitHub Actions でビルド・公開します。[ソースコミットとビルド記録を確認](https://www.npmjs.com/package/agent-add#provenance)。
+>
+> **Socket Security：** [1.3.1 セキュリティレポート](https://socket.dev/npm/package/agent-add/alerts/1.3.1)では、MPL-2.0 に関するライセンス警告 2 件が報告され、マルウェア警告はありませんでした（2026-11-09 確認）。
 
 ---
 
