@@ -4,9 +4,10 @@
 
 **MCP、Skill、スラッシュコマンド、サブエージェントなどを Claude Code や Cursor などの AI ツールにワンコマンドでインストール**
 
-[![npm](https://img.shields.io/npm/v/agent-add)](https://www.npmjs.com/package/agent-add)
+[![Npm provenance](https://img.shields.io/npm/v/agent-add?label=Npm%20provenance)](https://www.npmjs.com/package/agent-add#provenance)
 [![License: MPL-2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](LICENSE)
 [![Scenario Tests](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/pea3nut/agent-add/master/tests/test-results/badge.json)](tests/test-results/)
+[![Socket score](https://badge.socket.dev/npm/package/agent-add)](https://socket.dev/npm/package/agent-add)
 
 [English](../README.md) | [中文](./README.zh-CN.md) | **日本語**
 
@@ -24,7 +25,7 @@ npx -y agent-add \
   --sub-agent 'https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md'
 ```
 
-**安全性が気になりますか？** [セキュリティ説明（英語）](./security.md)で、ファイル・ネットワークへのアクセス、リリースの出所、検査レポートを確認できます。
+> GitHub Actions でビルド・公開し、[npm provenance](https://www.npmjs.com/package/agent-add#provenance)と [Socket Security レポート](https://socket.dev/npm/package/agent-add/alerts)を提供しています。
 
 ---
 

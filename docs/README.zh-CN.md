@@ -4,9 +4,10 @@
 
 **一条命令，将 MCP、Skill、斜杆命令、子代理等安装到任意 AI 工具，如 Claude Code、Cursor 等**
 
-[![npm](https://img.shields.io/npm/v/agent-add)](https://www.npmjs.com/package/agent-add)
+[![Npm provenance](https://img.shields.io/npm/v/agent-add?label=Npm%20provenance)](https://www.npmjs.com/package/agent-add#provenance)
 [![License: MPL-2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](LICENSE)
 [![Scenario Tests](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/pea3nut/agent-add/master/tests/test-results/badge.json)](tests/test-results/)
+[![Socket score](https://badge.socket.dev/npm/package/agent-add)](https://socket.dev/npm/package/agent-add)
 
 [English](../README.md) | **中文** | [日本語](./README.ja.md)
 
@@ -24,7 +25,7 @@ npx -y agent-add \
   --sub-agent 'https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md'
 ```
 
-**担心安全？** [查看安全说明](./security.zh-CN.md)，了解文件与网络访问、发布来源验证和安全检查报告。
+> 通过 GitHub Actions 构建发布，可查看 [npm 来源证明](https://www.npmjs.com/package/agent-add#provenance)和 [Socket Security 报告](https://socket.dev/npm/package/agent-add/alerts)。
 
 ---
 
