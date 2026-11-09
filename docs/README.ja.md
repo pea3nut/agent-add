@@ -25,7 +25,7 @@ npx -y agent-add \
   --sub-agent 'https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md'
 ```
 
-> GitHub Actions でビルド・公開し、[npm provenance](https://www.npmjs.com/package/agent-add#provenance)と [Socket Security レポート](https://socket.dev/npm/package/agent-add/alerts/1.3.1)を提供しています。
+> GitHub Actions でビルド・公開し、[npm provenance](https://www.npmjs.com/package/agent-add#provenance)と [Socket Security レポート](https://socket.dev/npm/package/agent-add/alerts)を提供しています。
 
 ---
 

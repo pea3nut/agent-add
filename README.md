@@ -25,7 +25,7 @@ npx -y agent-add \
   --sub-agent 'https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md'
 ```
 
-> Releases are built and published via GitHub Actions; see [npm provenance](https://www.npmjs.com/package/agent-add#provenance) and the [Socket Security report](https://socket.dev/npm/package/agent-add/alerts/1.3.1).
+> Releases are built and published via GitHub Actions; see [npm provenance](https://www.npmjs.com/package/agent-add#provenance) and the [Socket Security report](https://socket.dev/npm/package/agent-add/alerts).
 
 ---
 
@@ -53,12 +53,12 @@ Install into the current project without `--global`.
 | <img src="https://www.google.com/s2/favicons?domain=kilo.ai&sz=32" width="16"> Kilo Code | ✅ | ✅ | ✅ | ✅ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=opencode.ai&sz=32" width="16"> opencode | ✅ | ✅ | ✅ | ✅ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=mistral.ai&sz=32" width="16"> Mistral Vibe | ✅ | ✅ | ✅ | ❌ | ✅ |
-| Zed Agent | ❌ | ✅ | ✅ | ❌ | ❌ |
-| Cline | ❌ | ✅ | ✅ | ❌ | ❌ |
-| Continue | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Aider | ❌ | ✅ | ❌ | ❌ | ❌ |
-| goose | ❌ | ✅ | ✅ | ❌ | ❌ |
-| Amp CLI | ✅ | ✅ | ✅ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=zed.dev&sz=32" width="16"> Zed Agent | ❌ | ✅ | ✅ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=cline.bot&sz=32" width="16"> Cline | ❌ | ✅ | ✅ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=continue.dev&sz=32" width="16"> Continue | ✅ | ✅ | ❌ | ❌ | ❌ |
+| <img src="https://avatars.githubusercontent.com/u/172139148?v=4" width="16"> Aider | ❌ | ✅ | ❌ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=goose-docs.ai&sz=32" width="16"> goose | ❌ | ✅ | ✅ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=ampcode.com&sz=32" width="16"> Amp CLI | ✅ | ✅ | ✅ | ❌ | ❌ |
 
 OpenClaw and Claude Desktop are global-only hosts; they have no project installation target.
 
@@ -68,30 +68,30 @@ Install for the current OS user, independently of the current project.
 
 | AI Tool | MCP | Prompt | Skill | Command | Sub-agent |
 |---------|-----|--------|-------|---------|-----------|
-| Cursor | ✅ | ❌ | ✅ | ❌ | ✅ |
-| Claude Code | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Trae | ❌ | ❌ | ✅ | ❌ | ❌ |
-| Qwen Code | ✅ | ❌ | ✅ | ✅ | ✅ |
-| GitHub Copilot (VS Code) | ❌ | ❌ | ✅ | ❌ | ✅ |
-| Codex CLI | ✅ | ✅ | ✅ | ❌ | ✅ |
-| Windsurf (legacy Cascade) | ❌ | ❌ | ❌ | ✅ | ❌ |
-| Gemini CLI | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Kimi Code | ✅ | ❌ | ✅ | ❌ | ❌ |
-| Augment / Auggie | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Roo Code | ❌ | ✅ | ✅ | ✅ | ❌ |
-| Kiro (CLI V3 / IDE 1.0) | ✅ | ✅ | ✅ | ❌ | ✅ |
-| Tabnine (IDE Agent / CLI) | ✅ | ❌ | ❌ | ✅ | ❌ |
-| Kilo Code | ✅ | ❌ | ✅ | ✅ | ✅ |
-| opencode | ✅ | ✅ | ✅ | ✅ | ✅ |
-| OpenClaw (global only) | ❌ | ❌ | ✅ | ❌ | ❌ |
-| Mistral Vibe | ✅ | ✅ | ✅ | ❌ | ✅ |
-| Claude Desktop (global only) | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Zed Agent | ❌ | ✅ | ✅ | ❌ | ❌ |
-| Cline | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Continue | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Aider | ❌ | ❌ | ❌ | ❌ | ❌ |
-| goose | ❌ | ✅ | ✅ | ❌ | ❌ |
-| Amp CLI | ✅ | ✅ | ✅ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=cursor.com&sz=32" width="16"> Cursor | ✅ | ❌ | ✅ | ❌ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=32" width="16"> Claude Code | ✅ | ✅ | ✅ | ✅ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=trae.ai&sz=32" width="16"> Trae | ❌ | ❌ | ✅ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=qwen.ai&sz=32" width="16"> Qwen Code | ✅ | ❌ | ✅ | ✅ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=github.com&sz=32" width="16"> GitHub Copilot (VS Code) | ❌ | ❌ | ✅ | ❌ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=openai.com&sz=32" width="16"> Codex CLI | ✅ | ✅ | ✅ | ❌ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=windsurf.com&sz=32" width="16"> Windsurf (legacy Cascade) | ❌ | ❌ | ❌ | ✅ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=gemini.google.com&sz=32" width="16"> Gemini CLI | ✅ | ✅ | ✅ | ✅ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=kimi.ai&sz=32" width="16"> Kimi Code | ✅ | ❌ | ✅ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=augmentcode.com&sz=32" width="16"> Augment / Auggie | ✅ | ✅ | ✅ | ✅ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=roocode.com&sz=32" width="16"> Roo Code | ❌ | ✅ | ✅ | ✅ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=kiro.dev&sz=32" width="16"> Kiro (CLI V3 / IDE 1.0) | ✅ | ✅ | ✅ | ❌ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=tabnine.com&sz=32" width="16"> Tabnine (IDE Agent / CLI) | ✅ | ❌ | ❌ | ✅ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=kilo.ai&sz=32" width="16"> Kilo Code | ✅ | ❌ | ✅ | ✅ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=opencode.ai&sz=32" width="16"> opencode | ✅ | ✅ | ✅ | ✅ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=openclawlab.com&sz=32" width="16"> OpenClaw (global only) | ❌ | ❌ | ✅ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=mistral.ai&sz=32" width="16"> Mistral Vibe | ✅ | ✅ | ✅ | ❌ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=32" width="16"> Claude Desktop (global only) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=zed.dev&sz=32" width="16"> Zed Agent | ❌ | ✅ | ✅ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=cline.bot&sz=32" width="16"> Cline | ✅ | ✅ | ✅ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=continue.dev&sz=32" width="16"> Continue | ❌ | ❌ | ❌ | ❌ | ❌ |
+| <img src="https://avatars.githubusercontent.com/u/172139148?v=4" width="16"> Aider | ❌ | ❌ | ❌ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=goose-docs.ai&sz=32" width="16"> goose | ❌ | ✅ | ✅ | ❌ | ❌ |
+| <img src="https://www.google.com/s2/favicons?domain=ampcode.com&sz=32" width="16"> Amp CLI | ✅ | ✅ | ✅ | ❌ | ❌ |
 
 ✅ / ❌ = installable / unavailable through agent-add in that scope. Claude Desktop requires macOS or Windows.
 
