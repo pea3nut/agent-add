@@ -53,9 +53,9 @@ Install into the current project without `--global`.
 | <img src="https://www.google.com/s2/favicons?domain=kilo.ai&sz=32" width="16"> Kilo Code | ✅ | ✅ | ✅ | ✅ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=opencode.ai&sz=32" width="16"> opencode | ✅ | ✅ | ✅ | ✅ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=mistral.ai&sz=32" width="16"> Mistral Vibe | ✅ | ✅ | ✅ | ❌ | ✅ |
-| <img src="https://www.google.com/s2/favicons?domain=zed.dev&sz=32" width="16"> Zed Agent | ❌ | ✅ | ✅ | ❌ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=cline.bot&sz=32" width="16"> Cline | ❌ | ✅ | ✅ | ❌ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=continue.dev&sz=32" width="16"> Continue | ✅ | ✅ | ❌ | ❌ | ❌ |
+| <img src="https://avatars.githubusercontent.com/u/79345384?v=4" width="16"> Zed Agent | ❌ | ✅ | ✅ | ❌ | ❌ |
+| <img src="https://avatars.githubusercontent.com/u/184127137?v=4" width="16"> Cline | ❌ | ✅ | ✅ | ❌ | ❌ |
+| <img src="https://avatars.githubusercontent.com/u/127876214?v=4" width="16"> Continue | ✅ | ✅ | ❌ | ❌ | ❌ |
 | <img src="https://avatars.githubusercontent.com/u/172139148?v=4" width="16"> Aider | ❌ | ✅ | ❌ | ❌ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=goose-docs.ai&sz=32" width="16"> goose | ❌ | ✅ | ✅ | ❌ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=ampcode.com&sz=32" width="16"> Amp CLI | ✅ | ✅ | ✅ | ❌ | ❌ |
@@ -86,9 +86,9 @@ Install for the current OS user, independently of the current project.
 | <img src="https://www.google.com/s2/favicons?domain=openclawlab.com&sz=32" width="16"> OpenClaw (global only) | ❌ | ❌ | ✅ | ❌ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=mistral.ai&sz=32" width="16"> Mistral Vibe | ✅ | ✅ | ✅ | ❌ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=32" width="16"> Claude Desktop (global only) | ✅ | ❌ | ❌ | ❌ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=zed.dev&sz=32" width="16"> Zed Agent | ❌ | ✅ | ✅ | ❌ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=cline.bot&sz=32" width="16"> Cline | ✅ | ✅ | ✅ | ❌ | ❌ |
-| <img src="https://www.google.com/s2/favicons?domain=continue.dev&sz=32" width="16"> Continue | ❌ | ❌ | ❌ | ❌ | ❌ |
+| <img src="https://avatars.githubusercontent.com/u/79345384?v=4" width="16"> Zed Agent | ❌ | ✅ | ✅ | ❌ | ❌ |
+| <img src="https://avatars.githubusercontent.com/u/184127137?v=4" width="16"> Cline | ✅ | ✅ | ✅ | ❌ | ❌ |
+| <img src="https://avatars.githubusercontent.com/u/127876214?v=4" width="16"> Continue | ❌ | ❌ | ❌ | ❌ | ❌ |
 | <img src="https://avatars.githubusercontent.com/u/172139148?v=4" width="16"> Aider | ❌ | ❌ | ❌ | ❌ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=goose-docs.ai&sz=32" width="16"> goose | ❌ | ✅ | ✅ | ❌ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=ampcode.com&sz=32" width="16"> Amp CLI | ✅ | ✅ | ✅ | ❌ | ❌ |
