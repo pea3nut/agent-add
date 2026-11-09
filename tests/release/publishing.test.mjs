@@ -59,7 +59,7 @@ test('real Git preflight and packed archive reject unmerged commits and modified
       scripts: { prepack: 'node -e "require(\'fs\').writeFileSync(\'unexpected-hook\',\'ran\')"' },
     }));
     git('add', '.'); git('commit', '-qm', '[Codex] release fixture');
-    git('tag', '2.0.0');
+    git('tag', '-a', '2.0.0', '-m', '[Codex] annotated release fixture');
     const commit = git('rev-parse', 'HEAD');
     git('update-ref', 'refs/remotes/origin/master', commit);
     process.chdir(source);
