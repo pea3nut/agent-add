@@ -25,9 +25,7 @@ npx -y agent-add \
   --sub-agent 'https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md'
 ```
 
-> **npm provenance:** From 1.3.1, npm releases are built and published from this repository by GitHub Actions. [Verify the source commit and build](https://www.npmjs.com/package/agent-add#provenance).
->
-> **Socket Security:** [The 1.3.1 report](https://socket.dev/npm/package/agent-add/alerts/1.3.1) lists two MPL-2.0 license alerts and no malware alerts (checked 2026-11-09).
+> Releases are built and published via GitHub Actions; see [npm provenance](https://www.npmjs.com/package/agent-add#provenance) and the [Socket Security report](https://socket.dev/npm/package/agent-add/alerts/1.3.1).
 
 ---
 
