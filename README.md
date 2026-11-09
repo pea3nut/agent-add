@@ -24,6 +24,8 @@ npx -y agent-add \
   --sub-agent 'https://github.com/VoltAgent/awesome-claude-code-subagents.git#categories/01-core-development/backend-developer.md'
 ```
 
+**Concerned about safety?** [Read the security notes](./docs/security.md) for file and network access, release provenance, and security reports.
+
 ---
 
 ## Supported Hosts

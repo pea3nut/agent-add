@@ -1,0 +1,34 @@
+{
+  "tool": "npm audit",
+  "performedBy": "Codex",
+  "generatedAt": "2026-11-09T05:53:33.855574+00:00",
+  "sourceCommit": "ad8cd77a12f5b0743c04c2d07a5857ce261b8bba",
+  "packageVersion": "1.3.0",
+  "lockfileSha256": "d75802e4ab5651237c37eb13b48465b62f51226fee0489bb6ba8b5c56e184b6d",
+  "nodeVersion": "v24.22.1",
+  "npmVersion": "11.9.0",
+  "command": "npm audit --package-lock-only --include=dev --json --registry=https://registry.npmjs.org",
+  "exitCode": 0,
+  "report": {
+    "auditReportVersion": 2,
+    "vulnerabilities": {},
+    "metadata": {
+      "vulnerabilities": {
+        "info": 0,
+        "low": 0,
+        "moderate": 0,
+        "high": 0,
+        "critical": 0,
+        "total": 0
+      },
+      "dependencies": {
+        "prod": 1,
+        "dev": 206,
+        "optional": 78,
+        "peer": 0,
+        "peerOptional": 0,
+        "total": 206
+      }
+    }
+  }
+}
