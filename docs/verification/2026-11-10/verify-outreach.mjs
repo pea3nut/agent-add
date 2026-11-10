@@ -31,7 +31,7 @@ const hosts = [
 const clean = value => value.replaceAll(sandbox, '<SANDBOX>').replaceAll(root, '<WORKSPACE>');
 const logs = [];
 function run(cwd, args, expectedExit = 0) {
-  const profile = path.join(sandbox, 'isolated-profile');
+  const profile = path.join(cwd, 'isolated-profile');
   const r = spawnSync(process.execPath, [bin, ...args], {
     cwd, encoding:'utf8', timeout:30000,
     env:{...process.env, HOME:profile, USERPROFILE:profile,
@@ -47,7 +47,7 @@ const report = {
   checkedAt:new Date().toISOString(), package:'agent-add@1.3.1',
   integrity:expectedIntegrity, integrityVerified:true,
   environment:{platform:process.platform,arch:process.arch,node:process.version},
-  scope:'Project-scope configuration generation with the published 1.3.1 artifact; automated runs add --host to the interactive documentation examples. No MCP servers or host applications launched and no live service credentials used.',
+  scope:'User-scope configuration generation with the published 1.3.1 artifact in isolated profiles; automated runs add --host to the interactive documentation examples. No MCP servers or host applications launched and no live service credentials used.',
   cases:[],
 };
 for (const spec of specs) {
@@ -61,9 +61,9 @@ for (const spec of specs) {
     // This guide reuses its existing Claude Desktop JSON instead of repeating it.
     source = section.slice(section.indexOf('```json')).split('\n').slice(1).join('\n').split('```')[0];
   } else {
-    const line = section.split('\n').find(s=>s.startsWith('npx -y agent-add --mcp '));
+    const line = section.split('\n').find(s=>s.startsWith('npx -y agent-add --global --mcp '));
     assert.ok(line, 'Missing documented command for '+spec.repo);
-    documentedSource = line.slice('npx -y agent-add --mcp '.length);
+    documentedSource = line.slice('npx -y agent-add --global --mcp '.length);
     if (spec.source) source = await fs.readFile(path.join(checkout,spec.source),'utf8');
     else source = documentedSource.slice(1,-1); // Bash single-quoted inline JSON.
   }
@@ -75,14 +75,14 @@ for (const spec of specs) {
   const expected = config.mcpServers[spec.name];
   for (const host of hosts) {
     const project = path.join(sandbox, spec.folder, host.id);
-    const destination = path.join(project, host.file);
+    const destination = path.join(project, 'isolated-profile', host.file);
     await fs.mkdir(path.dirname(destination), {recursive:true});
     const seedEntry = {command:'existing-server',args:['--keep']};
     const seed = host.id === 'codex'
       ? '# Existing user comment\nmodel = "existing-model"\n\n[mcp_servers.existing]\ncommand = "existing-server"\nargs = ["--keep"]\n'
       : JSON.stringify({existingPreference:true,mcpServers:{existing:seedEntry}},null,2)+'\n';
     await fs.writeFile(destination, seed);
-    const args = ['--host',host.id,'--mcp',spec.jsonExample ? sourcePath : spec.source ? documentedSource : source];
+    const args = ['--global','--host',host.id,'--mcp',spec.jsonExample ? sourcePath : spec.source ? documentedSource : source];
     run(project,args);
     const first = await fs.readFile(destination,'utf8');
     const parsed = host.id === 'codex' ? parseToml(first) : JSON.parse(first);
@@ -95,7 +95,7 @@ for (const spec of specs) {
     assert.equal(await fs.readFile(destination,'utf8'),first,'Repeat changed the configuration');
     const conflictPath = path.join(sandbox,spec.folder+'-conflict.json');
     await fs.writeFile(conflictPath,JSON.stringify({mcpServers:{[spec.name]:{command:'different-server'}}}));
-    run(project,['--host',host.id,'--mcp',conflictPath],1);
+    run(project,['--global','--host',host.id,'--mcp',conflictPath],1);
     assert.equal(await fs.readFile(destination,'utf8'),first,'Conflicting install changed the configuration');
     report.cases.push({repo:spec.repo,host:host.id,
       upstreamCommit:execFileSync('git',['rev-parse','HEAD'],{cwd:checkout,encoding:'utf8'}).trim(),

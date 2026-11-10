@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-10T04:26:18.435Z",
+  "checkedAt": "2026-11-10T04:32:45.507Z",
   "package": "agent-add@1.3.1",
   "integrity": "sha512-eqOd0o5XbdKqYRJaQZetqqUMnh33yrkuSSRbIAjrHLEw6CUrcZpKfZoE+sDgFLO9nanoulSap/LX2MCy0Dm6Bw==",
   "integrityVerified": true,
@@ -8,14 +8,14 @@
     "arch": "x64",
     "node": "v24.22.1"
   },
-  "scope": "Project-scope configuration generation with the published 1.3.1 artifact; automated runs add --host to the interactive documentation examples. No MCP servers or host applications launched and no live service credentials used.",
+  "scope": "User-scope configuration generation with the published 1.3.1 artifact in isolated profiles; automated runs add --host to the interactive documentation examples. No MCP servers or host applications launched and no live service credentials used.",
   "cases": [
     {
       "repo": "designcomputer/mysql_mcp_server",
       "host": "cursor",
-      "upstreamCommit": "e21f97c0b7a6d249a1d901acc3a6154b734818fc",
+      "upstreamCommit": "cffd1c67889b6c24b4ff3af263910ccdfafa323d",
       "doc": "README.md",
-      "docSha256": "3846d40a8b9a016006b39c8af3108ddc086ec54d27ad2e8bc066a4af42ebfc14",
+      "docSha256": "c44c664fd62a0c97aa078fc4b10fbf6243ee1b4055f788eb5b80d4a117bfd187",
       "input": {
         "mcpServers": {
           "mysql": {
@@ -69,9 +69,9 @@
     {
       "repo": "designcomputer/mysql_mcp_server",
       "host": "codex",
-      "upstreamCommit": "e21f97c0b7a6d249a1d901acc3a6154b734818fc",
+      "upstreamCommit": "cffd1c67889b6c24b4ff3af263910ccdfafa323d",
       "doc": "README.md",
-      "docSha256": "3846d40a8b9a016006b39c8af3108ddc086ec54d27ad2e8bc066a4af42ebfc14",
+      "docSha256": "c44c664fd62a0c97aa078fc4b10fbf6243ee1b4055f788eb5b80d4a117bfd187",
       "input": {
         "mcpServers": {
           "mysql": {
@@ -125,9 +125,9 @@
     {
       "repo": "designcomputer/mysql_mcp_server",
       "host": "gemini",
-      "upstreamCommit": "e21f97c0b7a6d249a1d901acc3a6154b734818fc",
+      "upstreamCommit": "cffd1c67889b6c24b4ff3af263910ccdfafa323d",
       "doc": "README.md",
-      "docSha256": "3846d40a8b9a016006b39c8af3108ddc086ec54d27ad2e8bc066a4af42ebfc14",
+      "docSha256": "c44c664fd62a0c97aa078fc4b10fbf6243ee1b4055f788eb5b80d4a117bfd187",
       "input": {
         "mcpServers": {
           "mysql": {
@@ -181,9 +181,9 @@
     {
       "repo": "svnscha/mcp-windbg",
       "host": "cursor",
-      "upstreamCommit": "285748a8cb084c50614c7e394e85b056b1117a36",
+      "upstreamCommit": "6550f6594201d285af4eb603989fe5f2ab07c16f",
       "doc": "docs/reference/clients.md",
-      "docSha256": "ac94499f7db26e6ec3b6c8e8a1b1a3fcc167c73e3feb1bca83104243860480ae",
+      "docSha256": "836bd8be3e3749d3d29254fc8e44d1c8ef7090d50c9f26f74cb4fe419dbdd1eb",
       "input": {
         "mcpServers": {
           "mcp-windbg": {
@@ -231,9 +231,9 @@
     {
       "repo": "svnscha/mcp-windbg",
       "host": "codex",
-      "upstreamCommit": "285748a8cb084c50614c7e394e85b056b1117a36",
+      "upstreamCommit": "6550f6594201d285af4eb603989fe5f2ab07c16f",
       "doc": "docs/reference/clients.md",
-      "docSha256": "ac94499f7db26e6ec3b6c8e8a1b1a3fcc167c73e3feb1bca83104243860480ae",
+      "docSha256": "836bd8be3e3749d3d29254fc8e44d1c8ef7090d50c9f26f74cb4fe419dbdd1eb",
       "input": {
         "mcpServers": {
           "mcp-windbg": {
@@ -281,9 +281,9 @@
     {
       "repo": "svnscha/mcp-windbg",
       "host": "gemini",
-      "upstreamCommit": "285748a8cb084c50614c7e394e85b056b1117a36",
+      "upstreamCommit": "6550f6594201d285af4eb603989fe5f2ab07c16f",
       "doc": "docs/reference/clients.md",
-      "docSha256": "ac94499f7db26e6ec3b6c8e8a1b1a3fcc167c73e3feb1bca83104243860480ae",
+      "docSha256": "836bd8be3e3749d3d29254fc8e44d1c8ef7090d50c9f26f74cb4fe419dbdd1eb",
       "input": {
         "mcpServers": {
           "mcp-windbg": {
@@ -331,9 +331,9 @@
     {
       "repo": "54yyyu/zotero-mcp",
       "host": "cursor",
-      "upstreamCommit": "b9d625affec1f4e9c6e7ec97e22ee7eb0ea8b3bc",
+      "upstreamCommit": "fa35597d79e1e863366d9d1464da824007595426",
       "doc": "docs/getting-started.md",
-      "docSha256": "716aab8a997176d071d33fc505a6f5a21e01c567f479488f3a09f2e1e018124d",
+      "docSha256": "3848a2ed179960605430e30be918a6da411c39d13dbae37762781a251c6e2de0",
       "input": {
         "mcpServers": {
           "zotero": {
@@ -373,9 +373,9 @@
     {
       "repo": "54yyyu/zotero-mcp",
       "host": "codex",
-      "upstreamCommit": "b9d625affec1f4e9c6e7ec97e22ee7eb0ea8b3bc",
+      "upstreamCommit": "fa35597d79e1e863366d9d1464da824007595426",
       "doc": "docs/getting-started.md",
-      "docSha256": "716aab8a997176d071d33fc505a6f5a21e01c567f479488f3a09f2e1e018124d",
+      "docSha256": "3848a2ed179960605430e30be918a6da411c39d13dbae37762781a251c6e2de0",
       "input": {
         "mcpServers": {
           "zotero": {
@@ -415,9 +415,9 @@
     {
       "repo": "54yyyu/zotero-mcp",
       "host": "gemini",
-      "upstreamCommit": "b9d625affec1f4e9c6e7ec97e22ee7eb0ea8b3bc",
+      "upstreamCommit": "fa35597d79e1e863366d9d1464da824007595426",
       "doc": "docs/getting-started.md",
-      "docSha256": "716aab8a997176d071d33fc505a6f5a21e01c567f479488f3a09f2e1e018124d",
+      "docSha256": "3848a2ed179960605430e30be918a6da411c39d13dbae37762781a251c6e2de0",
       "input": {
         "mcpServers": {
           "zotero": {
@@ -457,9 +457,9 @@
     {
       "repo": "vishalsachdev/canvas-mcp",
       "host": "cursor",
-      "upstreamCommit": "ccaed6d68da5983f354b5eb7a9f9d58bd20aa45f",
+      "upstreamCommit": "db9a8c5a92f5bbe59691714be6592bf7d8a5c16c",
       "doc": "README.md",
-      "docSha256": "a30603e423d29807aff5bf3c09648b3d1615afb1b2a11452e8cd9bb86eeab568",
+      "docSha256": "832fda0b5c1218d1f60ffe7fee9aad14f7de00dd8fdc5089f520c03f047cf6d5",
       "input": {
         "mcpServers": {
           "canvas-api": {
@@ -495,9 +495,9 @@
     {
       "repo": "vishalsachdev/canvas-mcp",
       "host": "codex",
-      "upstreamCommit": "ccaed6d68da5983f354b5eb7a9f9d58bd20aa45f",
+      "upstreamCommit": "db9a8c5a92f5bbe59691714be6592bf7d8a5c16c",
       "doc": "README.md",
-      "docSha256": "a30603e423d29807aff5bf3c09648b3d1615afb1b2a11452e8cd9bb86eeab568",
+      "docSha256": "832fda0b5c1218d1f60ffe7fee9aad14f7de00dd8fdc5089f520c03f047cf6d5",
       "input": {
         "mcpServers": {
           "canvas-api": {
@@ -533,9 +533,9 @@
     {
       "repo": "vishalsachdev/canvas-mcp",
       "host": "gemini",
-      "upstreamCommit": "ccaed6d68da5983f354b5eb7a9f9d58bd20aa45f",
+      "upstreamCommit": "db9a8c5a92f5bbe59691714be6592bf7d8a5c16c",
       "doc": "README.md",
-      "docSha256": "a30603e423d29807aff5bf3c09648b3d1615afb1b2a11452e8cd9bb86eeab568",
+      "docSha256": "832fda0b5c1218d1f60ffe7fee9aad14f7de00dd8fdc5089f520c03f047cf6d5",
       "input": {
         "mcpServers": {
           "canvas-api": {
@@ -571,9 +571,9 @@
     {
       "repo": "Jpisnice/shadcn-ui-mcp-server",
       "host": "cursor",
-      "upstreamCommit": "aebbab5c3bc574e98ba8b0ad8557391333f1b42b",
+      "upstreamCommit": "e13fdfe70b5602ffba3f8e8e9c9f88cc554736bc",
       "doc": "README.md",
-      "docSha256": "4617a6dc3ef53871821b800fb1a4dbfba5941cd36764257acf4fac570fd2efc0",
+      "docSha256": "da8c425203e2f5cc1d2fa07eb427a8d04d757a665d5bb061d958f99af5efeba3",
       "input": {
         "mcpServers": {
           "shadcn-ui": {
@@ -615,9 +615,9 @@
     {
       "repo": "Jpisnice/shadcn-ui-mcp-server",
       "host": "codex",
-      "upstreamCommit": "aebbab5c3bc574e98ba8b0ad8557391333f1b42b",
+      "upstreamCommit": "e13fdfe70b5602ffba3f8e8e9c9f88cc554736bc",
       "doc": "README.md",
-      "docSha256": "4617a6dc3ef53871821b800fb1a4dbfba5941cd36764257acf4fac570fd2efc0",
+      "docSha256": "da8c425203e2f5cc1d2fa07eb427a8d04d757a665d5bb061d958f99af5efeba3",
       "input": {
         "mcpServers": {
           "shadcn-ui": {
@@ -659,9 +659,9 @@
     {
       "repo": "Jpisnice/shadcn-ui-mcp-server",
       "host": "gemini",
-      "upstreamCommit": "aebbab5c3bc574e98ba8b0ad8557391333f1b42b",
+      "upstreamCommit": "e13fdfe70b5602ffba3f8e8e9c9f88cc554736bc",
       "doc": "README.md",
-      "docSha256": "4617a6dc3ef53871821b800fb1a4dbfba5941cd36764257acf4fac570fd2efc0",
+      "docSha256": "da8c425203e2f5cc1d2fa07eb427a8d04d757a665d5bb061d958f99af5efeba3",
       "input": {
         "mcpServers": {
           "shadcn-ui": {
@@ -706,453 +706,498 @@
   "logs": [
     {
       "args": [
+        "--global",
         "--host",
         "cursor",
         "--mcp",
         "{\"mysql\":{\"command\":\"uvx\",\"args\":[\"mysql_mcp_server\"],\"env\":{\"MYSQL_HOST\":\"localhost\",\"MYSQL_PORT\":\"3306\",\"MYSQL_USER\":\"your_username\",\"MYSQL_PASSWORD\":\"your_password\",\"MYSQL_DATABASE\":\"your_database\"}}}"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/mysql\n  resolving  mcp/mysql\n  ready        mcp/mysql\n  validating  batch\n  installing  mcp/mysql\n  written      mcp/mysql\nagent-add — Install Summary\nHost: Cursor\nScope: project\n\n  ✓ written       mcp/mysql → <SANDBOX>\\mysql_mcp_server\\cursor\\.cursor\\mcp.json\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/mysql\n  resolving  mcp/mysql\n  ready        mcp/mysql\n  validating  batch\n  installing  mcp/mysql\n  written      mcp/mysql\nagent-add — Install Summary\nHost: Cursor\nScope: user (--global)\n\n  ✓ written       mcp/mysql → <SANDBOX>\\mysql_mcp_server\\cursor\\isolated-profile\\.cursor\\mcp.json\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "cursor",
         "--mcp",
         "{\"mysql\":{\"command\":\"uvx\",\"args\":[\"mysql_mcp_server\"],\"env\":{\"MYSQL_HOST\":\"localhost\",\"MYSQL_PORT\":\"3306\",\"MYSQL_USER\":\"your_username\",\"MYSQL_PASSWORD\":\"your_password\",\"MYSQL_DATABASE\":\"your_database\"}}}"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/mysql\n  resolving  mcp/mysql\n  ready        mcp/mysql\n  validating  batch\n  installing  mcp/mysql\n  exists       mcp/mysql\nagent-add — Install Summary\nHost: Cursor\nScope: project\n\n  ≡ exists        mcp/mysql → <SANDBOX>\\mysql_mcp_server\\cursor\\.cursor\\mcp.json\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/mysql\n  resolving  mcp/mysql\n  ready        mcp/mysql\n  validating  batch\n  installing  mcp/mysql\n  exists       mcp/mysql\nagent-add — Install Summary\nHost: Cursor\nScope: user (--global)\n\n  ≡ exists        mcp/mysql → <SANDBOX>\\mysql_mcp_server\\cursor\\isolated-profile\\.cursor\\mcp.json\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "cursor",
         "--mcp",
         "<SANDBOX>\\mysql_mcp_server-conflict.json"
       ],
       "exitCode": 1,
-      "output": "  pending     mcp/mysql_mcp_server-conflict\n  resolving  mcp/mysql_mcp_server-conflict\n  ready        mcp/mysql_mcp_server-conflict\n  validating  batch\n  installing  mcp/mysql\n  conflict     mcp/mysql\nagent-add — Install Summary\nHost: Cursor\nScope: project\n\n  ✗ conflict      mcp/mysql → <SANDBOX>\\mysql_mcp_server\\cursor\\.cursor\\mcp.json\n    ! conflict: mcp/mysql — MCP 'mysql' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
+      "output": "  pending     mcp/mysql_mcp_server-conflict\n  resolving  mcp/mysql_mcp_server-conflict\n  ready        mcp/mysql_mcp_server-conflict\n  validating  batch\n  installing  mcp/mysql\n  conflict     mcp/mysql\nagent-add — Install Summary\nHost: Cursor\nScope: user (--global)\n\n  ✗ conflict      mcp/mysql → <SANDBOX>\\mysql_mcp_server\\cursor\\isolated-profile\\.cursor\\mcp.json\n    ! conflict: mcp/mysql — MCP 'mysql' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "codex",
         "--mcp",
         "{\"mysql\":{\"command\":\"uvx\",\"args\":[\"mysql_mcp_server\"],\"env\":{\"MYSQL_HOST\":\"localhost\",\"MYSQL_PORT\":\"3306\",\"MYSQL_USER\":\"your_username\",\"MYSQL_PASSWORD\":\"your_password\",\"MYSQL_DATABASE\":\"your_database\"}}}"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/mysql\n  resolving  mcp/mysql\n  ready        mcp/mysql\n  validating  batch\n  installing  mcp/mysql\n  written      mcp/mysql\nagent-add — Install Summary\nHost: Codex CLI\nScope: project\n\n  ✓ written       mcp/mysql → <SANDBOX>\\mysql_mcp_server\\codex\\.codex\\config.toml\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/mysql\n  resolving  mcp/mysql\n  ready        mcp/mysql\n  validating  batch\n  installing  mcp/mysql\n  written      mcp/mysql\nagent-add — Install Summary\nHost: Codex CLI\nScope: user (--global)\n\n  ✓ written       mcp/mysql → <SANDBOX>\\mysql_mcp_server\\codex\\isolated-profile\\.codex\\config.toml\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "codex",
         "--mcp",
         "{\"mysql\":{\"command\":\"uvx\",\"args\":[\"mysql_mcp_server\"],\"env\":{\"MYSQL_HOST\":\"localhost\",\"MYSQL_PORT\":\"3306\",\"MYSQL_USER\":\"your_username\",\"MYSQL_PASSWORD\":\"your_password\",\"MYSQL_DATABASE\":\"your_database\"}}}"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/mysql\n  resolving  mcp/mysql\n  ready        mcp/mysql\n  validating  batch\n  installing  mcp/mysql\n  exists       mcp/mysql\nagent-add — Install Summary\nHost: Codex CLI\nScope: project\n\n  ≡ exists        mcp/mysql → <SANDBOX>\\mysql_mcp_server\\codex\\.codex\\config.toml\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/mysql\n  resolving  mcp/mysql\n  ready        mcp/mysql\n  validating  batch\n  installing  mcp/mysql\n  exists       mcp/mysql\nagent-add — Install Summary\nHost: Codex CLI\nScope: user (--global)\n\n  ≡ exists        mcp/mysql → <SANDBOX>\\mysql_mcp_server\\codex\\isolated-profile\\.codex\\config.toml\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "codex",
         "--mcp",
         "<SANDBOX>\\mysql_mcp_server-conflict.json"
       ],
       "exitCode": 1,
-      "output": "  pending     mcp/mysql_mcp_server-conflict\n  resolving  mcp/mysql_mcp_server-conflict\n  ready        mcp/mysql_mcp_server-conflict\n  validating  batch\n  installing  mcp/mysql\n  conflict     mcp/mysql\nagent-add — Install Summary\nHost: Codex CLI\nScope: project\n\n  ✗ conflict      mcp/mysql → <SANDBOX>\\mysql_mcp_server\\codex\\.codex\\config.toml\n    ! conflict: mcp/mysql — MCP 'mysql' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
+      "output": "  pending     mcp/mysql_mcp_server-conflict\n  resolving  mcp/mysql_mcp_server-conflict\n  ready        mcp/mysql_mcp_server-conflict\n  validating  batch\n  installing  mcp/mysql\n  conflict     mcp/mysql\nagent-add — Install Summary\nHost: Codex CLI\nScope: user (--global)\n\n  ✗ conflict      mcp/mysql → <SANDBOX>\\mysql_mcp_server\\codex\\isolated-profile\\.codex\\config.toml\n    ! conflict: mcp/mysql — MCP 'mysql' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "gemini",
         "--mcp",
         "{\"mysql\":{\"command\":\"uvx\",\"args\":[\"mysql_mcp_server\"],\"env\":{\"MYSQL_HOST\":\"localhost\",\"MYSQL_PORT\":\"3306\",\"MYSQL_USER\":\"your_username\",\"MYSQL_PASSWORD\":\"your_password\",\"MYSQL_DATABASE\":\"your_database\"}}}"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/mysql\n  resolving  mcp/mysql\n  ready        mcp/mysql\n  validating  batch\n  installing  mcp/mysql\n  written      mcp/mysql\nagent-add — Install Summary\nHost: Gemini CLI\nScope: project\n\n  ✓ written       mcp/mysql → <SANDBOX>\\mysql_mcp_server\\gemini\\.gemini\\settings.json\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/mysql\n  resolving  mcp/mysql\n  ready        mcp/mysql\n  validating  batch\n  installing  mcp/mysql\n  written      mcp/mysql\nagent-add — Install Summary\nHost: Gemini CLI\nScope: user (--global)\n\n  ✓ written       mcp/mysql → <SANDBOX>\\mysql_mcp_server\\gemini\\isolated-profile\\.gemini\\settings.json\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "gemini",
         "--mcp",
         "{\"mysql\":{\"command\":\"uvx\",\"args\":[\"mysql_mcp_server\"],\"env\":{\"MYSQL_HOST\":\"localhost\",\"MYSQL_PORT\":\"3306\",\"MYSQL_USER\":\"your_username\",\"MYSQL_PASSWORD\":\"your_password\",\"MYSQL_DATABASE\":\"your_database\"}}}"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/mysql\n  resolving  mcp/mysql\n  ready        mcp/mysql\n  validating  batch\n  installing  mcp/mysql\n  exists       mcp/mysql\nagent-add — Install Summary\nHost: Gemini CLI\nScope: project\n\n  ≡ exists        mcp/mysql → <SANDBOX>\\mysql_mcp_server\\gemini\\.gemini\\settings.json\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/mysql\n  resolving  mcp/mysql\n  ready        mcp/mysql\n  validating  batch\n  installing  mcp/mysql\n  exists       mcp/mysql\nagent-add — Install Summary\nHost: Gemini CLI\nScope: user (--global)\n\n  ≡ exists        mcp/mysql → <SANDBOX>\\mysql_mcp_server\\gemini\\isolated-profile\\.gemini\\settings.json\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "gemini",
         "--mcp",
         "<SANDBOX>\\mysql_mcp_server-conflict.json"
       ],
       "exitCode": 1,
-      "output": "  pending     mcp/mysql_mcp_server-conflict\n  resolving  mcp/mysql_mcp_server-conflict\n  ready        mcp/mysql_mcp_server-conflict\n  validating  batch\n  installing  mcp/mysql\n  conflict     mcp/mysql\nagent-add — Install Summary\nHost: Gemini CLI\nScope: project\n\n  ✗ conflict      mcp/mysql → <SANDBOX>\\mysql_mcp_server\\gemini\\.gemini\\settings.json\n    ! conflict: mcp/mysql — MCP 'mysql' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
+      "output": "  pending     mcp/mysql_mcp_server-conflict\n  resolving  mcp/mysql_mcp_server-conflict\n  ready        mcp/mysql_mcp_server-conflict\n  validating  batch\n  installing  mcp/mysql\n  conflict     mcp/mysql\nagent-add — Install Summary\nHost: Gemini CLI\nScope: user (--global)\n\n  ✗ conflict      mcp/mysql → <SANDBOX>\\mysql_mcp_server\\gemini\\isolated-profile\\.gemini\\settings.json\n    ! conflict: mcp/mysql — MCP 'mysql' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "cursor",
         "--mcp",
         "<SANDBOX>\\mcp-windbg.json"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/mcp-windbg\n  resolving  mcp/mcp-windbg\n  ready        mcp/mcp-windbg\n  validating  batch\n  installing  mcp/mcp-windbg\n  written      mcp/mcp-windbg\nagent-add — Install Summary\nHost: Cursor\nScope: project\n\n  ✓ written       mcp/mcp-windbg → <SANDBOX>\\mcp-windbg\\cursor\\.cursor\\mcp.json\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/mcp-windbg\n  resolving  mcp/mcp-windbg\n  ready        mcp/mcp-windbg\n  validating  batch\n  installing  mcp/mcp-windbg\n  written      mcp/mcp-windbg\nagent-add — Install Summary\nHost: Cursor\nScope: user (--global)\n\n  ✓ written       mcp/mcp-windbg → <SANDBOX>\\mcp-windbg\\cursor\\isolated-profile\\.cursor\\mcp.json\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "cursor",
         "--mcp",
         "<SANDBOX>\\mcp-windbg.json"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/mcp-windbg\n  resolving  mcp/mcp-windbg\n  ready        mcp/mcp-windbg\n  validating  batch\n  installing  mcp/mcp-windbg\n  exists       mcp/mcp-windbg\nagent-add — Install Summary\nHost: Cursor\nScope: project\n\n  ≡ exists        mcp/mcp-windbg → <SANDBOX>\\mcp-windbg\\cursor\\.cursor\\mcp.json\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/mcp-windbg\n  resolving  mcp/mcp-windbg\n  ready        mcp/mcp-windbg\n  validating  batch\n  installing  mcp/mcp-windbg\n  exists       mcp/mcp-windbg\nagent-add — Install Summary\nHost: Cursor\nScope: user (--global)\n\n  ≡ exists        mcp/mcp-windbg → <SANDBOX>\\mcp-windbg\\cursor\\isolated-profile\\.cursor\\mcp.json\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "cursor",
         "--mcp",
         "<SANDBOX>\\mcp-windbg-conflict.json"
       ],
       "exitCode": 1,
-      "output": "  pending     mcp/mcp-windbg-conflict\n  resolving  mcp/mcp-windbg-conflict\n  ready        mcp/mcp-windbg-conflict\n  validating  batch\n  installing  mcp/mcp-windbg\n  conflict     mcp/mcp-windbg\nagent-add — Install Summary\nHost: Cursor\nScope: project\n\n  ✗ conflict      mcp/mcp-windbg → <SANDBOX>\\mcp-windbg\\cursor\\.cursor\\mcp.json\n    ! conflict: mcp/mcp-windbg — MCP 'mcp-windbg' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
+      "output": "  pending     mcp/mcp-windbg-conflict\n  resolving  mcp/mcp-windbg-conflict\n  ready        mcp/mcp-windbg-conflict\n  validating  batch\n  installing  mcp/mcp-windbg\n  conflict     mcp/mcp-windbg\nagent-add — Install Summary\nHost: Cursor\nScope: user (--global)\n\n  ✗ conflict      mcp/mcp-windbg → <SANDBOX>\\mcp-windbg\\cursor\\isolated-profile\\.cursor\\mcp.json\n    ! conflict: mcp/mcp-windbg — MCP 'mcp-windbg' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "codex",
         "--mcp",
         "<SANDBOX>\\mcp-windbg.json"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/mcp-windbg\n  resolving  mcp/mcp-windbg\n  ready        mcp/mcp-windbg\n  validating  batch\n  installing  mcp/mcp-windbg\n  written      mcp/mcp-windbg\nagent-add — Install Summary\nHost: Codex CLI\nScope: project\n\n  ✓ written       mcp/mcp-windbg → <SANDBOX>\\mcp-windbg\\codex\\.codex\\config.toml\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/mcp-windbg\n  resolving  mcp/mcp-windbg\n  ready        mcp/mcp-windbg\n  validating  batch\n  installing  mcp/mcp-windbg\n  written      mcp/mcp-windbg\nagent-add — Install Summary\nHost: Codex CLI\nScope: user (--global)\n\n  ✓ written       mcp/mcp-windbg → <SANDBOX>\\mcp-windbg\\codex\\isolated-profile\\.codex\\config.toml\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "codex",
         "--mcp",
         "<SANDBOX>\\mcp-windbg.json"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/mcp-windbg\n  resolving  mcp/mcp-windbg\n  ready        mcp/mcp-windbg\n  validating  batch\n  installing  mcp/mcp-windbg\n  exists       mcp/mcp-windbg\nagent-add — Install Summary\nHost: Codex CLI\nScope: project\n\n  ≡ exists        mcp/mcp-windbg → <SANDBOX>\\mcp-windbg\\codex\\.codex\\config.toml\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/mcp-windbg\n  resolving  mcp/mcp-windbg\n  ready        mcp/mcp-windbg\n  validating  batch\n  installing  mcp/mcp-windbg\n  exists       mcp/mcp-windbg\nagent-add — Install Summary\nHost: Codex CLI\nScope: user (--global)\n\n  ≡ exists        mcp/mcp-windbg → <SANDBOX>\\mcp-windbg\\codex\\isolated-profile\\.codex\\config.toml\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "codex",
         "--mcp",
         "<SANDBOX>\\mcp-windbg-conflict.json"
       ],
       "exitCode": 1,
-      "output": "  pending     mcp/mcp-windbg-conflict\n  resolving  mcp/mcp-windbg-conflict\n  ready        mcp/mcp-windbg-conflict\n  validating  batch\n  installing  mcp/mcp-windbg\n  conflict     mcp/mcp-windbg\nagent-add — Install Summary\nHost: Codex CLI\nScope: project\n\n  ✗ conflict      mcp/mcp-windbg → <SANDBOX>\\mcp-windbg\\codex\\.codex\\config.toml\n    ! conflict: mcp/mcp-windbg — MCP 'mcp-windbg' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
+      "output": "  pending     mcp/mcp-windbg-conflict\n  resolving  mcp/mcp-windbg-conflict\n  ready        mcp/mcp-windbg-conflict\n  validating  batch\n  installing  mcp/mcp-windbg\n  conflict     mcp/mcp-windbg\nagent-add — Install Summary\nHost: Codex CLI\nScope: user (--global)\n\n  ✗ conflict      mcp/mcp-windbg → <SANDBOX>\\mcp-windbg\\codex\\isolated-profile\\.codex\\config.toml\n    ! conflict: mcp/mcp-windbg — MCP 'mcp-windbg' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "gemini",
         "--mcp",
         "<SANDBOX>\\mcp-windbg.json"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/mcp-windbg\n  resolving  mcp/mcp-windbg\n  ready        mcp/mcp-windbg\n  validating  batch\n  installing  mcp/mcp-windbg\n  written      mcp/mcp-windbg\nagent-add — Install Summary\nHost: Gemini CLI\nScope: project\n\n  ✓ written       mcp/mcp-windbg → <SANDBOX>\\mcp-windbg\\gemini\\.gemini\\settings.json\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/mcp-windbg\n  resolving  mcp/mcp-windbg\n  ready        mcp/mcp-windbg\n  validating  batch\n  installing  mcp/mcp-windbg\n  written      mcp/mcp-windbg\nagent-add — Install Summary\nHost: Gemini CLI\nScope: user (--global)\n\n  ✓ written       mcp/mcp-windbg → <SANDBOX>\\mcp-windbg\\gemini\\isolated-profile\\.gemini\\settings.json\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "gemini",
         "--mcp",
         "<SANDBOX>\\mcp-windbg.json"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/mcp-windbg\n  resolving  mcp/mcp-windbg\n  ready        mcp/mcp-windbg\n  validating  batch\n  installing  mcp/mcp-windbg\n  exists       mcp/mcp-windbg\nagent-add — Install Summary\nHost: Gemini CLI\nScope: project\n\n  ≡ exists        mcp/mcp-windbg → <SANDBOX>\\mcp-windbg\\gemini\\.gemini\\settings.json\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/mcp-windbg\n  resolving  mcp/mcp-windbg\n  ready        mcp/mcp-windbg\n  validating  batch\n  installing  mcp/mcp-windbg\n  exists       mcp/mcp-windbg\nagent-add — Install Summary\nHost: Gemini CLI\nScope: user (--global)\n\n  ≡ exists        mcp/mcp-windbg → <SANDBOX>\\mcp-windbg\\gemini\\isolated-profile\\.gemini\\settings.json\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "gemini",
         "--mcp",
         "<SANDBOX>\\mcp-windbg-conflict.json"
       ],
       "exitCode": 1,
-      "output": "  pending     mcp/mcp-windbg-conflict\n  resolving  mcp/mcp-windbg-conflict\n  ready        mcp/mcp-windbg-conflict\n  validating  batch\n  installing  mcp/mcp-windbg\n  conflict     mcp/mcp-windbg\nagent-add — Install Summary\nHost: Gemini CLI\nScope: project\n\n  ✗ conflict      mcp/mcp-windbg → <SANDBOX>\\mcp-windbg\\gemini\\.gemini\\settings.json\n    ! conflict: mcp/mcp-windbg — MCP 'mcp-windbg' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
+      "output": "  pending     mcp/mcp-windbg-conflict\n  resolving  mcp/mcp-windbg-conflict\n  ready        mcp/mcp-windbg-conflict\n  validating  batch\n  installing  mcp/mcp-windbg\n  conflict     mcp/mcp-windbg\nagent-add — Install Summary\nHost: Gemini CLI\nScope: user (--global)\n\n  ✗ conflict      mcp/mcp-windbg → <SANDBOX>\\mcp-windbg\\gemini\\isolated-profile\\.gemini\\settings.json\n    ! conflict: mcp/mcp-windbg — MCP 'mcp-windbg' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "cursor",
         "--mcp",
         "{\"zotero\":{\"command\":\"zotero-mcp\",\"env\":{\"ZOTERO_LOCAL\":\"true\"}}}"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/zotero\n  resolving  mcp/zotero\n  ready        mcp/zotero\n  validating  batch\n  installing  mcp/zotero\n  written      mcp/zotero\nagent-add — Install Summary\nHost: Cursor\nScope: project\n\n  ✓ written       mcp/zotero → <SANDBOX>\\zotero-mcp\\cursor\\.cursor\\mcp.json\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/zotero\n  resolving  mcp/zotero\n  ready        mcp/zotero\n  validating  batch\n  installing  mcp/zotero\n  written      mcp/zotero\nagent-add — Install Summary\nHost: Cursor\nScope: user (--global)\n\n  ✓ written       mcp/zotero → <SANDBOX>\\zotero-mcp\\cursor\\isolated-profile\\.cursor\\mcp.json\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "cursor",
         "--mcp",
         "{\"zotero\":{\"command\":\"zotero-mcp\",\"env\":{\"ZOTERO_LOCAL\":\"true\"}}}"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/zotero\n  resolving  mcp/zotero\n  ready        mcp/zotero\n  validating  batch\n  installing  mcp/zotero\n  exists       mcp/zotero\nagent-add — Install Summary\nHost: Cursor\nScope: project\n\n  ≡ exists        mcp/zotero → <SANDBOX>\\zotero-mcp\\cursor\\.cursor\\mcp.json\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/zotero\n  resolving  mcp/zotero\n  ready        mcp/zotero\n  validating  batch\n  installing  mcp/zotero\n  exists       mcp/zotero\nagent-add — Install Summary\nHost: Cursor\nScope: user (--global)\n\n  ≡ exists        mcp/zotero → <SANDBOX>\\zotero-mcp\\cursor\\isolated-profile\\.cursor\\mcp.json\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "cursor",
         "--mcp",
         "<SANDBOX>\\zotero-mcp-conflict.json"
       ],
       "exitCode": 1,
-      "output": "  pending     mcp/zotero-mcp-conflict\n  resolving  mcp/zotero-mcp-conflict\n  ready        mcp/zotero-mcp-conflict\n  validating  batch\n  installing  mcp/zotero\n  conflict     mcp/zotero\nagent-add — Install Summary\nHost: Cursor\nScope: project\n\n  ✗ conflict      mcp/zotero → <SANDBOX>\\zotero-mcp\\cursor\\.cursor\\mcp.json\n    ! conflict: mcp/zotero — MCP 'zotero' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
+      "output": "  pending     mcp/zotero-mcp-conflict\n  resolving  mcp/zotero-mcp-conflict\n  ready        mcp/zotero-mcp-conflict\n  validating  batch\n  installing  mcp/zotero\n  conflict     mcp/zotero\nagent-add — Install Summary\nHost: Cursor\nScope: user (--global)\n\n  ✗ conflict      mcp/zotero → <SANDBOX>\\zotero-mcp\\cursor\\isolated-profile\\.cursor\\mcp.json\n    ! conflict: mcp/zotero — MCP 'zotero' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "codex",
         "--mcp",
         "{\"zotero\":{\"command\":\"zotero-mcp\",\"env\":{\"ZOTERO_LOCAL\":\"true\"}}}"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/zotero\n  resolving  mcp/zotero\n  ready        mcp/zotero\n  validating  batch\n  installing  mcp/zotero\n  written      mcp/zotero\nagent-add — Install Summary\nHost: Codex CLI\nScope: project\n\n  ✓ written       mcp/zotero → <SANDBOX>\\zotero-mcp\\codex\\.codex\\config.toml\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/zotero\n  resolving  mcp/zotero\n  ready        mcp/zotero\n  validating  batch\n  installing  mcp/zotero\n  written      mcp/zotero\nagent-add — Install Summary\nHost: Codex CLI\nScope: user (--global)\n\n  ✓ written       mcp/zotero → <SANDBOX>\\zotero-mcp\\codex\\isolated-profile\\.codex\\config.toml\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "codex",
         "--mcp",
         "{\"zotero\":{\"command\":\"zotero-mcp\",\"env\":{\"ZOTERO_LOCAL\":\"true\"}}}"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/zotero\n  resolving  mcp/zotero\n  ready        mcp/zotero\n  validating  batch\n  installing  mcp/zotero\n  exists       mcp/zotero\nagent-add — Install Summary\nHost: Codex CLI\nScope: project\n\n  ≡ exists        mcp/zotero → <SANDBOX>\\zotero-mcp\\codex\\.codex\\config.toml\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/zotero\n  resolving  mcp/zotero\n  ready        mcp/zotero\n  validating  batch\n  installing  mcp/zotero\n  exists       mcp/zotero\nagent-add — Install Summary\nHost: Codex CLI\nScope: user (--global)\n\n  ≡ exists        mcp/zotero → <SANDBOX>\\zotero-mcp\\codex\\isolated-profile\\.codex\\config.toml\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "codex",
         "--mcp",
         "<SANDBOX>\\zotero-mcp-conflict.json"
       ],
       "exitCode": 1,
-      "output": "  pending     mcp/zotero-mcp-conflict\n  resolving  mcp/zotero-mcp-conflict\n  ready        mcp/zotero-mcp-conflict\n  validating  batch\n  installing  mcp/zotero\n  conflict     mcp/zotero\nagent-add — Install Summary\nHost: Codex CLI\nScope: project\n\n  ✗ conflict      mcp/zotero → <SANDBOX>\\zotero-mcp\\codex\\.codex\\config.toml\n    ! conflict: mcp/zotero — MCP 'zotero' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
+      "output": "  pending     mcp/zotero-mcp-conflict\n  resolving  mcp/zotero-mcp-conflict\n  ready        mcp/zotero-mcp-conflict\n  validating  batch\n  installing  mcp/zotero\n  conflict     mcp/zotero\nagent-add — Install Summary\nHost: Codex CLI\nScope: user (--global)\n\n  ✗ conflict      mcp/zotero → <SANDBOX>\\zotero-mcp\\codex\\isolated-profile\\.codex\\config.toml\n    ! conflict: mcp/zotero — MCP 'zotero' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "gemini",
         "--mcp",
         "{\"zotero\":{\"command\":\"zotero-mcp\",\"env\":{\"ZOTERO_LOCAL\":\"true\"}}}"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/zotero\n  resolving  mcp/zotero\n  ready        mcp/zotero\n  validating  batch\n  installing  mcp/zotero\n  written      mcp/zotero\nagent-add — Install Summary\nHost: Gemini CLI\nScope: project\n\n  ✓ written       mcp/zotero → <SANDBOX>\\zotero-mcp\\gemini\\.gemini\\settings.json\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/zotero\n  resolving  mcp/zotero\n  ready        mcp/zotero\n  validating  batch\n  installing  mcp/zotero\n  written      mcp/zotero\nagent-add — Install Summary\nHost: Gemini CLI\nScope: user (--global)\n\n  ✓ written       mcp/zotero → <SANDBOX>\\zotero-mcp\\gemini\\isolated-profile\\.gemini\\settings.json\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "gemini",
         "--mcp",
         "{\"zotero\":{\"command\":\"zotero-mcp\",\"env\":{\"ZOTERO_LOCAL\":\"true\"}}}"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/zotero\n  resolving  mcp/zotero\n  ready        mcp/zotero\n  validating  batch\n  installing  mcp/zotero\n  exists       mcp/zotero\nagent-add — Install Summary\nHost: Gemini CLI\nScope: project\n\n  ≡ exists        mcp/zotero → <SANDBOX>\\zotero-mcp\\gemini\\.gemini\\settings.json\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/zotero\n  resolving  mcp/zotero\n  ready        mcp/zotero\n  validating  batch\n  installing  mcp/zotero\n  exists       mcp/zotero\nagent-add — Install Summary\nHost: Gemini CLI\nScope: user (--global)\n\n  ≡ exists        mcp/zotero → <SANDBOX>\\zotero-mcp\\gemini\\isolated-profile\\.gemini\\settings.json\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "gemini",
         "--mcp",
         "<SANDBOX>\\zotero-mcp-conflict.json"
       ],
       "exitCode": 1,
-      "output": "  pending     mcp/zotero-mcp-conflict\n  resolving  mcp/zotero-mcp-conflict\n  ready        mcp/zotero-mcp-conflict\n  validating  batch\n  installing  mcp/zotero\n  conflict     mcp/zotero\nagent-add — Install Summary\nHost: Gemini CLI\nScope: project\n\n  ✗ conflict      mcp/zotero → <SANDBOX>\\zotero-mcp\\gemini\\.gemini\\settings.json\n    ! conflict: mcp/zotero — MCP 'zotero' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
+      "output": "  pending     mcp/zotero-mcp-conflict\n  resolving  mcp/zotero-mcp-conflict\n  ready        mcp/zotero-mcp-conflict\n  validating  batch\n  installing  mcp/zotero\n  conflict     mcp/zotero\nagent-add — Install Summary\nHost: Gemini CLI\nScope: user (--global)\n\n  ✗ conflict      mcp/zotero → <SANDBOX>\\zotero-mcp\\gemini\\isolated-profile\\.gemini\\settings.json\n    ! conflict: mcp/zotero — MCP 'zotero' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "cursor",
         "--mcp",
         "{\"canvas-api\":{\"command\":\"/absolute/path/to/canvas-mcp/.venv/bin/canvas-mcp-server\",\"cwd\":\"/absolute/path/to/canvas-mcp\"}}"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/canvas-api\n  resolving  mcp/canvas-api\n  ready        mcp/canvas-api\n  validating  batch\n  installing  mcp/canvas-api\n  written      mcp/canvas-api\nagent-add — Install Summary\nHost: Cursor\nScope: project\n\n  ✓ written       mcp/canvas-api → <SANDBOX>\\canvas-mcp-agent-add\\cursor\\.cursor\\mcp.json\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/canvas-api\n  resolving  mcp/canvas-api\n  ready        mcp/canvas-api\n  validating  batch\n  installing  mcp/canvas-api\n  written      mcp/canvas-api\nagent-add — Install Summary\nHost: Cursor\nScope: user (--global)\n\n  ✓ written       mcp/canvas-api → <SANDBOX>\\canvas-mcp-agent-add\\cursor\\isolated-profile\\.cursor\\mcp.json\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "cursor",
         "--mcp",
         "{\"canvas-api\":{\"command\":\"/absolute/path/to/canvas-mcp/.venv/bin/canvas-mcp-server\",\"cwd\":\"/absolute/path/to/canvas-mcp\"}}"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/canvas-api\n  resolving  mcp/canvas-api\n  ready        mcp/canvas-api\n  validating  batch\n  installing  mcp/canvas-api\n  exists       mcp/canvas-api\nagent-add — Install Summary\nHost: Cursor\nScope: project\n\n  ≡ exists        mcp/canvas-api → <SANDBOX>\\canvas-mcp-agent-add\\cursor\\.cursor\\mcp.json\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/canvas-api\n  resolving  mcp/canvas-api\n  ready        mcp/canvas-api\n  validating  batch\n  installing  mcp/canvas-api\n  exists       mcp/canvas-api\nagent-add — Install Summary\nHost: Cursor\nScope: user (--global)\n\n  ≡ exists        mcp/canvas-api → <SANDBOX>\\canvas-mcp-agent-add\\cursor\\isolated-profile\\.cursor\\mcp.json\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "cursor",
         "--mcp",
         "<SANDBOX>\\canvas-mcp-agent-add-conflict.json"
       ],
       "exitCode": 1,
-      "output": "  pending     mcp/canvas-mcp-agent-add-conflict\n  resolving  mcp/canvas-mcp-agent-add-conflict\n  ready        mcp/canvas-mcp-agent-add-conflict\n  validating  batch\n  installing  mcp/canvas-api\n  conflict     mcp/canvas-api\nagent-add — Install Summary\nHost: Cursor\nScope: project\n\n  ✗ conflict      mcp/canvas-api → <SANDBOX>\\canvas-mcp-agent-add\\cursor\\.cursor\\mcp.json\n    ! conflict: mcp/canvas-api — MCP 'canvas-api' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
+      "output": "  pending     mcp/canvas-mcp-agent-add-conflict\n  resolving  mcp/canvas-mcp-agent-add-conflict\n  ready        mcp/canvas-mcp-agent-add-conflict\n  validating  batch\n  installing  mcp/canvas-api\n  conflict     mcp/canvas-api\nagent-add — Install Summary\nHost: Cursor\nScope: user (--global)\n\n  ✗ conflict      mcp/canvas-api → <SANDBOX>\\canvas-mcp-agent-add\\cursor\\isolated-profile\\.cursor\\mcp.json\n    ! conflict: mcp/canvas-api — MCP 'canvas-api' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "codex",
         "--mcp",
         "{\"canvas-api\":{\"command\":\"/absolute/path/to/canvas-mcp/.venv/bin/canvas-mcp-server\",\"cwd\":\"/absolute/path/to/canvas-mcp\"}}"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/canvas-api\n  resolving  mcp/canvas-api\n  ready        mcp/canvas-api\n  validating  batch\n  installing  mcp/canvas-api\n  written      mcp/canvas-api\nagent-add — Install Summary\nHost: Codex CLI\nScope: project\n\n  ✓ written       mcp/canvas-api → <SANDBOX>\\canvas-mcp-agent-add\\codex\\.codex\\config.toml\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/canvas-api\n  resolving  mcp/canvas-api\n  ready        mcp/canvas-api\n  validating  batch\n  installing  mcp/canvas-api\n  written      mcp/canvas-api\nagent-add — Install Summary\nHost: Codex CLI\nScope: user (--global)\n\n  ✓ written       mcp/canvas-api → <SANDBOX>\\canvas-mcp-agent-add\\codex\\isolated-profile\\.codex\\config.toml\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "codex",
         "--mcp",
         "{\"canvas-api\":{\"command\":\"/absolute/path/to/canvas-mcp/.venv/bin/canvas-mcp-server\",\"cwd\":\"/absolute/path/to/canvas-mcp\"}}"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/canvas-api\n  resolving  mcp/canvas-api\n  ready        mcp/canvas-api\n  validating  batch\n  installing  mcp/canvas-api\n  exists       mcp/canvas-api\nagent-add — Install Summary\nHost: Codex CLI\nScope: project\n\n  ≡ exists        mcp/canvas-api → <SANDBOX>\\canvas-mcp-agent-add\\codex\\.codex\\config.toml\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/canvas-api\n  resolving  mcp/canvas-api\n  ready        mcp/canvas-api\n  validating  batch\n  installing  mcp/canvas-api\n  exists       mcp/canvas-api\nagent-add — Install Summary\nHost: Codex CLI\nScope: user (--global)\n\n  ≡ exists        mcp/canvas-api → <SANDBOX>\\canvas-mcp-agent-add\\codex\\isolated-profile\\.codex\\config.toml\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "codex",
         "--mcp",
         "<SANDBOX>\\canvas-mcp-agent-add-conflict.json"
       ],
       "exitCode": 1,
-      "output": "  pending     mcp/canvas-mcp-agent-add-conflict\n  resolving  mcp/canvas-mcp-agent-add-conflict\n  ready        mcp/canvas-mcp-agent-add-conflict\n  validating  batch\n  installing  mcp/canvas-api\n  conflict     mcp/canvas-api\nagent-add — Install Summary\nHost: Codex CLI\nScope: project\n\n  ✗ conflict      mcp/canvas-api → <SANDBOX>\\canvas-mcp-agent-add\\codex\\.codex\\config.toml\n    ! conflict: mcp/canvas-api — MCP 'canvas-api' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
+      "output": "  pending     mcp/canvas-mcp-agent-add-conflict\n  resolving  mcp/canvas-mcp-agent-add-conflict\n  ready        mcp/canvas-mcp-agent-add-conflict\n  validating  batch\n  installing  mcp/canvas-api\n  conflict     mcp/canvas-api\nagent-add — Install Summary\nHost: Codex CLI\nScope: user (--global)\n\n  ✗ conflict      mcp/canvas-api → <SANDBOX>\\canvas-mcp-agent-add\\codex\\isolated-profile\\.codex\\config.toml\n    ! conflict: mcp/canvas-api — MCP 'canvas-api' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "gemini",
         "--mcp",
         "{\"canvas-api\":{\"command\":\"/absolute/path/to/canvas-mcp/.venv/bin/canvas-mcp-server\",\"cwd\":\"/absolute/path/to/canvas-mcp\"}}"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/canvas-api\n  resolving  mcp/canvas-api\n  ready        mcp/canvas-api\n  validating  batch\n  installing  mcp/canvas-api\n  written      mcp/canvas-api\nagent-add — Install Summary\nHost: Gemini CLI\nScope: project\n\n  ✓ written       mcp/canvas-api → <SANDBOX>\\canvas-mcp-agent-add\\gemini\\.gemini\\settings.json\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/canvas-api\n  resolving  mcp/canvas-api\n  ready        mcp/canvas-api\n  validating  batch\n  installing  mcp/canvas-api\n  written      mcp/canvas-api\nagent-add — Install Summary\nHost: Gemini CLI\nScope: user (--global)\n\n  ✓ written       mcp/canvas-api → <SANDBOX>\\canvas-mcp-agent-add\\gemini\\isolated-profile\\.gemini\\settings.json\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "gemini",
         "--mcp",
         "{\"canvas-api\":{\"command\":\"/absolute/path/to/canvas-mcp/.venv/bin/canvas-mcp-server\",\"cwd\":\"/absolute/path/to/canvas-mcp\"}}"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/canvas-api\n  resolving  mcp/canvas-api\n  ready        mcp/canvas-api\n  validating  batch\n  installing  mcp/canvas-api\n  exists       mcp/canvas-api\nagent-add — Install Summary\nHost: Gemini CLI\nScope: project\n\n  ≡ exists        mcp/canvas-api → <SANDBOX>\\canvas-mcp-agent-add\\gemini\\.gemini\\settings.json\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/canvas-api\n  resolving  mcp/canvas-api\n  ready        mcp/canvas-api\n  validating  batch\n  installing  mcp/canvas-api\n  exists       mcp/canvas-api\nagent-add — Install Summary\nHost: Gemini CLI\nScope: user (--global)\n\n  ≡ exists        mcp/canvas-api → <SANDBOX>\\canvas-mcp-agent-add\\gemini\\isolated-profile\\.gemini\\settings.json\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "gemini",
         "--mcp",
         "<SANDBOX>\\canvas-mcp-agent-add-conflict.json"
       ],
       "exitCode": 1,
-      "output": "  pending     mcp/canvas-mcp-agent-add-conflict\n  resolving  mcp/canvas-mcp-agent-add-conflict\n  ready        mcp/canvas-mcp-agent-add-conflict\n  validating  batch\n  installing  mcp/canvas-api\n  conflict     mcp/canvas-api\nagent-add — Install Summary\nHost: Gemini CLI\nScope: project\n\n  ✗ conflict      mcp/canvas-api → <SANDBOX>\\canvas-mcp-agent-add\\gemini\\.gemini\\settings.json\n    ! conflict: mcp/canvas-api — MCP 'canvas-api' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
+      "output": "  pending     mcp/canvas-mcp-agent-add-conflict\n  resolving  mcp/canvas-mcp-agent-add-conflict\n  ready        mcp/canvas-mcp-agent-add-conflict\n  validating  batch\n  installing  mcp/canvas-api\n  conflict     mcp/canvas-api\nagent-add — Install Summary\nHost: Gemini CLI\nScope: user (--global)\n\n  ✗ conflict      mcp/canvas-api → <SANDBOX>\\canvas-mcp-agent-add\\gemini\\isolated-profile\\.gemini\\settings.json\n    ! conflict: mcp/canvas-api — MCP 'canvas-api' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "cursor",
         "--mcp",
         "https://raw.githubusercontent.com/Jpisnice/shadcn-ui-mcp-server/master/.mcp.json"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/.mcp\n  resolving  mcp/.mcp\n  downloading 0 B  mcp/.mcp\n  downloading 153 B  mcp/.mcp\n  ready        mcp/.mcp\n  validating  batch\n  installing  mcp/shadcn-ui\n  written      mcp/shadcn-ui\nagent-add — Install Summary\nHost: Cursor\nScope: project\n\n  ✓ written       mcp/shadcn-ui → <SANDBOX>\\shadcn-ui-mcp-server\\cursor\\.cursor\\mcp.json\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/.mcp\n  resolving  mcp/.mcp\n  downloading 0 B  mcp/.mcp\n  downloading 153 B  mcp/.mcp\n  ready        mcp/.mcp\n  validating  batch\n  installing  mcp/shadcn-ui\n  written      mcp/shadcn-ui\nagent-add — Install Summary\nHost: Cursor\nScope: user (--global)\n\n  ✓ written       mcp/shadcn-ui → <SANDBOX>\\shadcn-ui-mcp-server\\cursor\\isolated-profile\\.cursor\\mcp.json\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "cursor",
         "--mcp",
         "https://raw.githubusercontent.com/Jpisnice/shadcn-ui-mcp-server/master/.mcp.json"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/.mcp\n  resolving  mcp/.mcp\n  downloading 0 B  mcp/.mcp\n  downloading 153 B  mcp/.mcp\n  ready        mcp/.mcp\n  validating  batch\n  installing  mcp/shadcn-ui\n  exists       mcp/shadcn-ui\nagent-add — Install Summary\nHost: Cursor\nScope: project\n\n  ≡ exists        mcp/shadcn-ui → <SANDBOX>\\shadcn-ui-mcp-server\\cursor\\.cursor\\mcp.json\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/.mcp\n  resolving  mcp/.mcp\n  downloading 0 B  mcp/.mcp\n  downloading 153 B  mcp/.mcp\n  ready        mcp/.mcp\n  validating  batch\n  installing  mcp/shadcn-ui\n  exists       mcp/shadcn-ui\nagent-add — Install Summary\nHost: Cursor\nScope: user (--global)\n\n  ≡ exists        mcp/shadcn-ui → <SANDBOX>\\shadcn-ui-mcp-server\\cursor\\isolated-profile\\.cursor\\mcp.json\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "cursor",
         "--mcp",
         "<SANDBOX>\\shadcn-ui-mcp-server-conflict.json"
       ],
       "exitCode": 1,
-      "output": "  pending     mcp/shadcn-ui-mcp-server-conflict\n  resolving  mcp/shadcn-ui-mcp-server-conflict\n  ready        mcp/shadcn-ui-mcp-server-conflict\n  validating  batch\n  installing  mcp/shadcn-ui\n  conflict     mcp/shadcn-ui\nagent-add — Install Summary\nHost: Cursor\nScope: project\n\n  ✗ conflict      mcp/shadcn-ui → <SANDBOX>\\shadcn-ui-mcp-server\\cursor\\.cursor\\mcp.json\n    ! conflict: mcp/shadcn-ui — MCP 'shadcn-ui' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
+      "output": "  pending     mcp/shadcn-ui-mcp-server-conflict\n  resolving  mcp/shadcn-ui-mcp-server-conflict\n  ready        mcp/shadcn-ui-mcp-server-conflict\n  validating  batch\n  installing  mcp/shadcn-ui\n  conflict     mcp/shadcn-ui\nagent-add — Install Summary\nHost: Cursor\nScope: user (--global)\n\n  ✗ conflict      mcp/shadcn-ui → <SANDBOX>\\shadcn-ui-mcp-server\\cursor\\isolated-profile\\.cursor\\mcp.json\n    ! conflict: mcp/shadcn-ui — MCP 'shadcn-ui' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "codex",
         "--mcp",
         "https://raw.githubusercontent.com/Jpisnice/shadcn-ui-mcp-server/master/.mcp.json"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/.mcp\n  resolving  mcp/.mcp\n  downloading 0 B  mcp/.mcp\n  downloading 153 B  mcp/.mcp\n  ready        mcp/.mcp\n  validating  batch\n  installing  mcp/shadcn-ui\n  written      mcp/shadcn-ui\nagent-add — Install Summary\nHost: Codex CLI\nScope: project\n\n  ✓ written       mcp/shadcn-ui → <SANDBOX>\\shadcn-ui-mcp-server\\codex\\.codex\\config.toml\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/.mcp\n  resolving  mcp/.mcp\n  downloading 0 B  mcp/.mcp\n  downloading 153 B  mcp/.mcp\n  ready        mcp/.mcp\n  validating  batch\n  installing  mcp/shadcn-ui\n  written      mcp/shadcn-ui\nagent-add — Install Summary\nHost: Codex CLI\nScope: user (--global)\n\n  ✓ written       mcp/shadcn-ui → <SANDBOX>\\shadcn-ui-mcp-server\\codex\\isolated-profile\\.codex\\config.toml\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "codex",
         "--mcp",
         "https://raw.githubusercontent.com/Jpisnice/shadcn-ui-mcp-server/master/.mcp.json"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/.mcp\n  resolving  mcp/.mcp\n  downloading 0 B  mcp/.mcp\n  downloading 153 B  mcp/.mcp\n  ready        mcp/.mcp\n  validating  batch\n  installing  mcp/shadcn-ui\n  exists       mcp/shadcn-ui\nagent-add — Install Summary\nHost: Codex CLI\nScope: project\n\n  ≡ exists        mcp/shadcn-ui → <SANDBOX>\\shadcn-ui-mcp-server\\codex\\.codex\\config.toml\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/.mcp\n  resolving  mcp/.mcp\n  downloading 0 B  mcp/.mcp\n  downloading 153 B  mcp/.mcp\n  ready        mcp/.mcp\n  validating  batch\n  installing  mcp/shadcn-ui\n  exists       mcp/shadcn-ui\nagent-add — Install Summary\nHost: Codex CLI\nScope: user (--global)\n\n  ≡ exists        mcp/shadcn-ui → <SANDBOX>\\shadcn-ui-mcp-server\\codex\\isolated-profile\\.codex\\config.toml\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "codex",
         "--mcp",
         "<SANDBOX>\\shadcn-ui-mcp-server-conflict.json"
       ],
       "exitCode": 1,
-      "output": "  pending     mcp/shadcn-ui-mcp-server-conflict\n  resolving  mcp/shadcn-ui-mcp-server-conflict\n  ready        mcp/shadcn-ui-mcp-server-conflict\n  validating  batch\n  installing  mcp/shadcn-ui\n  conflict     mcp/shadcn-ui\nagent-add — Install Summary\nHost: Codex CLI\nScope: project\n\n  ✗ conflict      mcp/shadcn-ui → <SANDBOX>\\shadcn-ui-mcp-server\\codex\\.codex\\config.toml\n    ! conflict: mcp/shadcn-ui — MCP 'shadcn-ui' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
+      "output": "  pending     mcp/shadcn-ui-mcp-server-conflict\n  resolving  mcp/shadcn-ui-mcp-server-conflict\n  ready        mcp/shadcn-ui-mcp-server-conflict\n  validating  batch\n  installing  mcp/shadcn-ui\n  conflict     mcp/shadcn-ui\nagent-add — Install Summary\nHost: Codex CLI\nScope: user (--global)\n\n  ✗ conflict      mcp/shadcn-ui → <SANDBOX>\\shadcn-ui-mcp-server\\codex\\isolated-profile\\.codex\\config.toml\n    ! conflict: mcp/shadcn-ui — MCP 'shadcn-ui' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "gemini",
         "--mcp",
         "https://raw.githubusercontent.com/Jpisnice/shadcn-ui-mcp-server/master/.mcp.json"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/.mcp\n  resolving  mcp/.mcp\n  downloading 0 B  mcp/.mcp\n  downloading 153 B  mcp/.mcp\n  ready        mcp/.mcp\n  validating  batch\n  installing  mcp/shadcn-ui\n  written      mcp/shadcn-ui\nagent-add — Install Summary\nHost: Gemini CLI\nScope: project\n\n  ✓ written       mcp/shadcn-ui → <SANDBOX>\\shadcn-ui-mcp-server\\gemini\\.gemini\\settings.json\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/.mcp\n  resolving  mcp/.mcp\n  downloading 0 B  mcp/.mcp\n  downloading 153 B  mcp/.mcp\n  ready        mcp/.mcp\n  validating  batch\n  installing  mcp/shadcn-ui\n  written      mcp/shadcn-ui\nagent-add — Install Summary\nHost: Gemini CLI\nScope: user (--global)\n\n  ✓ written       mcp/shadcn-ui → <SANDBOX>\\shadcn-ui-mcp-server\\gemini\\isolated-profile\\.gemini\\settings.json\n\n1 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "gemini",
         "--mcp",
         "https://raw.githubusercontent.com/Jpisnice/shadcn-ui-mcp-server/master/.mcp.json"
       ],
       "exitCode": 0,
-      "output": "  pending     mcp/.mcp\n  resolving  mcp/.mcp\n  downloading 0 B  mcp/.mcp\n  downloading 153 B  mcp/.mcp\n  ready        mcp/.mcp\n  validating  batch\n  installing  mcp/shadcn-ui\n  exists       mcp/shadcn-ui\nagent-add — Install Summary\nHost: Gemini CLI\nScope: project\n\n  ≡ exists        mcp/shadcn-ui → <SANDBOX>\\shadcn-ui-mcp-server\\gemini\\.gemini\\settings.json\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
+      "output": "  pending     mcp/.mcp\n  resolving  mcp/.mcp\n  downloading 0 B  mcp/.mcp\n  downloading 153 B  mcp/.mcp\n  ready        mcp/.mcp\n  validating  batch\n  installing  mcp/shadcn-ui\n  exists       mcp/shadcn-ui\nagent-add — Install Summary\nHost: Gemini CLI\nScope: user (--global)\n\n  ≡ exists        mcp/shadcn-ui → <SANDBOX>\\shadcn-ui-mcp-server\\gemini\\isolated-profile\\.gemini\\settings.json\n\n0 written · 0 overwritten · 0 updated · 1 exists · 0 skipped · 0 conflicts · 0 errors\n"
     },
     {
       "args": [
+        "--global",
         "--host",
         "gemini",
         "--mcp",
         "<SANDBOX>\\shadcn-ui-mcp-server-conflict.json"
       ],
       "exitCode": 1,
-      "output": "  pending     mcp/shadcn-ui-mcp-server-conflict\n  resolving  mcp/shadcn-ui-mcp-server-conflict\n  ready        mcp/shadcn-ui-mcp-server-conflict\n  validating  batch\n  installing  mcp/shadcn-ui\n  conflict     mcp/shadcn-ui\nagent-add — Install Summary\nHost: Gemini CLI\nScope: project\n\n  ✗ conflict      mcp/shadcn-ui → <SANDBOX>\\shadcn-ui-mcp-server\\gemini\\.gemini\\settings.json\n    ! conflict: mcp/shadcn-ui — MCP 'shadcn-ui' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
+      "output": "  pending     mcp/shadcn-ui-mcp-server-conflict\n  resolving  mcp/shadcn-ui-mcp-server-conflict\n  ready        mcp/shadcn-ui-mcp-server-conflict\n  validating  batch\n  installing  mcp/shadcn-ui\n  conflict     mcp/shadcn-ui\nagent-add — Install Summary\nHost: Gemini CLI\nScope: user (--global)\n\n  ✗ conflict      mcp/shadcn-ui → <SANDBOX>\\shadcn-ui-mcp-server\\gemini\\isolated-profile\\.gemini\\settings.json\n    ! conflict: mcp/shadcn-ui — MCP 'shadcn-ui' already has different content; use --overwrite to replace it\n\n0 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 1 conflicts · 0 errors\n"
     }
   ],
   "manualCheck": {
