@@ -27,6 +27,8 @@ npx -y agent-add \
 
 > 通过 GitHub Actions 构建发布，可查看 [npm 来源证明](https://www.npmjs.com/package/agent-add#provenance)和 [Socket Security 报告](https://socket.dev/npm/package/agent-add/alerts)。
 
+![agent-add 安装演示](../.github/assets/install-demo.gif)
+
 ---
 
 | AI 工具 | MCP | Prompt | Skill | 斜杠命令 | 子代理 |

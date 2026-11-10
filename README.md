@@ -27,6 +27,8 @@ npx -y agent-add \
 
 > Releases are built and published via GitHub Actions; see [npm provenance](https://www.npmjs.com/package/agent-add#provenance) and the [Socket Security report](https://socket.dev/npm/package/agent-add/alerts).
 
+![agent-add installation demo](./.github/assets/install-demo.gif)
+
 ---
 
 ## Supported Hosts

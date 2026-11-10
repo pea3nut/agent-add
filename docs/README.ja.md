@@ -27,6 +27,8 @@ npx -y agent-add \
 
 > GitHub Actions でビルド・公開し、[npm provenance](https://www.npmjs.com/package/agent-add#provenance)と [Socket Security レポート](https://socket.dev/npm/package/agent-add/alerts)を提供しています。
 
+![agent-add のインストールデモ](../.github/assets/install-demo.gif)
+
 ---
 
 | AI ツール | MCP | Prompt | Skill | コマンド | サブエージェント |
