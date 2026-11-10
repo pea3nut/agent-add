@@ -3,7 +3,9 @@
 `install-demo.gif` is a recording of the opening README command, run with
 agent-add 1.3.1 in a fresh temporary project in Bash. It shows the real host
 picker (Down, Down, Up, Enter), six successful writes to Claude Code, and
-`ls -la` followed by `ls -la .claude/{skills,commands,agents}`.
+a final `ls -al` listing of every installed file, including the PDF skill's
+supporting files. The recording uses `find . -type f -exec ls -al {} +` to
+include files in nested directories in one view.
 
 The editable terminal recording is `install-demo.cast` (asciicast v2).
 The animation pauses on the complete command at the start and on the
@@ -20,6 +22,6 @@ agg --font-family 'DejaVu Sans Mono' --font-size 18 --line-height 1.25 \
 To refresh the demo, record the opening README command in a clean project
 with a 108-column, 34-row terminal using asciinema. Keep the command visible
 before executing it, navigate the host picker to Claude Code, and inspect
-the resulting files with the two `ls -la` commands above. Replace the cast
+the resulting files with the listing command above. Replace the cast
 and regenerate the GIF. Keep these media files here so they are excluded
 from the published npm package.
