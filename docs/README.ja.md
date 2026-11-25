@@ -38,7 +38,7 @@ npx -y agent-add \
 | <img src="https://www.google.com/s2/favicons?domain=trae.ai&sz=32" width="16"> Trae | ✅ | ✅ | ✅ | ❌ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=qwen.ai&sz=32" width="16"> Qwen Code | ✅ | ✅ | ✅ | ✅ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=github.com&sz=32" width="16"> GitHub Copilot | ✅ | ✅ | ✅ | ✅ | ✅ |
-| <img src="https://www.google.com/s2/favicons?domain=openai.com&sz=32" width="16"> Codex CLI | ✅ | ✅ | ✅ | ❌ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=openai.com&sz=32" width="16"> Codex CLI | ✅ | ✅ | ✅ | ↪ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=windsurf.com&sz=32" width="16"> Windsurf | ✅ | ✅ | ✅ | ✅ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=gemini.google.com&sz=32" width="16"> Gemini CLI | ✅ | ✅ | ✅ | ✅ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=kimi.ai&sz=32" width="16"> Kimi Code | ✅ | ✅ | ✅ | ❌ | ❌ |
@@ -51,6 +51,8 @@ npx -y agent-add \
 | <img src="https://www.google.com/s2/favicons?domain=openclawlab.com&sz=32" width="16"> OpenClaw | ✅ | ✅ | ✅ | ❌ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=mistral.ai&sz=32" width="16"> Mistral Vibe | ✅ | ✅ | ✅ | ❌ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=32" width="16"> Claude Desktop | ✅ | ❌ | ❌ | ❌ | ❌ |
+
+↪ は Command を手動で呼び出す Skill に変換することを示します。
 
 ---
 
@@ -300,7 +302,17 @@ Review the current file for bugs, security issues, and style violations.
 
 Gemini CLI では、Markdown 本文が `.gemini/commands/<name>.toml` の `prompt` 文字列に
 変換されます。任意のフロントマター `description` 文字列は保持され、その他のフィールドは
-省略されます。他のホストでは元の Markdown が保持されます。
+省略されます。ネイティブのコマンド対象を持つ他のホストでは元の Markdown が保持されます。
+
+**Codex** では、`--command` と Pack の Command は
+`.agents/skills/<name>/` の Skill に変換されます。`--global` では
+`~/.agents/skills/<name>/` を使います。元の本文、`description`、`argument-hint` を
+保持し、対応できないメタデータはエラーになります。`agents/openai.yaml` で
+`policy.allow_implicit_invocation: false` を設定し、明示的な呼び出しに限定します。
+Codex CLI では `/scenario-exec` の代わりに `$scenario-exec` または `/skills` を
+使います。引数はユーザーの入力から解釈され、ネイティブのコマンドマクロ展開は行いません。
+変換後は Skill と同じ上書き保護を適用し、同一バッチの Skill との名前衝突は
+`--overwrite` がない限り書き込み前に拒否します。
 
 ### Sub-agent ファイル
 

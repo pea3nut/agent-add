@@ -38,7 +38,7 @@ npx -y agent-add \
 | <img src="https://www.google.com/s2/favicons?domain=trae.ai&sz=32" width="16"> Trae | ✅ | ✅ | ✅ | ❌ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=qwen.ai&sz=32" width="16"> Qwen Code | ✅ | ✅ | ✅ | ✅ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=github.com&sz=32" width="16"> GitHub Copilot | ✅ | ✅ | ✅ | ✅ | ✅ |
-| <img src="https://www.google.com/s2/favicons?domain=openai.com&sz=32" width="16"> Codex CLI | ✅ | ✅ | ✅ | ❌ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=openai.com&sz=32" width="16"> Codex CLI | ✅ | ✅ | ✅ | ↪ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=windsurf.com&sz=32" width="16"> Windsurf | ✅ | ✅ | ✅ | ✅ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=gemini.google.com&sz=32" width="16"> Gemini CLI | ✅ | ✅ | ✅ | ✅ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=kimi.ai&sz=32" width="16"> Kimi Code | ✅ | ✅ | ✅ | ❌ | ❌ |
@@ -51,6 +51,8 @@ npx -y agent-add \
 | <img src="https://www.google.com/s2/favicons?domain=openclawlab.com&sz=32" width="16"> OpenClaw | ❌ | ✅ | ✅ | ❌ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=mistral.ai&sz=32" width="16"> Mistral Vibe | ✅ | ✅ | ✅ | ❌ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=32" width="16"> Claude Desktop | ✅ | ❌ | ❌ | ❌ | ❌ |
+
+↪ 表示将 Command 转换为手动调用的 Skill，详见下方 Command 文件说明。
 
 ---
 
@@ -298,7 +300,20 @@ Review the current file for bugs, security issues, and style violations.
 
 对于 Gemini CLI，Markdown 正文会序列化为 `.gemini/commands/<name>.toml` 中的
 `prompt` 字符串。可选的 frontmatter `description` 字符串会保留，其余 frontmatter
-字段会省略。其他宿主仍保留原始 Markdown。
+字段会省略。其他具有原生命令目标的宿主仍保留原始 Markdown。
+
+对于 **Codex**，`--command` 和 Pack 中的 Command 会自动转换为原生 Skill，
+安装到 `.agents/skills/<name>/`；使用 `--global` 时安装到
+`~/.agents/skills/<name>/`。原始正文保留在 `SKILL.md` 中，支持宿主特化后的
+`description` 和 `argument-hint`，其余字段会明确报错。
+生成的 `agents/openai.yaml` 设置 `policy.allow_implicit_invocation: false`，
+保持手动调用。Codex CLI 中使用 `$scenario-exec cases=tests/features`，
+或通过 `/skills` 选择，不再输入 `/scenario-exec`。参数由模型从用户输入中理解，
+不提供原生 Command 宏替换。
+
+安装摘要会显示转换结果和调用方式。转换后的命令遵循 Skill 的完整目录保护和
+`--overwrite` 规则；同一次安装中与原生 Skill 重名时，默认阻止全部写入，
+显式指定 `--overwrite` 后按来源顺序替换。此流程不创建独立的 Codex commands 目录。
 
 ### Sub-agent 文件
 
@@ -322,6 +337,13 @@ Plan and generate Playwright tests.
 安装时，agent-add 会：
 1. 将匹配当前宿主的 `agent-add/<host>/*` 值**提升到顶层**
 2. **移除**所有 `agent-add/*` 前缀的 key
+
+**Codex：** Sub-agent 会转换为原生 TOML。`model: inherit` 会省略模型覆盖，
+使用 Codex 正常的模型选择规则。布尔值 `readonly: true` 会在
+`developer_instructions` 中补充禁止修改文件的指令；`false` 或省略该字段时不追加限制。
+这属于行为指令，不是强制沙箱：子代理会继承父会话的权限。需要强制只读时，
+应在父会话配置只读沙箱。宿主特化字段先于这些转换生效，未知字段仍会校验失败。
+详见[宿主参考](../src/hosts/README.md#codex-cli)。
 
 **安装到 Cursor 后：**
 

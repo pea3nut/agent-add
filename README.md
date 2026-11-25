@@ -44,7 +44,7 @@ Install into the current project without `--global`.
 | <img src="https://www.google.com/s2/favicons?domain=trae.ai&sz=32" width="16"> Trae | ✅ | ✅ | ✅ | ❌ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=qwen.ai&sz=32" width="16"> Qwen Code | ✅ | ✅ | ✅ | ✅ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=github.com&sz=32" width="16"> GitHub Copilot | ✅ | ✅ | ✅ | ✅ | ✅ |
-| <img src="https://www.google.com/s2/favicons?domain=openai.com&sz=32" width="16"> Codex CLI | ✅ | ✅ | ✅ | ❌ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=openai.com&sz=32" width="16"> Codex CLI | ✅ | ✅ | ✅ | ↪ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=windsurf.com&sz=32" width="16"> Windsurf (legacy Cascade) | ❌ | ✅ | ✅ | ✅ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=gemini.google.com&sz=32" width="16"> Gemini CLI | ✅ | ✅ | ✅ | ✅ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=kimi.ai&sz=32" width="16"> Kimi Code | ❌ | ✅ | ✅ | ❌ | ❌ |
@@ -63,6 +63,7 @@ Install into the current project without `--global`.
 | <img src="https://www.google.com/s2/favicons?domain=ampcode.com&sz=32" width="16"> Amp CLI | ✅ | ✅ | ✅ | ❌ | ❌ |
 
 OpenClaw and Claude Desktop are global-only hosts; they have no project installation target.
+Codex's ↪ Command support converts the input into a manually invoked Skill; see [Command File](#command-file).
 
 ### User scope (`--global`)
 
@@ -75,7 +76,7 @@ Install for the current OS user, independently of the current project.
 | <img src="https://www.google.com/s2/favicons?domain=trae.ai&sz=32" width="16"> Trae | ❌ | ❌ | ✅ | ❌ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=qwen.ai&sz=32" width="16"> Qwen Code | ✅ | ❌ | ✅ | ✅ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=github.com&sz=32" width="16"> GitHub Copilot (VS Code) | ❌ | ❌ | ✅ | ❌ | ✅ |
-| <img src="https://www.google.com/s2/favicons?domain=openai.com&sz=32" width="16"> Codex CLI | ✅ | ✅ | ✅ | ❌ | ✅ |
+| <img src="https://www.google.com/s2/favicons?domain=openai.com&sz=32" width="16"> Codex CLI | ✅ | ✅ | ✅ | ↪ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=windsurf.com&sz=32" width="16"> Windsurf (legacy Cascade) | ❌ | ❌ | ❌ | ✅ | ❌ |
 | <img src="https://www.google.com/s2/favicons?domain=gemini.google.com&sz=32" width="16"> Gemini CLI | ✅ | ✅ | ✅ | ✅ | ✅ |
 | <img src="https://www.google.com/s2/favicons?domain=kimi.ai&sz=32" width="16"> Kimi Code | ✅ | ❌ | ✅ | ❌ | ❌ |
@@ -96,6 +97,7 @@ Install for the current OS user, independently of the current project.
 | <img src="https://www.google.com/s2/favicons?domain=ampcode.com&sz=32" width="16"> Amp CLI | ✅ | ✅ | ✅ | ❌ | ❌ |
 
 ✅ / ❌ = installable / unavailable through agent-add in that scope. Claude Desktop requires macOS or Windows.
+↪ = Command converted into a manually invoked Skill.
 
 ---
 
@@ -386,7 +388,23 @@ Installed to the host's commands directory (e.g. `.cursor/commands/code-review.m
 
 For Gemini CLI, the Markdown body is serialized as the `prompt` string in
 `.gemini/commands/<name>.toml`. An optional frontmatter `description` string is
-preserved; other frontmatter fields are omitted. Other hosts keep the original Markdown.
+preserved; other frontmatter fields are omitted. Other hosts with native command
+targets keep the original Markdown.
+
+For **Codex**, `--command` and Pack Command entries are converted into a native
+Skill bundle at `.agents/skills/<name>/` (or `~/.agents/skills/<name>/` with
+`--global`). The original body is preserved in `SKILL.md`; `description` and
+`argument-hint` are supported after applying host hints. Other metadata fails
+validation rather than being silently discarded. `agents/openai.yaml` sets
+`policy.allow_implicit_invocation: false` so the workflow runs only when explicitly
+invoked. Use `$scenario-exec cases=tests/features` instead of `/scenario-exec` in
+Codex CLI, or select it with `/skills`. Arguments are interpreted from the user's
+prompt; native command macro expansion is not provided.
+
+The summary identifies the conversion and invocation. Converted commands use the
+same complete-bundle protection and `--overwrite` behavior as Skills. A same-name
+Command/Skill collision within one invocation blocks all writes unless
+`--overwrite` is supplied. Codex has no separate command directory in this flow.
 
 ### Sub-agent File
 
@@ -410,6 +428,15 @@ Plan and generate Playwright tests.
 During installation, agent-add will:
 1. **Promote** matching `agent-add/<host>/*` values to top-level keys
 2. **Remove** all `agent-add/*` prefixed keys
+
+**Codex:** Sub-agents are converted to native TOML. `model: inherit` omits the
+model override so Codex uses its normal model selection. A boolean `readonly: true`
+adds a prohibition on file changes to `developer_instructions`; `false` or an
+absent value adds no constraint. This is an instruction, not an enforced sandbox:
+custom agents inherit the parent session's permissions. Configure an enforced
+read-only sandbox on the parent session. Codex hints are applied before these
+conversions; unknown metadata still fails validation. See the
+[host reference](src/hosts/README.md#codex-cli).
 
 **After installing to Cursor:**
 

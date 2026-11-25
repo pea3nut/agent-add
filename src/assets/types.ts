@@ -15,6 +15,7 @@ export interface InstallJob {
   assetName: string;
   resolvedSource: ResolvedSource;
   host: HostConfig;
+  conversion?: { from: AssetType; invocation: string };
 }
 
 export interface InstallResult {

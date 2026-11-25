@@ -135,4 +135,15 @@ describe('formatSummary', () => {
     expect(output).toContain('1 skipped');
     expect(output).toContain('1 conflicts');
   });
+
+  it('shows the original asset type and invocation for a converted command', () => {
+    const result = makeResult('skill', 'review', 'written');
+    result.job.conversion = { from: 'command', invocation: '$review' };
+
+    const output = formatSummary({ host: mockHost, results: [result] });
+
+    expect(output).toContain('command/review');
+    expect(output).toContain('Converted to skill; invoke with $review');
+    expect(output).toContain('1 written');
+  });
 });
