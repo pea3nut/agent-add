@@ -22,7 +22,7 @@ describe('host layer boundaries', () => {
   it('keeps concrete host identities inside the host layer', () => {
     const ids = new Set<string>(Object.values(HostId));
     const violations: string[] = [];
-    for (const file of files.filter((file) => !file.fileName.startsWith(hosts))) {
+    for (const file of files.filter((file) => !path.normalize(file.fileName).startsWith(hosts))) {
       const visit = (node: ts.Node): void => {
         if (
           (ts.isStringLiteral(node) && ids.has(node.text)) ||
@@ -38,7 +38,7 @@ describe('host layer boundaries', () => {
 
   it('does not let host policy depend on installation orchestration', () => {
     const violations: string[] = [];
-    for (const file of files.filter((file) => file.fileName.startsWith(hosts))) {
+    for (const file of files.filter((file) => path.normalize(file.fileName).startsWith(hosts))) {
       for (const statement of file.statements) {
         if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) continue;
         const target = path.resolve(path.dirname(file.fileName), statement.moduleSpecifier.text);
@@ -54,7 +54,7 @@ describe('host layer boundaries', () => {
   it('keeps native serialization out of asset handlers', () => {
     const codecs = new Set(['yaml', 'smol-toml', 'gray-matter', 'zod']);
     const violations: string[] = [];
-    for (const file of files.filter((file) => file.fileName.startsWith(path.join(root, 'assets') + path.sep))) {
+    for (const file of files.filter((file) => path.normalize(file.fileName).startsWith(path.join(root, 'assets') + path.sep))) {
       for (const statement of file.statements) {
         if (ts.isImportDeclaration(statement) && ts.isStringLiteral(statement.moduleSpecifier) && codecs.has(statement.moduleSpecifier.text))
           violations.push(path.relative(root, file.fileName) + ': ' + statement.moduleSpecifier.text);

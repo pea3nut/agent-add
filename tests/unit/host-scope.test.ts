@@ -44,6 +44,7 @@ describe('scope path selection', () => {
       mcp: { convert: vi.fn(() => ({})) },
       serializeSubAgent: vi.fn(() => 'native content'),
       serializeCommand: vi.fn((content: string) => content),
+      commandToSkill: vi.fn(() => ({ files: { 'SKILL.md': '# Demo' }, invocation: '$demo' })),
       registerPrompt: vi.fn(async () => null),
       resolvePromptTarget: vi.fn(async () => 'native target'),
     };
@@ -52,6 +53,7 @@ describe('scope path selection', () => {
       expect(selected.mcp).toBe(host.mcp);
       expect(selected.serializeSubAgent).toBe(host.serializeSubAgent);
       expect(selected.serializeCommand).toBe(host.serializeCommand);
+      expect(selected.commandToSkill).toBe(host.commandToSkill);
       expect(selected.registerPrompt).toBe(host.registerPrompt);
       expect(selected.resolvePromptTarget).toBe(host.resolvePromptTarget);
     }

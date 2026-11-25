@@ -7,7 +7,7 @@ This file is the **single source of truth for host configuration in agent-add**:
 ## Reading This Reference
 
 - Project paths are relative to the invocation's working directory. `~` is the current OS user's home, not the project root; user paths are native defaults, not a generic `~/.<host>` convention. Platform limits and config-root overrides appear with the affected tool.
-- A file contract is not a similarly named UI feature, built-in command, cloud service or external agent. Skills that expose slash commands do not establish a separate Command asset.
+- A file contract is not a similarly named UI feature, built-in command, cloud service or external agent. Skills that expose slash commands do not establish a separate native Command protocol. The documented Codex Command-to-Skill conversion accepts Command input and installs a native Skill bundle instead.
 - In user tables, **✅** marks a selected file contract, **↪** marks legacy or skill-backed behavior (read the row), **?** marks an unverified/unselected target, and **—** marks no independent installation contract. `?` and `—` are unavailable installer targets, not claims that the product lacks the feature. Claude Code's legacy Command files are installable; skill-backed commands use Skill instead.
 - Project tables distinguish the upstream protocol from the selected installation target and its constraints. A documented native protocol can still be outside the installer contract, such as Kimi's parent-registered YAML agents.
 - A Skill is the **whole directory bundle**, including `SKILL.md` and supporting scripts/resources. JSONC/TOML schemas, native frontmatter and required registrations are part of a contract, not just its filename.
@@ -356,7 +356,7 @@ Homepage: https://github.com/openai/codex
 | MCP | https://developers.openai.com/codex/config-basic/ ; https://developers.openai.com/codex/mcp/ ; https://github.com/openai/codex/blob/main/codex-rs/core/config.schema.json | Project `.codex/config.toml`, `[mcp_servers.<name>]`; project configuration is loaded only for trusted projects | Serialize stdio and HTTP entries as TOML, preserving environment variables and HTTP headers. The installer does not grant project trust. |
 | Prompt | https://developers.openai.com/codex/guides/agents-md | `AGENTS.md` at the repository root and in subdirectories | `AGENTS.md` in project root (strategy: `append-with-marker`) |
 | Skill | https://developers.openai.com/codex/skills | Searches `.agents/skills/` at each project level from cwd to the repository root | `.agents/skills/<name>/SKILL.md`; `.codex/skills/` is no longer the current officially recommended path; include name/description frontmatter |
-| Command | https://developers.openai.com/codex/skills | No standalone project command target selected; use project skills | Not supported as an independent asset |
+| Command | https://developers.openai.com/codex/skills | No standalone command-file protocol; convert prompt-based commands into explicitly invoked Skills | `.agents/skills/<name>/SKILL.md` plus `agents/openai.yaml`; invoke as `$<name>` or through `/skills` |
 | Sub-agent | https://developers.openai.com/codex/subagents | Standalone TOML files in project `.codex/agents/`; require name/description/developer_instructions | `.codex/agents/<name>.toml` (strategy: `copy-file`, installDir: `.codex/agents`) |
 
 #### User scope (`--global`)
@@ -366,8 +366,43 @@ Homepage: https://github.com/openai/codex
 | MCP | ✅ | https://developers.openai.com/codex/config-basic/ ; https://developers.openai.com/codex/mcp/ | `~/.codex/config.toml` → `[mcp_servers.<name>]`; stdio/HTTP schema, native options and TOML-preserving merge. |
 | Prompt | ✅ | https://developers.openai.com/codex/guides/agents-md | `~/.codex/AGENTS.md`; update the effective non-empty `AGENTS.override.md` when present rather than an ignored default file. |
 | Skill | ✅ | https://developers.openai.com/codex/skills | `~/.agents/skills/<name>/SKILL.md`; copy the whole bundle. `CODEX_HOME` does **not** relocate this documented `$HOME/.agents/skills` root. |
-| Command | — | — | No independent command-file target selected. |
+| Command | ↪ | https://developers.openai.com/codex/skills | Convert into `~/.agents/skills/<name>/SKILL.md` plus `agents/openai.yaml`; independent of `CODEX_HOME`, with no separate command directory. |
 | Sub-agent | ✅ | https://developers.openai.com/codex/subagents | `~/.codex/agents/<name>.toml`; serialize native TOML rather than copy Markdown. `CODEX_HOME` relocates the config/instructions root; do not infer unrelated skill paths from it. |
+
+#### Command-to-Skill conversion
+
+Verified against the [official Skill discovery, invocation and policy contract](https://learn.chatgpt.com/docs/build-skills)
+on 2026-11-26. Explicit `--command` flags and Pack Command entries use the same
+conversion in both scopes. Preserve the original Markdown body; supply a Skill
+name from the command filename and a default description when absent. After host
+hints, accept `description` and `argument-hint`; reject other metadata rather than
+discarding model or tool restrictions. Interpret arguments from the user's prompt
+without claiming native command macro expansion. Set
+`policy.allow_implicit_invocation: false` in `agents/openai.yaml`; the summary
+shows the conversion and `$<name>` invocation.
+
+Stage generated bundles before any destination write, then use the existing Skill
+validation, complete-bundle comparison and publication behavior. A collision with
+a native Skill or another converted Command in the same batch blocks writes by
+default. With `--overwrite`, existing ordered last-source-wins rules apply. Other
+hosts retain their selected native Command paths and formats.
+
+#### Portable sub-agent metadata
+
+Rechecked against the [official subagent documentation](https://learn.chatgpt.com/docs/agent-configuration/subagents)
+and [Codex's role override implementation](https://github.com/openai/codex/blob/main/codex-rs/core/src/agent/role.rs)
+on 2026-11-26. Host hints are applied first. `model: inherit` is consumed rather
+than serialized as a literal model ID, leaving model selection to Codex. A boolean
+`readonly: true` is consumed and adds an explicit prohibition on file changes to
+the existing `developer_instructions` (or Markdown body); `false` and absent values
+leave the instructions unchanged. Other value types fail preflight. Unknown
+metadata remains an error.
+
+The read-only conversion expresses behavioral intent; it does **not** establish a
+security boundary. Current custom agents inherit the parent session's sandbox and
+approval policy; per-agent `sandbox_mode` does not override them. Configure an
+enforced read-only sandbox on the parent session rather than relying on this
+metadata or a custom agent's sandbox setting.
 
 ### Tabnine (IDE Agent / CLI)
 
@@ -663,6 +698,7 @@ These constraints apply to the selected scope. Format compatibility does not imp
 | Prompt registration | Kilo writes a rule and registers `instructions`; Aider writes `CONVENTIONS.md` and merges YAML `read` | No interactive UI registration is attempted. A registration error is checked before writing prompt content; multi-file writes are not a filesystem transaction. |
 | Prompt selection | Zed respects first-match precedence; Gemini respects project `context.fileName` | Configured Gemini filenames stay inside the selected scope; user prompt selection uses user settings, not project overrides. |
 | Native assets | Codex and Vibe subagents use valid TOML; Gemini and Tabnine commands use TOML; Codex skills use `.agents/skills`; skill directories retain supporting resources | Codex unsupported metadata and Vibe reserved `main` are rejected rather than silently discarded. |
+| Converted commands | Codex Command inputs become explicit-invocation Skill bundles in the selected Skill root | No independent slash-command protocol is claimed. Unsupported metadata and same-name Command/Skill batch collisions fail preflight; generated bundles use the existing Skill publication and overwrite rules. |
 | Content and overwrite handling | Native serialization, BOM/CRLF frontmatter, host override precedence and semantic MCP comparison | Default identical output is exists without writes; different MCP/file content is conflict, different Skill bundles are skipped, and managed prompts update only their own block. --overwrite bypasses default exists/conflict/skip decisions and rewrites even identical assets, reporting overwritten for existing entries/files/managed blocks; Skills are completely mirrored. Pack order precedes explicit flags. Default non-Skill batch collisions block writes. Format/path safety is never bypassed, and runtime errors do not roll back other assets. |
 | Configuration safety | MCP names reject reserved structural keys (`__proto__`, `constructor`, `prototype`, `<<`) before batch writes; Claude Code remote entries normalize HTTP/SSE transport; atomic writes preserve file symlinks | TOML uses toml-patch's document editor plus its official lite scalar editor, JSONC uses JSON Patch plus jsonc-parser's edit API, and YAML uses its Document API. Comments on untouched content and unrelated values are retained. Formatting follows library rules; deleting fields or array members may also remove attached or adjacent comments. If an annotated TOML array must be rebuilt after a failed library edit, its member comments follow the same deletion rules. YAML integers are parsed and validated as BigInt; TOML data-string line endings remain independent of file line endings. The complete planned configuration is checked before writing. Identical forced installs still write the original text. Symlink chains resolve to their existing referent. Dangling or cyclic links fail explicitly without replacing the link. New files use `0600`; existing file permissions are retained. |
 | MCP source shape | A flat single-server map is distinguished from a direct server definition by its object structure, not by reserving transport field names. | Names such as `command`, `url`, `serverUrl`, `httpUrl`, `type` and `transport` remain valid flat-map server names; direct scalar `httpUrl` is still a server definition. |

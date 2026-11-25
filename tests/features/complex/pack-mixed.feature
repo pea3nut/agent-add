@@ -4,7 +4,7 @@ Feature: Pack mixed skip/install and capability validation
     Given the project root is detected: PROJECT_ROOT=$(git rev-parse --show-toplevel)
 
   @P1
-  Scenario: Pack on Codex installs MCP as TOML and prompt, skips unsupported types
+  Scenario: Pack on Codex installs all assets and converts Command to a manual Skill
     Given a temp working directory is created
     And all fixtures are copied: cp -r "$PROJECT_ROOT/tests/fixtures" "$SETUP_TMPDIR/fixtures"
     And the codex config directory exists: mkdir -p "$SETUP_TMPDIR/.codex"
@@ -12,7 +12,10 @@ Feature: Pack mixed skip/install and capability validation
     Then the TOML config exists: test -f "$SETUP_TMPDIR/.codex/config.toml"
     And the MCP is installed in TOML: grep -q 'playwright' "$SETUP_TMPDIR/.codex/config.toml"
     And the prompt is installed: grep -q 'agent-add:my-prompt' "$SETUP_TMPDIR/AGENTS.md"
-    And unsupported types are skipped: grep -qi "skipped" "$SETUP_TMPDIR/out.txt"
+    And the command becomes a Skill: test -f "$SETUP_TMPDIR/.agents/skills/my-command/SKILL.md"
+    And implicit invocation is disabled: grep -q 'allow_implicit_invocation: false' "$SETUP_TMPDIR/.agents/skills/my-command/agents/openai.yaml"
+    And the summary explains the invocation: grep -F 'Converted to skill; invoke with $my-command' "$SETUP_TMPDIR/out.txt"
+    And all five assets install: grep -F '5 written · 0 overwritten · 0 updated · 0 exists · 0 skipped · 0 conflicts · 0 errors' "$SETUP_TMPDIR/out.txt"
 
   @P1
   Scenario: Explicit flag for unsupported asset type exits with code 2

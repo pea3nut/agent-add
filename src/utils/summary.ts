@@ -16,9 +16,11 @@ export function formatSummary({ host, results }: InstallSummary): string {
   const lines = ['agent-add — Install Summary', `Host: ${host.displayName}`,
     `Scope: ${host.scope === 'user' ? 'user (--global)' : 'project'}`, ''];
   for (const result of results) {
-    const label = `${result.job.assetType}/${result.job.assetName}`;
+    const label = `${result.job.conversion?.from ?? result.job.assetType}/${result.job.assetName}`;
     const short = label.length > 22 ? label.slice(0, 21) + '…' : label;
     lines.push(`  ${symbols[result.status].padEnd(15)} ${short}${result.targetPath ? ' → ' + result.targetPath : ''}`);
+    if (result.job.conversion)
+      lines.push(`    Converted to ${result.job.assetType}; invoke with ${result.job.conversion.invocation}`);
     if (result.reason) lines.push('    ! ' + result.status + ': ' + label + ' — ' + result.reason);
   }
   const count = (status: InstallStatus) => results.filter((result) => result.status === status).length;

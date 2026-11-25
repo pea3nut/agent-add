@@ -15,6 +15,8 @@ import { mcpHandler } from './assets/mcp.js';
 import { skillHandler } from './assets/skill.js';
 import { promptHandler } from './assets/prompt.js';
 import { commandHandler } from './assets/command.js';
+import { stageCommandSkill } from './assets/command-skill.js';
+import { sameSkillBundle } from './assets/skill-compare.js';
 import { subAgentHandler } from './assets/sub-agent.js';
 import type { InstallSummary } from './utils/summary.js';
 import { unwrapMcpServers } from './utils/unwrap-mcp-servers.js';
@@ -196,10 +198,23 @@ export async function runInstaller(
     const incoming = new Map<string, unknown>();
     const collisions = new Set<string>();
     const key = (job: InstallJob) => job.assetType + ':' + job.assetName;
-    for (const job of jobs) {
+    const convertedSkillNames = new Set(jobs
+      .filter((job) => job.assetType === 'command' && job.host.commandToSkill)
+      .map((job) => job.assetName));
+    for (let index = 0; index < jobs.length; index++) {
+      let job = jobs[index]!;
       try {
+        if (job.assetType === 'command' && job.host.commandToSkill)
+          job = jobs[index] = await stageCommandSkill(job, temporary);
         if (job.assetType === 'skill') {
           await assertSafeSkillTree(job.resolvedSource.localPath);
+          if (!cliInput.overwrite && convertedSkillNames.has(job.assetName)) {
+            const identity = key(job);
+            if (incoming.has(identity) &&
+                !await sameSkillBundle(incoming.get(identity) as string, job.resolvedSource.localPath))
+              collisions.add(identity);
+            else if (!incoming.has(identity)) incoming.set(identity, job.resolvedSource.localPath);
+          }
           continue;
         }
         const content = await fs.promises.readFile(job.resolvedSource.localPath, 'utf-8');
@@ -233,7 +248,7 @@ export async function runInstaller(
     progress?.stop();
     const results: InstallResult[] = [...skipped];
     for (const job of jobs) {
-      progress?.start(`${job.assetType}/${job.assetName}`, 'installing');
+      progress?.start(`${job.conversion?.from ?? job.assetType}/${job.assetName}`, 'installing');
       try {
         results.push(await getHandler(job.assetType).handle(job));
       } catch (err) {

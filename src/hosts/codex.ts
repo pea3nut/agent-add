@@ -18,11 +18,7 @@ import {
   type UserAssets,
 } from './types.js';
 import { skill, file, prompt, mcp, userPaths } from './user-assets.js';
-
-const NOT_SUPPORTED = (reason: string): AssetCapability => ({
-  supported: false,
-  reason,
-});
+import { codexCommandToSkill } from './codex-command.js';
 
 export class CodexAdapter implements HostAdapter {
   readonly id = HostId.Codex;
@@ -31,6 +27,7 @@ export class CodexAdapter implements HostAdapter {
   readonly detection = {
     paths: ['.codex/'],
   };
+  readonly commandToSkill = codexCommandToSkill;
   readonly mcp: McpAdapter = {
     editConfig: (current, file, name, server, overwrite) =>
       editTomlMcpConfig(current, file, name, server, 'table', this.displayName, overwrite),
@@ -95,11 +92,13 @@ export class CodexAdapter implements HostAdapter {
       !processed.description.trim()
     )
       throw new Error('A nonempty sub-agent description is required');
+    const { readonly: readOnly, model, ...native } = processed;
+    if (readOnly !== undefined && typeof readOnly !== 'boolean')
+      throw new Error('Codex sub-agent readonly must be a boolean');
     const allowed = new Set([
       'name',
       'description',
       'developer_instructions',
-      'model',
       'model_provider',
       'model_reasoning_effort',
       'sandbox_mode',
@@ -107,7 +106,7 @@ export class CodexAdapter implements HostAdapter {
       'skills',
       'nickname_candidates',
     ]);
-    for (const key of Object.keys(processed))
+    for (const key of Object.keys(native))
       if (!allowed.has(key))
         throw new Error(
           'Codex sub-agent cannot represent field ' +
@@ -115,10 +114,12 @@ export class CodexAdapter implements HostAdapter {
           '; use host-specific hints',
         );
     const result: Record<string, unknown> = {
-      ...processed,
-      name: processed.name ?? path.basename(name),
-      developer_instructions: processed.developer_instructions ?? body,
+      ...native,
+      name: native.name ?? path.basename(name),
+      developer_instructions: native.developer_instructions ?? body,
     };
+    // Codex inherits the selected/default model when no override is present.
+    if (model !== undefined && model !== 'inherit') result.model = model;
     for (const key of [
       'name',
       'description',
@@ -126,6 +127,11 @@ export class CodexAdapter implements HostAdapter {
     ] as const)
       if (typeof result[key] !== 'string' || !result[key].trim())
         throw new Error('Codex requires nonempty ' + key);
+    // Custom agents inherit sandbox permissions from the parent session.
+    // Preserve read-only intent as instructions, not an ineffective sandbox override.
+    if (readOnly)
+      result.developer_instructions +=
+        '\n\nRead-only agent: Do not create, edit, delete, or otherwise modify files.';
     return stringify(result);
   };
 
@@ -155,9 +161,7 @@ export class CodexAdapter implements HostAdapter {
       entryFile: 'SKILL.md',
       writeStrategy: 'copy-file',
     },
-    command: NOT_SUPPORTED(
-      'Codex CLI does not support custom slash commands via files.',
-    ),
+    command: skill('.agents/skills/'),
     subAgent: {
       supported: true,
       installDir: '.codex/agents/',
@@ -173,6 +177,7 @@ export class CodexAdapter implements HostAdapter {
       mcp: mcp(path.join(root, 'config.toml'), 'mcp_servers'),
       prompt: prompt(path.join(root, 'AGENTS.md')),
       skill: skill(at('.agents/skills')),
+      command: skill(at('.agents/skills')),
       subAgent: file(path.join(root, 'agents'), '.toml'),
     };
   };

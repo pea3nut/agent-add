@@ -94,6 +94,11 @@ export interface SubAgentContent {
   body: string;
 }
 
+export interface CommandSkill {
+  files: Record<string, string>;
+  invocation: string;
+}
+
 export interface HostAdapter {
   readonly id: HostId;
   readonly displayName: string;
@@ -104,6 +109,7 @@ export interface HostAdapter {
   readonly mcp?: McpAdapter;
   readonly serializeSubAgent?: (content: SubAgentContent, name: string) => string;
   readonly serializeCommand?: (content: string) => string;
+  readonly commandToSkill?: (content: string, name: string) => CommandSkill;
   readonly registerPrompt?: (
     host: HostAdapter,
     target: string,
